@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  YOUR-API-DB:
+    image: postgres:alpine
+    container_name: YOUR-API-DB
+    restart: unless-stopped
+    expose:
+      - 5432
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - .env
+    networks:
+      - backend
+
+  YOUR-API:
+    image: YOUR-REPO/YOUR-API:1.0-alpine
+    container_name: YOUR-API
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - YOUR-API-DB
+    expose:
+      - 3000
+    networks:
+      - nginx-proxy
+      - backend
+
+networks:
+  nginx-proxy:
+    external: true
+  backend:
+    external: true

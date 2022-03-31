@@ -1,0 +1,12 @@
+# Git repo
+/.git
+.gitignore
+
+# All Markdown documents except README
+*.md
+!README*.md
+
+# Builders
+Makefile
+Dockerfile
+docker-compose*

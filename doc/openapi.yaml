@@ -1,0 +1,230 @@
+openapi: '3.0.2'
+info:
+  title: MY GREATE API
+  version: 1.0.0
+  contact:
+    email: API-DEV@MY_COMPANY.COM
+  license:
+    name: UNLICENSED
+    url: https://MY_COMPANY.COM/LICENSE
+servers:
+  - url: http://MY_COMPANY.COM/api/v1
+tags:
+  - name: AuthAPI
+    description: Authorization API
+  - name: PushAPI
+    description: Push Notification API
+paths:
+  /auth/user:
+    post:
+      tags:
+        - AuthAPI
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserIdentity'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  user_id:
+                    type: integer
+                    example: 1
+        400:
+          $ref: '#/components/responses/400'
+        406:
+          $ref: '#/components/responses/406'
+        500:
+          $ref: '#/components/responses/500'
+  /auth/token:
+    post:
+      tags:
+        - AuthAPI
+      summary: Get an access token
+      security:
+        - basicAuth: []
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  access_token:
+                    type: string
+                    example: abcdefghijkl.abcdefghijkl.abcdefghijkl
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        406:
+          $ref: '#/components/responses/406'
+        500:
+          $ref: '#/components/responses/500'
+  /push/key:
+    get:
+      tags:
+        - PushAPI
+      summary: Get VAPID public key
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  key:
+                    type: string
+                    example: abcdefghijkl
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /push/register:
+    post:
+      tags:
+        - PushAPI
+      summary: Save the PushSubscription
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushSubscription'
+      responses:
+        201:
+          $ref: '#/components/responses/201'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /push/send:
+    post:
+      tags:
+        - PushAPI
+      summary: Send push notification
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushNotification'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: 'Bearer JWT'
+  schemas:
+    UserIdentity:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          example: pa$$w@rd
+    PushSubscription:
+      type: object
+      properties:
+        subscription:
+          type: object
+          properties:
+            endpoint:
+              type: string
+              format: uri
+              example: http://push.endpoint@provider.io
+            keys:
+              type: object
+              properties:
+                p256dh:
+                  type: string
+                  example: abcdefghijkl
+                auth:
+                  type: string
+                  example: abcdefghijkl
+    PushNotification:
+      type: object
+      properties:
+        payload:
+          type: object
+          example: { 'message': 'Hello, world!!' }
+  responses:
+    200:
+      description: OK
+    201:
+      description: Created
+    202:
+      description: Accepted
+    204:
+      description: No Content
+    400:
+      description: Bad Request
+    401:
+      description: Unauthorized
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+    403:
+      description: Forbidden
+    404:
+      description: Not Found
+    405:
+      description: Method Not Allowed
+    406:
+      description: Not Acceptable
+    407:
+      description: Proxy Authentication Required
+    408:
+      description: Request Timeout
+    409:
+      description: Conflict
+    413:
+      description: Payload Too Large
+    415:
+      description: Unsupported Media Type
+    417:
+      description: Expectation Failed
+    422:
+      description: Unprocessable Entity
+    500:
+      description: Internal Server Error
+    503:
+      description: Service Unavailable
