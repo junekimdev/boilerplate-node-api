@@ -54,17 +54,15 @@ export const errDef = {
       error_in: 'ReqHeaders',
       message: 'Access Token Not Found',
     },
-  },
-  403: {
     InvalidCredential: {
-      status: 403,
-      code: 'E403-1',
+      status: 401,
+      code: 'E401-3',
       error_in: 'Auth',
       message: 'Invalid Credential',
     },
     InvalidToken: {
-      status: 403,
-      code: 'E403-2',
+      status: 401,
+      code: 'E401-4',
       error_in: 'Auth',
       message: 'Invalid Token',
     },

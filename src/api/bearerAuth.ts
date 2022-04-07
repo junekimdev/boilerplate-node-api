@@ -13,7 +13,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     try {
       decodedToken = jwt.verify(accessToken);
     } catch (error) {
-      throw new AppError(errDef[403].InvalidToken, {
+      throw new AppError(errDef[401].InvalidToken, {
         cause: error as VerifyErrors,
       });
     }

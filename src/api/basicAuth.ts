@@ -34,16 +34,14 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check validity
     if (username.length > 50) throw new AppError(errDef[406].EmailTooLong);
-    if (!isEmailValid(username))
-      throw new AppError(errDef[400].InvalidEmailFormat);
+    if (!isEmailValid(username)) throw new AppError(errDef[400].InvalidEmailFormat);
 
     // Verify password
     const result = await db.query(SQL, [username]);
-    if (!result.rowCount) throw new AppError(errDef[403].InvalidCredential); // No email found
+    if (!result.rowCount) throw new AppError(errDef[401].InvalidCredential); // No email found
     const queryRes = result.rows[0] as QueryResult;
     const recvHash = await hash.sha256(password + queryRes.salt);
-    if (recvHash !== queryRes.pw)
-      throw new AppError(errDef[403].InvalidCredential); // Wrong password
+    if (recvHash !== queryRes.pw) throw new AppError(errDef[401].InvalidCredential); // Wrong password
     res.locals.userId = queryRes.id;
     res.locals.email = username;
     next(); // Verified
