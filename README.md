@@ -22,6 +22,7 @@ Boilerplate codes to build Restful API in NodeJS
 ### Prerequisite
 
 Install latest Node.js LTS
+<https://nodejs.org/en/download/package-manager/>
 
 - Debian
 
@@ -36,6 +37,20 @@ nodejs -v
 ```shell
 choco install nodejs-lts
 node --version
+```
+
+Install PostgreSQL DB
+
+- Debian
+
+```shell
+sudo apt install postgresql
+```
+
+- Windows
+
+```shell
+choco install postgresql
 ```
 
 ### Installation
