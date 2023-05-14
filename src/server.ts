@@ -1,10 +1,11 @@
-import 'dotenv/config';
-import express, { Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
+require('dotenv').config();
+
 import cors from 'cors';
+import express, { NextFunction, Request, Response } from 'express';
 import pinoExpress from 'express-pino-logger';
-import { logger, corsOption, pinoExpOpt } from './utils';
+import helmet from 'helmet';
 import apiRouter from './api';
+import { corsOption, logger, pinoExpOpt } from './utils';
 
 const { TRUST_PROXY = '', PORT = '3000', SERVICE_NAME = 'my_api' } = process.env;
 const app = express();
