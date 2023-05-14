@@ -7,7 +7,7 @@ Boilerplate codes to build Restful API in NodeJS
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-1. [Tech Stack](#rech-stack)
+1. [Tech Stack](#tech-stack)
 1. [Packages Used](#packages-used)
 1. [S/W Architecture](#sw-architecture)
 1. [Code Generation](#code-generation)
