@@ -18,7 +18,7 @@
     "express-promise-router": "^4.1.1",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
-    "pg": "^8.10.0",
+    "pg": "^8.11.0",
     "pino": "^8.14.1",
     "pino-pretty": "^10.0.0",
     "web-push": "^3.6.1"
@@ -28,13 +28,13 @@
     "@types/express": "^4.17.17",
     "@types/express-pino-logger": "^4.0.3",
     "@types/jsonwebtoken": "^9.0.2",
-    "@types/node": "^20.1.4",
+    "@types/node": "^20.2.0",
     "@types/pg": "^8.6.6",
     "@types/web-push": "^3.3.2",
     "eslint": "^8.40.0",
     "nodemon": "^2.0.22",
     "prettier": "^2.8.8",
-    "rimraf": "^5.0.0",
+    "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }
