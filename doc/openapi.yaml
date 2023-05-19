@@ -8,7 +8,8 @@ info:
     name: UNLICENSED
     url: https://MY_COMPANY.COM/LICENSE
 servers:
-  - url: http://MY_COMPANY.COM/api/v1
+  - url: http://localhost:3000/api/v1
+  - url: https://MY_COMPANY.COM/api/v1
 tags:
   - name: AuthAPI
     description: Authorization API
