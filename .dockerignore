@@ -10,3 +10,7 @@
 Makefile
 Dockerfile
 docker-compose*
+
+# secrets
+.env
+*.pem

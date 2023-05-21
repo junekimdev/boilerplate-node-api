@@ -1,5 +1,5 @@
 # based on nodeJS v.16 alpine image
-FROM node:16-alpine AS builder
+FROM node:alpine AS builder
 
 LABEL maintainer="YOUR NAME" version="1.0"
 
@@ -18,8 +18,7 @@ RUN set -eux \
 
 ARG GIT_HASH
 
-ENV NODE_ENV=production \
-  BUILD_ID=${GIT_HASH}
+ENV NODE_ENV=production
 
 # Add all files
 COPY ./ ./
