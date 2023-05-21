@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { jwt, errDef, AppError, JwtPayload, VerifyErrors } from '../utils';
+import { NextFunction, Request, Response } from 'express';
+import { AppError, JwtPayload, VerifyErrors, errDef, jwt } from '../utils';
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {

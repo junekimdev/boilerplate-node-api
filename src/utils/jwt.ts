@@ -1,15 +1,10 @@
 import fs from 'fs';
-import path from 'path';
 import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
+import path from 'path';
 
 const JWT_ALGORITHM = 'ES256';
 const JWT_EXPIRE_IN = '1d';
-const {
-  JWT_PRI_FILENAME = '',
-  JWT_PUB_FILENAME = '',
-  JWT_AUD = '',
-  JWT_ISS = '',
-} = process.env;
+const { JWT_PRI_FILENAME = '', JWT_PUB_FILENAME = '', JWT_AUD = '', JWT_ISS = '' } = process.env;
 const PRI_PATH = path.join(__dirname, '..', '..', JWT_PRI_FILENAME);
 const PUB_PATH = path.join(__dirname, '..', '..', JWT_PUB_FILENAME);
 
@@ -41,8 +36,7 @@ const createVerifyOpt = () => {
 const sign = (payload: string | object | Buffer, sub: string) =>
   jwt.sign(payload, priFile, createSignOpt(sub));
 
-const verify = (token: string) =>
-  jwt.verify(token, pubFile, createVerifyOpt()) as jwt.JwtPayload;
+const verify = (token: string) => jwt.verify(token, pubFile, createVerifyOpt()) as jwt.JwtPayload;
 
 export type JwtPayload = jwt.JwtPayload;
 export type VerifyErrors = jwt.VerifyErrors;

@@ -1,15 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { AppError, errDef, isEmailValid } from '../../utils';
 import provider from './provider';
 import { IReqBody, IResBody } from './types';
-import { errDef, AppError, isEmailValid } from '../../utils';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body as IReqBody;
 
     // Check validity
-    if (!isEmailValid(email))
-      throw new AppError(errDef[400].InvalidEmailFormat);
+    if (!isEmailValid(email)) throw new AppError(errDef[400].InvalidEmailFormat);
     if (email.length > 50) throw new AppError(errDef[406].EmailTooLong);
 
     // Provide

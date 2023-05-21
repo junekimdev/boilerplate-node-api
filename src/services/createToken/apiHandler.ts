@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import provider from './provider';
-import { IResLocals, IResBody } from './types';
+import { IResBody, IResLocals } from './types';
 //import { errDef, AppError } from '../../utils';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {

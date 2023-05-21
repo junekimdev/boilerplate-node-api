@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { IResBody } from './types';
+import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../utils';
+import { IResBody } from './types';
 
 const { VAPID_PUB_KEY } = process.env;
 

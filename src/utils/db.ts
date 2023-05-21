@@ -1,10 +1,6 @@
-import { Pool, QueryResult, QueryConfig } from 'pg';
+import { Pool, QueryConfig, QueryResult } from 'pg';
 
-const {
-  DB_POOL_MAX = '10',
-  DB_IDLE_TIMEOUT = '1000',
-  DB_CONN_TIMEOUT = '1000',
-} = process.env;
+const { DB_POOL_MAX = '10', DB_IDLE_TIMEOUT = '1000', DB_CONN_TIMEOUT = '1000' } = process.env;
 
 const pool = new Pool({
   max: parseInt(DB_POOL_MAX),
@@ -12,10 +8,8 @@ const pool = new Pool({
   connectionTimeoutMillis: parseInt(DB_CONN_TIMEOUT),
 });
 
-const query = async (
-  queryString: string | QueryConfig<any[]>,
-  params?: any[]
-) => await pool.query(queryString, params);
+const query = async (queryString: string | QueryConfig<any[]>, params?: any[]) =>
+  await pool.query(queryString, params);
 
 const transaction = async (queryFunc: () => Promise<QueryResult<any>>) => {
   const client = await pool.connect();

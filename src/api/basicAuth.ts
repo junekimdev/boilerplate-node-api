@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { db, hash, errDef, AppError, isEmailValid } from '../utils';
+import { NextFunction, Request, Response } from 'express';
+import { AppError, db, errDef, hash, isEmailValid } from '../utils';
 
 interface ICredential {
   username: string; // username is user's email

@@ -1,11 +1,7 @@
 import webpush, { PushSubscription, RequestOptions } from 'web-push';
 import db from './db';
 
-const {
-  VAPID_SUBJECT = '',
-  VAPID_PUB_KEY = '',
-  VAPID_PRI_KEY = '',
-} = process.env;
+const { VAPID_SUBJECT = '', VAPID_PUB_KEY = '', VAPID_PRI_KEY = '' } = process.env;
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUB_KEY, VAPID_PRI_KEY);
 
 type SubRow = {
@@ -21,10 +17,7 @@ async function* getAllSubsFromDB() {
   for (let subRow of result.rows) yield subRow as SubRow;
 }
 
-const sendNotification = async (
-  payload?: string | Buffer | null,
-  options?: RequestOptions
-) => {
+const sendNotification = async (payload?: string | Buffer | null, options?: RequestOptions) => {
   for await (let subRow of getAllSubsFromDB()) {
     const { id, sub } = subRow;
     try {

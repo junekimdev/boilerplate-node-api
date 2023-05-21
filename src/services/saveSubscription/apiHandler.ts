@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { AppError, errDef } from '../../utils';
 import provider from './provider';
 import { IReqBody, ISubscription } from './types';
-import { errDef, AppError } from '../../utils';
 
 const isValid = (subscription: ISubscription) => {
   try {
@@ -20,8 +20,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     const { subscription } = req.body as IReqBody;
 
     // Check validity
-    if (!isValid(subscription))
-      throw new AppError(errDef[400].InvalidSubscription);
+    if (!isValid(subscription)) throw new AppError(errDef[400].InvalidSubscription);
 
     // Provide
     await provider(subscription);

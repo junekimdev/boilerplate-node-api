@@ -1,6 +1,6 @@
 import router from 'express-promise-router';
-import createUser from '../services/createUser';
 import createToken from '../services/createToken';
+import createUser from '../services/createUser';
 import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';

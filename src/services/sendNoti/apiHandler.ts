@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { AppError, errDef } from '../../utils';
 import provider from './provider';
 import { IReqBody } from './types';
-import { errDef, AppError } from '../../utils';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
