@@ -4,9 +4,11 @@ const { getArgs, askQuestion } = require('./codegen-util');
 
 const INDEX_TXT = `export { default } from './apiHandler';
 `;
+
 const TYPES_TXT = `//export interface IReqBody {}
 //export interface IResBody {}
 `;
+
 const PROVIDER_TXT = `//import {} from './types';
 //import {} from '../../utils';
 
@@ -14,10 +16,11 @@ const provider = async () => {};
 
 export default provider;
 `;
-const API_HANDLER_TXT = `import { Request, Response, NextFunction } from 'express';
+
+const API_HANDLER_TXT = `import { NextFunction, Request, Response } from 'express';
+//import { AppError, errDef } from '../../utils';
 import provider from './provider';
 //import {} from './types';
-//import { errDef, AppError } from '../../utils';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -33,13 +36,7 @@ export default handler;
 `;
 
 const write = (str, dir, filename, flags) => {
-  const filePath = path.join(
-    __dirname,
-    'src',
-    'services',
-    dir,
-    `${filename}.ts`
-  );
+  const filePath = path.join(__dirname, 'src', 'services', dir, `${filename}.ts`);
   const writer = fs.createWriteStream(filePath, { flags });
   writer.write(str);
   writer.end();
