@@ -9,7 +9,9 @@ info:
     url: https://MY_COMPANY.COM/LICENSE
 servers:
   - url: http://localhost:3000/api/v1
+    description: Development server
   - url: https://MY_COMPANY.COM/api/v1
+    description: Production server
 tags:
   - name: AuthAPI
     description: Authorization API
