@@ -23,7 +23,7 @@ const main = async () => {
 
     // ES256 Key pair
     const { publicKey, privateKey } = crypto.generateKeyPairSync('ec', {
-      namedCurve: 'secp256k1',
+      namedCurve: 'P-256',
       publicKeyEncoding: {
         type: 'spki',
         format: 'pem',
