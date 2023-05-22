@@ -3,5 +3,5 @@ const emailRegExp =
 
 export const isEmailValid = (email: string | undefined) => {
   if (!email) return false;
-  return emailRegExp.test(email.toLowerCase());
+  return emailRegExp.test(email.toLowerCase().trim());
 };
