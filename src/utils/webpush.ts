@@ -9,8 +9,8 @@ type SubRow = {
   sub: string;
 };
 
-const SELECT_SQL = `SELECT * FROM push_sub`;
-const DELETE_SQL = `DELETE FROM push_sub WHERE id = ($1::INT)`;
+const SELECT_SQL = `SELECT * FROM push_subscription`;
+const DELETE_SQL = `DELETE FROM push_subscription WHERE id=($1::INT)`;
 
 async function* getAllSubsFromDB() {
   const result = await db.query(SELECT_SQL);

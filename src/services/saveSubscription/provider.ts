@@ -2,10 +2,10 @@ import { db } from '../../utils';
 import { ISubscription } from './types';
 
 const sql_check = `SELECT id
-FROM push_sub
-WHERE sub = ($1::TEXT)`;
+FROM push_subscription
+WHERE sub=($1::TEXT)`;
 
-const sql_insert = `INSERT INTO push_sub(sub)
+const sql_insert = `INSERT INTO push_subscription(sub)
 VALUES ($1::TEXT)`;
 
 const provider = async (subscription: ISubscription) => {

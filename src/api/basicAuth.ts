@@ -20,8 +20,8 @@ const decodeCredential = (cred: string) => {
   return { username, password } as ICredential;
 };
 
-const SQL = `SELECT * FROM api_user
-WHERE email = ($1::VARCHAR(50))`;
+const SQL = `SELECT * FROM users
+WHERE email=($1::VARCHAR(50))`;
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
