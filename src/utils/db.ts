@@ -1,4 +1,4 @@
-import { Pool, QueryConfig, QueryResult } from 'pg';
+import { Pool, PoolClient, QueryConfig, QueryResult, QueryResultRow } from 'pg';
 
 const { DB_POOL_MAX = '10', DB_IDLE_TIMEOUT = '1000', DB_CONN_TIMEOUT = '1000' } = process.env;
 
@@ -9,19 +9,23 @@ const pool = new Pool({
 });
 
 const query = async (queryString: string | QueryConfig<any[]>, params?: any[]) =>
-  await pool.query(queryString, params);
+  await pool.query<QueryResultRow>(queryString, params);
 
-const transaction = async (queryFunc: () => Promise<QueryResult<any>>) => {
+const transaction = async <T = QueryResult<QueryResultRow>>(
+  queryFunc: (client: PoolClient) => Promise<T>,
+) => {
   const client = await pool.connect();
+  let result: QueryResult<QueryResultRow> = null;
   try {
     await client.query('BEGIN');
-    await queryFunc();
+    result = await queryFunc(client);
     await client.query('COMMIT');
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
   } finally {
     client.release();
+    if (result) return result;
   }
 };
 
