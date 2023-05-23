@@ -101,13 +101,12 @@ DB_CONN_TIMEOUT=2000
 # JWT
 JWT_PRI_FILENAME=es256_prv.pem
 JWT_PUB_FILENAME=es256_pub.pem
-JWT_AUD=jrn:my_service::awesome_dude:resource_url
-JWT_ISS=jrn:auth::lucky_guy:auth_url
+JWT_ISS=jrn:auth::auth@mycompany.com:https://mycompany.com/auth
 
 #VAPID
 VAPID_SUBJECT=mailto:user@mycompany.com
-VAPID_PUB_KEY=
-VAPID_PRI_KEY=
+#VAPID_PUB_KEY=
+#VAPID_PRI_KEY=
 ```
 
 #### Initiate your PostgreSQL DB
