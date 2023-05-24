@@ -10,8 +10,10 @@ VALUES ($1::TEXT)`;
 
 const provider = async (subscription: ISubscription) => {
   const subStr = JSON.stringify(subscription);
-  const result = await db.query(sql_check, [subStr]); // Check if already exists
-  if (!result.rowCount) await db.query(sql_insert, [subStr]);
+  await db.transaction(async (client) => {
+    const result = await db.query(sql_check, [subStr]); // Check if already exists
+    if (!result.rowCount) await db.query(sql_insert, [subStr]);
+  });
 };
 
 export default provider;
