@@ -1,44 +1,50 @@
 import fs from 'fs';
-import jwt, { SignOptions, VerifyOptions } from 'jsonwebtoken';
+import jsonwebtoken, { SignOptions, VerifyOptions } from 'jsonwebtoken';
 import path from 'path';
 
-const JWT_ALGORITHM = 'ES256';
-const JWT_EXPIRE_IN = '1d';
-const { JWT_PRI_FILENAME = '', JWT_PUB_FILENAME = '', JWT_AUD = '', JWT_ISS = '' } = process.env;
-const PRI_PATH = path.join(__dirname, '..', '..', JWT_PRI_FILENAME);
-const PUB_PATH = path.join(__dirname, '..', '..', JWT_PUB_FILENAME);
+const { JWT_PRI_FILENAME = '', JWT_PUB_FILENAME = '', JWT_ISS = '' } = process.env;
+const prv_path = path.join(__dirname, '..', '..', JWT_PRI_FILENAME);
+const pub_path = path.join(__dirname, '..', '..', JWT_PUB_FILENAME);
+const priFile = fs.readFileSync(prv_path);
+const pubFile = fs.readFileSync(pub_path);
+const alg = 'ES256';
+const exp = '1d';
+const tolerance = 10; // 10s tolerance for difference between servers
 
-const priFile = fs.readFileSync(PRI_PATH);
-const pubFile = fs.readFileSync(PUB_PATH);
+export type JwtPayload = jsonwebtoken.JwtPayload;
+export type VerifyErrors = jsonwebtoken.VerifyErrors;
 
-const createSignOpt = (sub: string) => {
-  const opt: SignOptions = {
-    algorithm: JWT_ALGORITHM,
-    expiresIn: JWT_EXPIRE_IN,
-    audience: JWT_AUD,
+export const createSignOpt: (sub: string, aud: string) => SignOptions = (
+  sub: string,
+  aud: string,
+) => {
+  return {
+    algorithm: alg,
+    expiresIn: exp,
+    audience: aud,
     subject: sub,
     issuer: JWT_ISS,
   };
-  return opt;
 };
 
-const createVerifyOpt = () => {
-  const opt: VerifyOptions = {
-    algorithms: [JWT_ALGORITHM],
-    audience: JWT_AUD,
+export const createVerifyOpt: (aud: string) => VerifyOptions = (aud) => {
+  return {
+    algorithms: [alg],
+    audience: aud,
     issuer: JWT_ISS,
-    clockTolerance: 10, // 10s tolerance for difference between servers
+    clockTolerance: tolerance,
     complete: false,
   };
-  return opt;
 };
 
-const sign = (payload: string | object | Buffer, sub: string) =>
-  jwt.sign(payload, priFile, createSignOpt(sub));
+export const sign = (
+  payload: object,
+  sub: string,
+  aud: string,
+  key: jsonwebtoken.Secret = priFile,
+) => jsonwebtoken.sign(payload, key, createSignOpt(sub, sub));
 
-const verify = (token: string) => jwt.verify(token, pubFile, createVerifyOpt()) as jwt.JwtPayload;
-
-export type JwtPayload = jwt.JwtPayload;
-export type VerifyErrors = jwt.VerifyErrors;
+export const verify = (token: string, aud: string, key: jsonwebtoken.Secret = pubFile) =>
+  jsonwebtoken.verify(token, key, createVerifyOpt(aud)) as jsonwebtoken.JwtPayload;
 
 export default { sign, verify };
