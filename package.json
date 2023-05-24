@@ -9,6 +9,7 @@
     "build": "rimraf ./dist && tsc",
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
+    "lint": "eslint",
     "devtest": "jest --verbose",
     "test": "jest"
   },
