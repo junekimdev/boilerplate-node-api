@@ -5,6 +5,10 @@ export interface IError {
   message: string;
 }
 
+export type errDefType = {
+  [codeName: string]: { [errorName: string]: IError };
+};
+
 export class AppError extends Error implements IError {
   status: number;
   code: string;
@@ -20,28 +24,34 @@ export class AppError extends Error implements IError {
   }
 }
 
-export const errDef = {
-  400: {
+export const errDef: errDefType = {
+  '400': {
     InvalidEmailFormat: {
       status: 400,
       code: 'E400-1',
       error_in: 'ReqBody',
       message: 'Invalid Email Format',
     },
-    InvalidSubscription: {
+    InvalidPayload: {
       status: 400,
       code: 'E400-2',
       error_in: 'ReqBody',
-      message: 'Invalid Subscription',
+      message: 'Invalid Payload',
     },
-    InvalidPayload: {
+    InvalidPushSubscription: {
       status: 400,
       code: 'E400-3',
       error_in: 'ReqBody',
-      message: 'Invalid Payload',
+      message: 'Invalid Push Subscription',
+    },
+    InvalidPushTopic: {
+      status: 400,
+      code: 'E400-4',
+      error_in: 'ReqBody',
+      message: 'Invalid Push Topic',
     },
   },
-  401: {
+  '401': {
     UserCredentialNotFound: {
       status: 401,
       code: 'E401-1',
@@ -67,7 +77,7 @@ export const errDef = {
       message: 'Invalid Token',
     },
   },
-  406: {
+  '406': {
     EmailTooLong: {
       status: 406,
       code: 'E406-1',
@@ -75,7 +85,7 @@ export const errDef = {
       message: 'Email Is Too Long',
     },
   },
-  500: {
+  '500': {
     InternalError: {
       status: 500,
       code: 'E500-1',
