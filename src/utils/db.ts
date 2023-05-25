@@ -8,24 +8,23 @@ const pool = new Pool({
   connectionTimeoutMillis: parseInt(DB_CONN_TIMEOUT),
 });
 
-const query = async (queryString: string | QueryConfig<any[]>, params?: any[]) =>
+export const query = async (queryString: string | QueryConfig<any[]>, params?: any[]) =>
   await pool.query<QueryResultRow>(queryString, params);
 
-const transaction = async <T = QueryResult<QueryResultRow>>(
+export const transaction = async <T = QueryResult<QueryResultRow>>(
   queryFunc: (client: PoolClient) => Promise<T>,
 ) => {
   const client = await pool.connect();
-  let result: T;
   try {
     await client.query('BEGIN');
-    result = await queryFunc(client);
+    const result = await queryFunc(client);
     await client.query('COMMIT');
+    return result;
   } catch (e) {
     await client.query('ROLLBACK');
     throw e;
   } finally {
     client.release();
-    return result;
   }
 };
 
