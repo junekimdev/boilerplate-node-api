@@ -104,7 +104,7 @@ JWT_PUB_FILENAME=es256_pub.pem
 JWT_ISS=jrn:auth::auth@mycompany.com:https://mycompany.com/auth
 
 #VAPID
-VAPID_SUBJECT=mailto:user@mycompany.com
+VAPID_SUBJECT=mailto:user@mycompany.com # this should be url or mailto
 #VAPID_PUB_KEY=
 #VAPID_PRI_KEY=
 ```
