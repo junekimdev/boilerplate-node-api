@@ -109,8 +109,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PushSubscription'
       responses:
-        201:
-          $ref: '#/components/responses/201'
+        200:
+          $ref: '#/components/responses/200'
         400:
           $ref: '#/components/responses/400'
         401:
@@ -166,6 +166,9 @@ components:
     PushSubscription:
       type: object
       properties:
+        topic:
+          type: string
+          example: myapp_marketing
         subscription:
           type: object
           properties:
@@ -185,6 +188,9 @@ components:
     PushNotification:
       type: object
       properties:
+        topic:
+          type: string
+          example: myapp_marketing
         payload:
           type: object
           example: { 'message': 'Hello, world!!' }

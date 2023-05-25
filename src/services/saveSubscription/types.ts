@@ -6,5 +6,6 @@ export interface ISubscription {
   };
 }
 export interface IReqBody {
+  topic: string;
   subscription: ISubscription;
 }

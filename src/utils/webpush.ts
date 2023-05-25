@@ -1,6 +1,7 @@
 import webpush, { PushSubscription, RequestOptions } from 'web-push';
 import db from './db';
 
+const ALL = 'all';
 const { VAPID_SUBJECT = '', VAPID_PUB_KEY = '', VAPID_PRI_KEY = '' } = process.env;
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUB_KEY, VAPID_PRI_KEY);
 
@@ -9,16 +10,22 @@ type SubRow = {
   sub: string;
 };
 
-const SELECT_SQL = `SELECT * FROM push_subscription`;
+const GET_ALL_SQL = `SELECT (id, sub) FROM push_subscription`;
+const GET_BY_TOPIC_SQL = 'SELECT (id, sub) FROM push_subscription WHERE topic=($1::VARCHAR(20))';
 const DELETE_SQL = `DELETE FROM push_subscription WHERE id=($1::INT)`;
 
-async function* getAllSubsFromDB() {
-  const result = await db.query(SELECT_SQL);
+export async function* getSubsByTopicFromDB(topic: string) {
+  const result =
+    topic === ALL ? await db.query(GET_ALL_SQL) : await db.query(GET_BY_TOPIC_SQL, [topic]);
   for (let subRow of result.rows) yield subRow as SubRow;
 }
 
-const sendNotification = async (payload?: string | Buffer | null, options?: RequestOptions) => {
-  for await (let subRow of getAllSubsFromDB()) {
+const sendNotiByTopic = async (
+  topic: string,
+  payload?: string | Buffer | null,
+  options?: RequestOptions,
+) => {
+  for await (let subRow of getSubsByTopicFromDB(topic)) {
     const { id, sub } = subRow;
     try {
       const subObj = JSON.parse(sub);
@@ -33,4 +40,8 @@ const sendNotification = async (payload?: string | Buffer | null, options?: Requ
   }
 };
 
-export default { sendNotification };
+const sendNotiToAll = async (payload?: string | Buffer | null, options?: RequestOptions) => {
+  await sendNotiByTopic(ALL, payload, options);
+};
+
+export default { sendNotiToAll, sendNotiByTopic };

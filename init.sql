@@ -28,16 +28,22 @@ CREATE TABLE users (
 );
 
 CREATE TABLE access_control (
-  resource_id INT references resources ON DELETE CASCADE,
-  user_id INT references users ON DELETE CASCADE,
+  resource_id INT REFERENCES resources ON DELETE CASCADE,
+  user_id INT REFERENCES users ON DELETE CASCADE,
   write_permit BOOLEAN,
   read_permit BOOLEAN,
   UNIQUE(user_id, resource_id)
 );
 
+CREATE TABLE push_sub_topics (
+  id SERIAL PRIMARY KEY,
+  topics VARCHAR(20) NOT NULL UNIQUE
+);
+
 CREATE TABLE push_subscription (
   id SERIAL PRIMARY KEY,
-  sub TEXT NOT NULL UNIQUE
+  sub TEXT NOT NULL UNIQUE,
+  topic_id INT REFERENCES push_sub_topics ON DELETE CASCADE
 );
 
 -- Create special USER: public
@@ -47,7 +53,7 @@ INSERT INTO users(email) VALUES ('public'); --intentional invalid email
 -- Change URIs
 INSERT INTO resources(name, full_uri, short_uri)
 VALUES
-('user', 'mycompany.user', 'user');
+('user', 'mycompany.user', 'user'),
 ('push_subscription', 'mycompany.push_subscription', 'push_sub');
 
 INSERT INTO access_control(resource_id, user_id, write_permit, read_permit)
