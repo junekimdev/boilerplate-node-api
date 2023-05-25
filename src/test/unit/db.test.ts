@@ -1,3 +1,4 @@
+// In typescript testing, mockings should come before imports
 const mockedQueryResult = 'mockedQueryResult';
 const mockedClient = {
   query: jest.fn(async (query: string, values?: any[]) => mockedQueryResult),
@@ -11,9 +12,11 @@ jest.mock('pg', () => {
   return { Pool: jest.fn((config) => mockedPool), PoolClient: mockedClient };
 });
 
+// Imports
 import { Pool, PoolClient } from 'pg';
 import db from '../../utils/db';
 
+// Tests
 describe('Test /src/util/db', () => {
   describe('query()', () => {
     afterEach(() => {
