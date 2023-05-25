@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
+import { PushSubscription } from 'web-push';
 import { AppError, errDef } from '../../utils';
 import provider from './provider';
-import { IReqBody, ISubscription } from './types';
+import { IReqBod } from './types';
 
-const isValidSub = (subscription: ISubscription) => {
+const isValidSub = (subscription: PushSubscription) => {
   try {
     const n =
       subscription.endpoint.length &&

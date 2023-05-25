@@ -1,5 +1,5 @@
+import { PushSubscription } from 'web-push';
 import { db } from '../../utils';
-import { ISubscription } from './types';
 
 const SQL_CHECK_TOPIC = `SELECT id
 FROM push_sub_topics
@@ -12,7 +12,7 @@ WHERE sub=($1::TEXT)`;
 const SQL_INSERT = `INSERT INTO push_subscription(sub, topic_id)
 SELECT (($1::TEXT), (SELECT id FROM push_sub_topics WHERE topic=($2::VARCHAR(20)))`;
 
-const provider = async (subscription: ISubscription, topic: string) => {
+const provider = async (subscription: PushSubscription, topic: string) => {
   const subStr = JSON.stringify(subscription);
   const result = await db.transaction(async (client) => {
     const result_topic = await client.query(SQL_CHECK_TOPIC, [topic]); // Check if topic exists
