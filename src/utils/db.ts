@@ -15,7 +15,7 @@ const transaction = async <T = QueryResult<QueryResultRow>>(
   queryFunc: (client: PoolClient) => Promise<T>,
 ) => {
   const client = await pool.connect();
-  let result: QueryResult<QueryResultRow> = null;
+  let result: T;
   try {
     await client.query('BEGIN');
     result = await queryFunc(client);
@@ -25,7 +25,7 @@ const transaction = async <T = QueryResult<QueryResultRow>>(
     throw e;
   } finally {
     client.release();
-    if (result) return result;
+    return result;
   }
 };
 
