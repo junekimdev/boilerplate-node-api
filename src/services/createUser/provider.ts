@@ -17,9 +17,9 @@ const provider = async (email: string, password: string) => {
   const hashed = await hash.sha256(password + salt);
 
   const result = await db.transaction(async (client) => {
-    const res = await client.query(sql_insert_user, [emailLow, hashed, salt]);
+    const id = await client.query(sql_insert_user, [emailLow, hashed, salt]);
     await client.query(sql_insert_access, ['user', emailLow, true, true]);
-    return res;
+    return id;
   });
 
   return result.rows[0].id as number;
