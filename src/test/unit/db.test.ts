@@ -1,23 +1,58 @@
 // In typescript testing, mockings should come before imports
+import { EventEmitter } from 'events';
+class MockedPool extends EventEmitter {
+  query = jest.fn(async (query: string, values?: any[]) => mockedQueryResult);
+  connect = jest.fn(async () => mockedClient);
+}
 const mockedQueryResult = 'mockedQueryResult';
+const mockedlogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() };
 const mockedClient = {
   query: jest.fn(async (query: string, values?: any[]) => mockedQueryResult),
-  release: jest.fn(),
+  release: jest.fn(() => {}),
 };
-const mockedPool = {
-  query: jest.fn(async (query: string, values?: any[]) => mockedQueryResult),
-  connect: jest.fn(async () => mockedClient),
-};
+jest.mock('../../utils/logger', () => {
+  return { logger: mockedlogger };
+});
 jest.mock('pg', () => {
-  return { Pool: jest.fn((config) => mockedPool), PoolClient: mockedClient };
+  const pool = new MockedPool();
+  jest.spyOn(MockedPool.prototype, 'on');
+  return { Pool: jest.fn((config) => pool), PoolClient: mockedClient };
 });
 
 // Imports
-import { Pool, PoolClient } from 'pg';
-import db from '../../utils/db';
+import { PoolClient } from 'pg';
+import db, { pool } from '../../utils/db';
 
 // Tests
 describe('Test /src/util/db', () => {
+  describe('Pool', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should have been created', () => {
+      expect(pool).toBeInstanceOf(MockedPool);
+    });
+
+    it('should start listening "connect" event to log', () => {
+      const event = 'connect';
+      const emitter = pool.on(event, () => {});
+      emitter.emit(event);
+
+      expect(pool.on).toBeCalledWith(event, expect.any(Function));
+      expect(mockedlogger.info).toBeCalledWith(expect.any(String));
+    });
+
+    it('should start listening "error" event to log', () => {
+      const event = 'error';
+      const emitter = pool.on(event, () => {});
+      emitter.emit(event, new Error('err'));
+
+      expect(pool.on).toBeCalledWith(event, expect.any(Function));
+      expect(mockedlogger.error).toBeCalledWith(expect.any(String));
+    });
+  });
+
   describe('query()', () => {
     afterEach(() => {
       jest.clearAllMocks();
@@ -29,8 +64,8 @@ describe('Test /src/util/db', () => {
 
       const result = await db.query(queryString, mockedParam);
 
-      expect(mockedPool.query).toHaveBeenCalledTimes(1);
-      expect(mockedPool.query).toBeCalledWith(queryString, mockedParam);
+      expect(pool.query).toHaveBeenCalledTimes(1);
+      expect(pool.query).toBeCalledWith(queryString, mockedParam);
       expect(result).toBe(mockedQueryResult);
     });
 
@@ -39,8 +74,8 @@ describe('Test /src/util/db', () => {
 
       const result = await db.query(queryString);
 
-      expect(mockedPool.query).toHaveBeenCalledTimes(1);
-      expect(mockedPool.query).toBeCalledWith(queryString, undefined);
+      expect(pool.query).toHaveBeenCalledTimes(1);
+      expect(pool.query).toBeCalledWith(queryString, undefined);
       expect(result).toBe(mockedQueryResult);
     });
   });
@@ -62,6 +97,7 @@ describe('Test /src/util/db', () => {
       expect(queryFunc).toHaveBeenCalled();
       expect(mockedClient.query).toHaveBeenNthCalledWith(4, 'COMMIT');
       expect(mockedClient.query).not.toHaveBeenCalledWith('ROLLBACK');
+      expect(mockedlogger.warn).not.toHaveBeenCalled();
       expect(mockedClient.release).toHaveBeenCalled();
       expect(result).toBe(mockedQueryResult);
     });
@@ -77,6 +113,7 @@ describe('Test /src/util/db', () => {
       expect(mockedClient.query).toHaveBeenNthCalledWith(1, 'BEGIN');
       expect(queryFunc).toHaveBeenCalled();
       expect(mockedClient.query).toHaveBeenNthCalledWith(3, 'ROLLBACK');
+      expect(mockedlogger.warn).toHaveBeenCalled();
       expect(mockedClient.query).not.toHaveBeenCalledWith('COMMIT');
       expect(mockedClient.release).toHaveBeenCalled();
     });

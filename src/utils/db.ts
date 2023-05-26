@@ -1,11 +1,20 @@
 import { Pool, PoolClient, QueryConfig, QueryResult, QueryResultRow } from 'pg';
+import { logger } from './logger';
 
 const { DB_POOL_MAX = '10', DB_IDLE_TIMEOUT = '1000', DB_CONN_TIMEOUT = '1000' } = process.env;
 
-const pool = new Pool({
+export const pool = new Pool({
   max: parseInt(DB_POOL_MAX),
   idleTimeoutMillis: parseInt(DB_IDLE_TIMEOUT),
   connectionTimeoutMillis: parseInt(DB_CONN_TIMEOUT),
+});
+
+pool.on('connect', (client) => {
+  logger.info(`[DB Info] total connection count: ${pool.totalCount}`);
+});
+
+pool.on('error', (err, client) => {
+  logger.error(`[DB Error] ${err.message}`);
 });
 
 export const query = async (queryString: string | QueryConfig<any[]>, params?: any[]) =>
@@ -20,9 +29,12 @@ export const transaction = async <T = QueryResult<QueryResultRow>>(
     const result = await queryFunc(client);
     await client.query('COMMIT');
     return result;
-  } catch (e) {
+  } catch (err) {
+    // If client is in error state, pg.Pool is resposible for removing it.
+    // So, we don't need to worry about the client here
     await client.query('ROLLBACK');
-    throw e;
+    logger.warn(`[DB ROLLBACK] ${(err as Error).message}`);
+    throw err;
   } finally {
     client.release();
   }
