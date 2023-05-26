@@ -40,7 +40,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   // No Error Loggings for AppErrors
   if (!err.status) {
     logger.error(`[${req.method} ${req.originalUrl}] from ${req.ip} | ${JSON.stringify(err)}`);
-    console.error(err);
   }
 
   // render the error page
