@@ -10,8 +10,9 @@
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "lint": "eslint",
-    "devtest": "jest --verbose",
-    "test": "jest"
+    "test": "jest",
+    "test-dev": "jest --verbose --coverage",
+    "test-live": "jest --verbose --coverage --watchAll"
   },
   "dependencies": {
     "cors": "^2.8.5",
