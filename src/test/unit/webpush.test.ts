@@ -48,7 +48,6 @@ describe('Test /src/util/webpush', () => {
       expect(webpush.sendNotification).toBeCalledTimes(mockQueryResult.rows.length);
       expect(webpush.sendNotification).toHaveBeenNthCalledWith(1, subObj, payload, option);
       expect(db.query).toBeCalledTimes(1);
-      expect(logger.info).toBeCalledTimes(1);
     });
 
     it('should delete subscribers if notification sending fails with 404 or 410 status code', async () => {
@@ -62,7 +61,6 @@ describe('Test /src/util/webpush', () => {
       expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [topic]);
       expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), idsToDelete);
       expect(webpush.sendNotification).toBeCalledTimes(mockQueryResult.rows.length);
-      expect(logger.info).toBeCalledTimes(2);
     });
 
     it('should throw an error if an error occurs during transaction', async () => {
@@ -75,6 +73,28 @@ describe('Test /src/util/webpush', () => {
       expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [topic]);
       expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [mockQueryResult.rows[0].id]);
       expect(webpush.sendNotification).toBeCalledTimes(mockQueryResult.rows.length);
+    });
+
+    it('should leave a info level log about success when there is no unsubscriber and error', async () => {
+      await webpushUtil.sendNotiByTopic(topic, payload, option);
+
+      expect(logger.info).toBeCalledTimes(1);
+    });
+
+    it('should leave a info level log about success and unsubscribers when there is no error', async () => {
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
+
+      await webpushUtil.sendNotiByTopic(topic, payload, option);
+
+      expect(logger.info).toBeCalledTimes(2);
+    });
+
+    it('should throw an error and leave an error level log about the error as well as info level log about success and unsubscribers', async () => {
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
+
+      await expect(webpushUtil.sendNotiByTopic(topic, payload, option)).rejects.toThrow('err');
+
       expect(logger.info).toBeCalledTimes(2);
       expect(logger.error).toBeCalledTimes(1);
     });
@@ -92,7 +112,6 @@ describe('Test /src/util/webpush', () => {
       expect(db.query).toHaveBeenCalledWith(expect.any(String));
       expect(webpush.sendNotification).toBeCalledTimes(mockQueryResult.rows.length);
       expect(webpush.sendNotification).toHaveBeenNthCalledWith(1, subObj, payload, option);
-      expect(logger.info).toBeCalledTimes(1);
     });
 
     it('should delete subscribers if notification sending fails with 404 or 410 status code', async () => {
@@ -106,7 +125,6 @@ describe('Test /src/util/webpush', () => {
       expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String));
       expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), idsToDelete);
       expect(webpush.sendNotification).toBeCalledTimes(mockQueryResult.rows.length);
-      expect(logger.info).toBeCalledTimes(2);
     });
 
     it('should throw an error if an error occurs during transaction', async () => {
@@ -119,6 +137,28 @@ describe('Test /src/util/webpush', () => {
       expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String));
       expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [mockQueryResult.rows[0].id]);
       expect(webpush.sendNotification).toBeCalledTimes(mockQueryResult.rows.length);
+    });
+
+    it('should leave a info level log about success when there is no unsubscriber and error', async () => {
+      await webpushUtil.sendNotiToAll(payload, option);
+
+      expect(logger.info).toBeCalledTimes(1);
+    });
+
+    it('should leave a info level log about success and unsubscribers when there is no error', async () => {
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
+
+      await webpushUtil.sendNotiToAll(payload, option);
+
+      expect(logger.info).toBeCalledTimes(2);
+    });
+
+    it('should throw an error and leave an error level log about the error as well as info level log about success and unsubscribers', async () => {
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
+
+      await expect(webpushUtil.sendNotiToAll(payload, option)).rejects.toThrow('err');
+
       expect(logger.info).toBeCalledTimes(2);
       expect(logger.error).toBeCalledTimes(1);
     });
