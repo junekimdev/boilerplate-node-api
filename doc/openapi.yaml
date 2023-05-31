@@ -3,7 +3,7 @@ info:
   title: MY GREATE API
   version: 1.0.0
   contact:
-    email: API-DEV@MY_COMPANY.COM
+    email: my-email@mycompany.com
   license:
     name: UNLICENSED
     url: https://MY_COMPANY.COM/LICENSE
@@ -58,10 +58,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  access_token:
-                    type: string
-                    example: abcdefghijkl.abcdefghijkl.abcdefghijkl
+                $ref: '#/components/schemas/Tokens'
         400:
           $ref: '#/components/responses/400'
         401:
@@ -163,6 +160,15 @@ components:
         password:
           type: string
           example: pa$$w@rd
+    Tokens:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: abcdefghijkl.abcdefghijkl.abcdefghijkl
+        refresh_token:
+          type: string
+          example: abcdefghijkl.abcdefghijkl.abcdefghijkl
     PushSubscription:
       type: object
       properties:
