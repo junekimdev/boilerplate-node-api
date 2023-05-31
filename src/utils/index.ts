@@ -1,3 +1,5 @@
+export * from './access';
+export { default as access } from './access';
 export * from './cors';
 export { default as db } from './db';
 export * from './email';
