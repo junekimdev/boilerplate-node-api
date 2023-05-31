@@ -19,8 +19,6 @@ CREATE TABLE user_role (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-INSERT INTO user_role(name) VALUES ('public'); -- Create special user_role
-
 CREATE TABLE resource (
   id SERIAL PRIMARY KEY,
   name VARCHAR(20) NOT NULL, --e.g. db tables, services
@@ -32,8 +30,8 @@ CREATE TABLE resource (
 CREATE TABLE access_control (
   role_id INT NOT NULL REFERENCES user_role ON DELETE CASCADE,
   resource_id INT NOT NULL REFERENCES resource ON DELETE CASCADE,
-  writable BOOLEAN NOT NULL,
   readable BOOLEAN NOT NULL,
+  writable BOOLEAN NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   PRIMARY KEY(role_id, resource_id)
 );
@@ -75,33 +73,3 @@ CREATE TABLE subscription (
 ---- END: Push Notification DB ----
 
 -----------------------REQUIRED-----------------------
-
------------------------EXAMPLE-----------------------
-
--- INSERT INTO user_role(name) VALUES ('api_user');
-
--- INSERT INTO resource(name, uri)
--- VALUES
--- ('userpool', 'jrn;;apiserver;auth;userpool'),
--- ('topic', 'jrn;;apiserver;pushnoti;topic'),
--- ('subscription', 'jrn;;apiserver;pushnoti;subscription');
-
--- WITH roleT AS (SELECT id FROM user_role WHERE name='api_user')
--- INSERT INTO access_control(role_id, resource_id, writable, readable)
--- SELECT
---   roleT.id,
---   (SELECT id FROM resource WHERE name='userpool'),
---   false, true
--- FROM roleT
--- UNION
--- SELECT
---   roleT.id,
---   (SELECT id FROM resource WHERE name='topic'),
---   true, true
--- FROM roleT
--- UNION
--- SELECT
---   roleT.id,
---   (SELECT id FROM resource WHERE name='subscription'),
---   true, true
--- FROM roleT;

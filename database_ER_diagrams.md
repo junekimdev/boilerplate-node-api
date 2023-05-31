@@ -26,8 +26,8 @@ RESOURCE {
 ACCESS_CONTROL {
   INT role_id PK, FK "NOT NULL"
   INT resource_id PK, FK "NOT NULL"
-  BOOLEAN writable "NOT NULL"
   BOOLEAN readable "NOT NULL"
+  BOOLEAN writable "NOT NULL"
   TIMESTAMPTZ created_at "Auto"
 }
 
