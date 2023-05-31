@@ -26,7 +26,7 @@ const mockedResponse = (): Response => {
   };
   return res as Response;
 };
-const mockedNext = jest.fn() as NextFunction;
+const mockedNext = () => jest.fn() as NextFunction;
 
 // Tests
 describe('Test /src/services/createUser/apiHandler', () => {
@@ -39,18 +39,19 @@ describe('Test /src/services/createUser/apiHandler', () => {
     const password = 'password';
     const req = mockedRequest({ email, password });
     const res = mockedResponse();
+    const next = mockedNext();
     const userId = 123;
 
     (isEmailValid as jest.Mock).mockReturnValue(true);
     (provider as jest.Mock).mockResolvedValue(userId);
 
-    await handler(req, res, mockedNext);
+    await handler(req, res, next);
 
     expect(isEmailValid).toHaveBeenCalledWith(email);
     expect(provider).toHaveBeenCalledWith(email, password);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({ user_id: userId });
-    expect(mockedNext).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('should throw AppError with 400 status if email is invalid', async () => {
@@ -58,17 +59,18 @@ describe('Test /src/services/createUser/apiHandler', () => {
     const password = 'password';
     const req = mockedRequest({ email, password });
     const res = mockedResponse();
+    const next = mockedNext();
     const expectedError = new Error(mockErrdef[400].InvalidEmailFormat);
 
     (isEmailValid as jest.Mock).mockReturnValue(false);
 
-    await handler(req, res, mockedNext);
+    await handler(req, res, next);
 
     expect(isEmailValid).toHaveBeenCalledWith(email);
     expect(provider).not.toHaveBeenCalled();
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
-    expect(mockedNext).toHaveBeenCalledWith(expectedError);
+    expect(next).toHaveBeenCalledWith(expectedError);
   });
 
   it('should throw AppError with 406 status if email is too long', async () => {
@@ -76,17 +78,18 @@ describe('Test /src/services/createUser/apiHandler', () => {
     const password = 'password';
     const req = mockedRequest({ email, password });
     const res = mockedResponse();
+    const next = mockedNext();
     const expectedError = new Error(mockErrdef[406].EmailTooLong);
 
     (isEmailValid as jest.Mock).mockReturnValue(true);
 
-    await handler(req, res, mockedNext);
+    await handler(req, res, next);
 
     expect(isEmailValid).toHaveBeenCalledWith(email);
     expect(provider).not.toHaveBeenCalled();
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
-    expect(mockedNext).toHaveBeenCalledWith(expectedError);
+    expect(next).toHaveBeenCalledWith(expectedError);
   });
 
   it('should pass error to the next middleware if an error occurs', async () => {
@@ -94,17 +97,18 @@ describe('Test /src/services/createUser/apiHandler', () => {
     const password = 'password';
     const req = mockedRequest({ email, password });
     const res = mockedResponse();
+    const next = mockedNext();
     const expectedError = new Error('Database connection error');
 
     (isEmailValid as jest.Mock).mockReturnValue(true);
     (provider as jest.Mock).mockRejectedValue(expectedError);
 
-    await handler(req, res, mockedNext);
+    await handler(req, res, next);
 
     expect(isEmailValid).toHaveBeenCalledWith(email);
     expect(provider).toHaveBeenCalledWith(email, password);
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
-    expect(mockedNext).toHaveBeenCalledWith(expectedError);
+    expect(next).toHaveBeenCalledWith(expectedError);
   });
 });
