@@ -8,16 +8,12 @@ const pub_path = path.join(__dirname, '..', '..', JWT_PUB_FILENAME);
 const priFile = fs.readFileSync(prv_path);
 const pubFile = fs.readFileSync(pub_path);
 const alg = 'ES256';
-const exp = '1d';
 const tolerance = 10; // 10s tolerance for difference between servers
 
 export type JwtPayload = jsonwebtoken.JwtPayload;
 export type VerifyErrors = jsonwebtoken.VerifyErrors;
 
-export const createSignOpt: (sub: string, aud: string) => SignOptions = (
-  sub: string,
-  aud: string,
-) => {
+export const createSignOpt = (sub: string, aud: string, exp: string = '1d'): SignOptions => {
   return {
     algorithm: alg,
     expiresIn: exp,
@@ -27,7 +23,7 @@ export const createSignOpt: (sub: string, aud: string) => SignOptions = (
   };
 };
 
-export const createVerifyOpt: (aud: string) => VerifyOptions = (aud) => {
+export const createVerifyOpt = (aud: string | RegExp): VerifyOptions => {
   return {
     algorithms: [alg],
     audience: aud,
@@ -41,10 +37,11 @@ export const sign = (
   payload: object,
   sub: string,
   aud: string,
+  exp: string = '1d',
   key: jsonwebtoken.Secret = priFile,
-) => jsonwebtoken.sign(payload, key, createSignOpt(sub, sub));
+) => jsonwebtoken.sign(payload, key, createSignOpt(sub, aud, exp));
 
-export const verify = (token: string, aud: string, key: jsonwebtoken.Secret = pubFile) =>
+export const verify = (token: string, aud: string | RegExp, key: jsonwebtoken.Secret = pubFile) =>
   jsonwebtoken.verify(token, key, createVerifyOpt(aud)) as jsonwebtoken.JwtPayload;
 
 export default { sign, verify };

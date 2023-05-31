@@ -17,7 +17,6 @@ describe('Test /src/util/jwt', () => {
   const mockPrivateKey = 'mockedPrivateKey';
   const mockPublicKey = 'mockedPublicKey';
   const sub = 'user';
-  const aud = 'server';
   const alg = 'ES256';
   const exp = '1d';
   const tolerance = 10;
@@ -28,6 +27,7 @@ describe('Test /src/util/jwt', () => {
 
   describe('createSignOpt()', () => {
     it('should create an object with props:[algorithm, expiresIn, audience, subject, issuer]', () => {
+      const aud = 'server';
       const expected = expect.objectContaining({
         algorithm: alg,
         expiresIn: exp,
@@ -35,13 +35,14 @@ describe('Test /src/util/jwt', () => {
         subject: sub,
         issuer: expect.any(String),
       });
-      const opt = createSignOpt(sub, aud);
+      const opt = createSignOpt(sub, aud, exp);
       expect(opt).toEqual(expected);
     });
   });
 
   describe('createVerifyOpt()', () => {
-    it('should create an object with props:[algorithm, audience, issuer, clockTolerance, complete]', () => {
+    it('should create an object with props:[algorithm, subject, audience, issuer, clockTolerance]', () => {
+      const aud = /server/;
       const expected = expect.objectContaining({
         algorithms: expect.arrayContaining([alg]),
         audience: aud,
@@ -55,13 +56,15 @@ describe('Test /src/util/jwt', () => {
 
   describe('sign()', () => {
     it('should sign the payload and return a token', () => {
-      const result = jwt.sign(payload, sub, aud, mockPrivateKey);
+      const aud = 'server';
+      const result = jwt.sign(payload, sub, aud, exp, mockPrivateKey);
       expect(result).toBe(mockToken);
     });
   });
 
   describe('verify()', () => {
     it('should verify the token and return the payload', () => {
+      const aud = /server/;
       const result = jwt.verify(mockToken, aud, mockPublicKey);
       expect(result).toEqual(payload);
     });
