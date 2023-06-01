@@ -8,8 +8,8 @@ import sendNoti from '../services/sendNoti';
 import basicAuth from './basicAuth';
 import bearerAuth from './bearerAuth';
 
-import resPushAdmin from './access/resPushAdmin';
-import resPushUser from './access/resPushUser';
+import resPushAdmin from '../access/resPushAdmin';
+import resPushUser from '../access/resPushUser';
 
 const APIv1 = router();
 
