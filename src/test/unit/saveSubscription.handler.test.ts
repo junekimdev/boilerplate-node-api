@@ -40,6 +40,7 @@ describe('Test /src/services/saveSubscription/apiHandler', () => {
       expect(isValidSub({ endpoint: 'a', keys: { p256dh: 'a' } })).toBe(false);
       expect(isValidSub({ endpoint: 'a', keys: {} })).toBe(false);
       expect(isValidSub({})).toBe(false);
+      expect(isValidSub(undefined)).toBe(false);
     });
   });
 
@@ -51,6 +52,8 @@ describe('Test /src/services/saveSubscription/apiHandler', () => {
     });
 
     it('should return false if the topic is invalid', () => {
+      expect(isValidTopic(undefined)).toBe(false);
+      expect(isValidTopic(0)).toBe(false);
       expect(isValidTopic('')).toBe(false);
       expect(isValidTopic('a'.repeat(51))).toBe(false);
     });

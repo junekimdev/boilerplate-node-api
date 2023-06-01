@@ -15,8 +15,12 @@ export const isValidSub = (subscription: any) => {
   }
 };
 
-export const isValidTopic = (topic: string) => {
-  return 0 < topic.length && topic.length <= 50;
+export const isValidTopic = (topic: any) => {
+  try {
+    return 0 < topic.length && topic.length <= 50;
+  } catch (error) {
+    return false;
+  }
 };
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
@@ -25,7 +29,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check validity
     if (!isValidSub(subscription)) throw new AppError(errDef[400].InvalidPushSubscription);
-    topic = topic.toLowerCase().trim();
+    if (typeof topic === 'string') topic = topic.toLowerCase().trim();
     if (!isValidTopic(topic)) throw new AppError(errDef[400].InvalidPushTopic);
 
     // Provide
