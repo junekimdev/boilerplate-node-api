@@ -8,12 +8,15 @@ import sendNoti from '../services/sendNoti';
 import basicAuth from './basicAuth';
 import bearerAuth from './bearerAuth';
 
+import resPushAdmin from './access/resPushAdmin';
+import resPushUser from './access/resPushUser';
+
 const APIv1 = router();
 
 APIv1.post('/auth/user', createUser);
 APIv1.post('/auth/token', basicAuth, createToken);
-APIv1.get('/push/key', bearerAuth, readVapidPubKey);
-APIv1.post('/push/register', bearerAuth, saveSubscription);
-APIv1.post('/push/send', bearerAuth, sendNoti);
+APIv1.get('/push/key', resPushUser, bearerAuth, readVapidPubKey);
+APIv1.post('/push/register', resPushUser, bearerAuth, saveSubscription);
+APIv1.post('/push/send', resPushAdmin, bearerAuth, sendNoti);
 
 export default APIv1;
