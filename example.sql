@@ -20,26 +20,6 @@ SELECT
   true, false
 FROM roleT;
 
-WITH roleT AS (SELECT id FROM user_role WHERE name='user1')
-INSERT INTO access_control(role_id, resource_id, readable, writable)
-SELECT
-  roleT.id,
-  (SELECT id FROM resource WHERE name='userpool'),
-  true, false
-FROM roleT
-UNION
-SELECT
-  roleT.id,
-  (SELECT id FROM resource WHERE name='topic'),
-  true, false
-FROM roleT
-UNION
-SELECT
-  roleT.id,
-  (SELECT id FROM resource WHERE name='subscription'),
-  true, false
-FROM roleT;
-
 WITH roleT AS (SELECT id FROM user_role WHERE name='admin1')
 INSERT INTO access_control(role_id, resource_id, readable, writable)
 SELECT
@@ -58,4 +38,24 @@ SELECT
   roleT.id,
   (SELECT id FROM resource WHERE name='subscription'),
   true, true
+FROM roleT;
+
+WITH roleT AS (SELECT id FROM user_role WHERE name='user1')
+INSERT INTO access_control(role_id, resource_id, readable, writable)
+SELECT
+  roleT.id,
+  (SELECT id FROM resource WHERE name='userpool'),
+  true, false
+FROM roleT
+UNION
+SELECT
+  roleT.id,
+  (SELECT id FROM resource WHERE name='topic'),
+  true, false
+FROM roleT
+UNION
+SELECT
+  roleT.id,
+  (SELECT id FROM resource WHERE name='subscription'),
+  false, true
 FROM roleT;
