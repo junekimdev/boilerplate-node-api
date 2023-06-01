@@ -51,11 +51,11 @@ describe('Test /src/utils/access', () => {
   describe('getRow()', () => {
     it('should return an object of AccessControlRow', () => {
       const name = 'resource';
-      const writable = true;
       const readable = false;
-      const expected: AccessControlRow = { name, writable, readable };
+      const writable = true;
+      const expected: AccessControlRow = { name, readable, writable };
 
-      const result = getRow(name, writable, readable);
+      const result = getRow(name, readable, writable);
 
       expect(result).toEqual(expected);
     });

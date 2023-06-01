@@ -15,8 +15,8 @@ export const convertToString = (row: AccessControlRow) => {
   return access.join(' ');
 };
 
-export const getRow = (name: string, writable: boolean, readable: boolean): AccessControlRow => {
-  return { name, writable, readable };
+export const getRow = (name: string, readable = false, writable = false): AccessControlRow => {
+  return { name, readable, writable };
 };
 
 export const requestAccess = (reqs: AccessControlRow[]) => {
