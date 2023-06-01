@@ -11,13 +11,6 @@ jest.mock('../../utils', () => ({
 
 jest.mock('../../services/createUser/provider', () => jest.fn());
 
-// Imports
-import { NextFunction, Request, Response } from 'express';
-import handler from '../../services/createUser/apiHandler';
-import provider from '../../services/createUser/provider';
-import { AppError, errDef, isEmailValid } from '../../utils';
-
-// Helping functions
 const mockedRequest = (body: any = {}): Request => ({ body } as Request);
 const mockedResponse = (): Response => {
   const res: Partial<Response> = {
@@ -27,6 +20,14 @@ const mockedResponse = (): Response => {
   return res as Response;
 };
 const mockedNext = () => jest.fn() as NextFunction;
+
+// Imports
+import { NextFunction, Request, Response } from 'express';
+import handler from '../../services/createUser/apiHandler';
+import provider from '../../services/createUser/provider';
+import { isEmailValid } from '../../utils';
+
+const mockedProvider = provider as jest.Mock;
 
 // Tests
 describe('Test /src/services/createUser/apiHandler', () => {
@@ -43,7 +44,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
     const userId = 123;
 
     (isEmailValid as jest.Mock).mockReturnValue(true);
-    (provider as jest.Mock).mockResolvedValue(userId);
+    mockedProvider.mockResolvedValue(userId);
 
     await handler(req, res, next);
 
@@ -101,7 +102,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
     const expectedError = new Error('Database connection error');
 
     (isEmailValid as jest.Mock).mockReturnValue(true);
-    (provider as jest.Mock).mockRejectedValue(expectedError);
+    mockedProvider.mockRejectedValue(expectedError);
 
     await handler(req, res, next);
 
