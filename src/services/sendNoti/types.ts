@@ -1,5 +1,5 @@
 export interface IReqBody {
-  topic: string;
+  topic: any;
   payload: any;
 }
 export interface IResBody {}

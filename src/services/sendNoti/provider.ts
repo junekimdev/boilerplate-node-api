@@ -1,4 +1,3 @@
-//import {} from './types';
 import { webpush } from '../../utils';
 
 const provider = async (topic: string, payload: any) => {
