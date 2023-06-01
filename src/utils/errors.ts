@@ -76,6 +76,12 @@ export const errDef: errDefType = {
       error_in: 'Auth',
       message: 'Invalid Token',
     },
+    TokenExpired: {
+      status: 401,
+      code: 'E401-5',
+      error_in: 'Auth',
+      message: 'Token Expired',
+    },
   },
   '403': {
     AccessDenied: {
