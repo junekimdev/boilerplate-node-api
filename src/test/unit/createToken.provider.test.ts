@@ -10,7 +10,7 @@ jest.mock('../../utils', () => ({
 
 import { QueryResult } from 'pg';
 import provider from '../../services/createToken/provider';
-import { AccessControlResultRow, convertToString, db, jwt } from '../../utils';
+import { AccessControlRow, convertToString, db, jwt } from '../../utils';
 
 describe('Test /src/services/createToken/provider', () => {
   const mockedDbQuery = db.query as jest.Mock;
@@ -26,7 +26,7 @@ describe('Test /src/services/createToken/provider', () => {
 
   it('should query the database and generate a JWT token', async () => {
     //@ts-ignore
-    const queryResult: QueryResult<AccessControlResultRow> = {
+    const queryResult: QueryResult<AccessControlRow> = {
       rows: [
         { name: 'resource1', readable: true, writable: false },
         { name: 'resource2', readable: true, writable: false },
@@ -59,7 +59,7 @@ describe('Test /src/services/createToken/provider', () => {
 
   it('should query the database and generate a JWT token with aud being an empty string if no access control rows are readable', async () => {
     //@ts-ignore
-    const queryResult: QueryResult<AccessControlResultRow> = {
+    const queryResult: QueryResult<AccessControlRow> = {
       rows: [
         { name: 'resource1', readable: false, writable: false },
         { name: 'resource2', readable: false, writable: false },

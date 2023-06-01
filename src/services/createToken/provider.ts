@@ -1,5 +1,5 @@
 import { QueryResult } from 'pg';
-import { AccessControlResultRow, convertToString, db, jwt } from '../../utils';
+import { AccessControlRow, convertToString, db, jwt } from '../../utils';
 
 const SQL_ACCESS = `SELECT name, readable, writable
 FROM access_control
@@ -9,7 +9,7 @@ WHERE email=$1::VARCHAR(50)
 ORDER BY name ASC`;
 
 const provider = async (userId: number, email: string) => {
-  const result = (await db.query(SQL_ACCESS, [email])) as QueryResult<AccessControlResultRow>;
+  const result = (await db.query(SQL_ACCESS, [email])) as QueryResult<AccessControlRow>;
   const aud: string[] = [];
   result.rows.forEach((row) => {
     const str = convertToString(row);
