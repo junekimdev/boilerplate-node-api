@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { PushSubscription } from 'web-push';
-import { AppError, errDef } from '../../utils';
+import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
-import { IReqBod } from './types';
+import { IReqBody } from './types';
 
-const isValidSub = (subscription: PushSubscription) => {
+export const isValidSub = (subscription: any) => {
   try {
     const n =
       subscription.endpoint.length &&
@@ -16,17 +15,13 @@ const isValidSub = (subscription: PushSubscription) => {
   }
 };
 
-const isValidTopic = (topic: string) => {
-  try {
-    return topic.length < 20;
-  } catch (error) {
-    return false;
-  }
+export const isValidTopic = (topic: string) => {
+  return 0 < topic.length && topic.length <= 50;
 };
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { topic, subscription } = req.body as IReqBody;
+    let { topic, subscription } = req.body as IReqBody;
 
     // Check validity
     if (!isValidSub(subscription)) throw new AppError(errDef[400].InvalidPushSubscription);
