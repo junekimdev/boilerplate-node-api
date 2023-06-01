@@ -1,22 +1,23 @@
 // In typescript testing, mockings should come before imports
 import { EventEmitter } from 'events';
-class MockedPool extends EventEmitter {
-  query = jest.fn(async (query: string, values?: any[]) => mockedQueryResult);
-  connect = jest.fn(async () => mockedClient);
-}
 const mockedQueryResult = 'mockedQueryResult';
-const mockedlogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() };
 const mockedClient = {
   query: jest.fn(async (query: string, values?: any[]) => mockedQueryResult),
   release: jest.fn(() => {}),
 };
-jest.mock('../../utils/logger', () => {
-  return { logger: mockedlogger };
-});
+class MockedPool extends EventEmitter {
+  query = jest.fn(async (query: string, values?: any[]) => mockedQueryResult);
+  connect = jest.fn(async () => mockedClient);
+}
 jest.mock('pg', () => {
   const pool = new MockedPool();
   jest.spyOn(MockedPool.prototype, 'on');
   return { Pool: jest.fn((config) => pool), PoolClient: mockedClient };
+});
+
+const mockedlogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() };
+jest.mock('../../utils/logger', () => {
+  return { logger: mockedlogger };
 });
 
 // Imports
