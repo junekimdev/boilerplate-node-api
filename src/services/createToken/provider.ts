@@ -5,7 +5,8 @@ const SQL_ACCESS = `SELECT name, readable, writable
 FROM access_control
 LEFT JOIN userpool USING(role_id)
 LEFT JOIN resource ON access_control.resource_id=resource.id
-WHERE email=$1::VARCHAR(50)`;
+WHERE email=$1::VARCHAR(50)
+ORDER BY name ASC`;
 
 const provider = async (userId: number, email: string) => {
   const result = (await db.query(SQL_ACCESS, [email])) as QueryResult<AccessControlResultRow>;
