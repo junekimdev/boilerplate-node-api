@@ -77,6 +77,14 @@ export const errDef: errDefType = {
       message: 'Invalid Token',
     },
   },
+  '403': {
+    AccessDenied: {
+      status: 403,
+      code: 'E403-1',
+      error_in: 'Auth',
+      message: 'Not Allowed To Access Resources',
+    },
+  },
   '406': {
     EmailTooLong: {
       status: 406,
