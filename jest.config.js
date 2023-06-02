@@ -11,7 +11,7 @@ module.exports = {
   // bail: 0,
 
   // Automatically clear mock calls, instances, contexts and results before every test
-  clearMocks: true,
+  // clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
   // collectCoverage: true,
@@ -23,7 +23,7 @@ module.exports = {
   coverageDirectory: 'test/coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['src/test'],
+  coveragePathIgnorePatterns: ['src/test', 'src/server.ts'],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
