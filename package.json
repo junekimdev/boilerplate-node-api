@@ -11,6 +11,7 @@
     "dev": "nodemon src/server.ts",
     "lint": "eslint",
     "test": "jest",
+    "test-cover": "jest --coverage",
     "test-dev": "jest --verbose --coverage",
     "test-live": "jest --verbose --coverage --watchAll"
   },
