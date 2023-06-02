@@ -8,6 +8,7 @@ const access = async (req: Request, res: Response, next: NextFunction) => {
     getRow('subscription', false, true),
   ];
   (res.locals as IResLocals).accessRegex = requestAccess(reqs);
+  next();
 };
 
 export default access;
