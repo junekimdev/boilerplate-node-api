@@ -29,7 +29,7 @@ export const errDef: errDefType = {
     InvalidEmailFormat: {
       status: 400,
       code: 'E400-1',
-      error_in: 'ReqBody',
+      error_in: 'ReqBody | ReqHeaders',
       message: 'Invalid Email Format',
     },
     InvalidPayload: {
