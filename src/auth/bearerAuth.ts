@@ -1,6 +1,7 @@
 import { Locals, NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { AppError, errDef, jwt } from '../utils';
+import { AppError, errDef } from '../utils/errors';
+import jwt from '../utils/jwt';
 
 export interface IResLocals {
   accessRegex?: RegExp;
@@ -10,11 +11,15 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Get token
     const { authorization } = req.headers;
-    const accessToken = authorization && authorization.split(' ')[1];
+    if (!authorization) throw new AppError(errDef[401].AuthorizationNotFound);
+
+    const [scheme, accessToken] = authorization.split(' ');
+    if (scheme != 'Bearer') throw new AppError(errDef[401].InvalidAuthScheme);
     if (!accessToken) throw new AppError(errDef[401].AccessTokenNotFound);
 
     // Get regex from access control
-    const { accessRegex = /.*/ } = res.locals as IResLocals;
+    const { accessRegex } = res.locals as IResLocals;
+    if (!accessRegex) throw new AppError(errDef[403].AccessUndefined);
 
     // Verify token
     try {
