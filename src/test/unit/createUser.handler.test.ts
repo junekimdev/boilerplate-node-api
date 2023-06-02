@@ -74,25 +74,6 @@ describe('Test /src/services/createUser/apiHandler', () => {
     expect(next).toHaveBeenCalledWith(expectedError);
   });
 
-  it('should throw AppError with 406 status if email is too long', async () => {
-    const email = 'a'.repeat(51);
-    const password = 'password';
-    const req = mockedRequest({ email, password });
-    const res = mockedResponse();
-    const next = mockedNext();
-    const expectedError = new Error(mockErrdef[406].EmailTooLong);
-
-    (isEmailValid as jest.Mock).mockReturnValue(true);
-
-    await handler(req, res, next);
-
-    expect(isEmailValid).toHaveBeenCalledWith(email);
-    expect(provider).not.toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
-    expect(res.json).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expectedError);
-  });
-
   it('should pass error to the next middleware if an error occurs', async () => {
     const email = 'test@example.com';
     const password = 'password';

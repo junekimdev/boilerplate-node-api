@@ -9,7 +9,6 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check validity
     if (!isEmailValid(email)) throw new AppError(errDef[400].InvalidEmailFormat);
-    if (email.length > 50) throw new AppError(errDef[406].EmailTooLong);
 
     // Provide
     const id = await provider(email, password);
