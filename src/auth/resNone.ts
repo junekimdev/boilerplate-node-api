@@ -4,6 +4,7 @@ import { IResLocals } from './bearerAuth';
 
 const access = async (req: Request, res: Response, next: NextFunction) => {
   (res.locals as IResLocals).accessRegex = requestAccess([]);
+  next();
 };
 
 export default access;
