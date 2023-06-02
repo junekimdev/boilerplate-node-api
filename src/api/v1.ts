@@ -5,11 +5,11 @@ import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
 
+import bearerAuth from '../auth/bearerAuth';
 import basicAuth from './basicAuth';
-import bearerAuth from './bearerAuth';
 
-import resPushAdmin from '../access/resPushAdmin';
-import resPushUser from '../access/resPushUser';
+import resPushAdmin from '../auth/resPushAdmin';
+import resPushUser from '../auth/resPushUser';
 
 const APIv1 = router();
 

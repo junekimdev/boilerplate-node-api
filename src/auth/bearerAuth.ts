@@ -1,5 +1,4 @@
-import assert from 'assert';
-import { NextFunction, Request, Response } from 'express';
+import { Locals, NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { AppError, errDef, jwt } from '../utils';
 
