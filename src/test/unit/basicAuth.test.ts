@@ -32,7 +32,7 @@ describe('Test /src/auth/basicAuth', () => {
     jest.clearAllMocks();
   });
 
-  it('should call next with UserCredentialNotFound error when user credential is not found', async () => {
+  it('should call next with AuthorizationNotFound error when there is no authorization in header', async () => {
     req.headers = {};
 
     await auth(req, res, next);
@@ -41,7 +41,7 @@ describe('Test /src/auth/basicAuth', () => {
     expect(mockedHashSha256).not.toHaveBeenCalled();
     expect(mockedIsEmailValid).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].UserCredentialNotFound));
+    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].AuthorizationNotFound));
   });
 
   it('should call next with InvalidAuthScheme error when the authorization scheme is invalid', async () => {

@@ -52,45 +52,51 @@ export const errDef: errDefType = {
     },
   },
   '401': {
-    InvalidAuthScheme: {
+    AuthorizationNotFound: {
       status: 401,
       code: 'E401-1',
+      error_in: 'ReqHeaders',
+      message: 'Authorization Not Found',
+    },
+    InvalidAuthScheme: {
+      status: 401,
+      code: 'E401-2',
       error_in: 'ReqHeaders',
       message: 'Invalid Auth Scheme',
     },
     UserCredentialNotFound: {
       status: 401,
-      code: 'E401-2',
+      code: 'E401-3',
       error_in: 'ReqHeaders',
       message: 'User Credential Not Found',
     },
     AccessTokenNotFound: {
       status: 401,
-      code: 'E401-3',
+      code: 'E401-4',
       error_in: 'ReqHeaders',
       message: 'Access Token Not Found',
     },
     RefreshTokenNotFound: {
       status: 401,
-      code: 'E401-4',
+      code: 'E401-5',
       error_in: 'ReqHeaders',
       message: 'Refresh Token Not Found',
     },
     InvalidCredential: {
       status: 401,
-      code: 'E401-5',
+      code: 'E401-6',
       error_in: 'Auth',
       message: 'Invalid Credential',
     },
     InvalidToken: {
       status: 401,
-      code: 'E401-6',
+      code: 'E401-7',
       error_in: 'Auth',
       message: 'Invalid Token',
     },
     TokenExpired: {
       status: 401,
-      code: 'E401-7',
+      code: 'E401-8',
       error_in: 'Auth',
       message: 'Token Expired',
     },
@@ -101,6 +107,12 @@ export const errDef: errDefType = {
       code: 'E403-1',
       error_in: 'Auth',
       message: 'Not Allowed To Access Resources',
+    },
+    AccessUndefined: {
+      status: 403,
+      code: 'E403-2',
+      error_in: 'Auth',
+      message: 'Access Control is undefined',
     },
   },
   '500': {

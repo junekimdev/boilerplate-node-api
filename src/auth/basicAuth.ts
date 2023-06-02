@@ -29,7 +29,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Get Credential
     const { authorization } = req.headers;
-    if (!authorization) throw new AppError(errDef[401].UserCredentialNotFound);
+    if (!authorization) throw new AppError(errDef[401].AuthorizationNotFound);
 
     const [scheme, cred] = authorization.split(' ');
     if (scheme != 'Basic') throw new AppError(errDef[401].InvalidAuthScheme);
