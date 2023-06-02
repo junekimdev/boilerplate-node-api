@@ -30,10 +30,11 @@ const validEmails = [
   'test/test@test.com', // legal character in local-part
   'mailhost!username@example.org', // bangified host route used for uucp mailers
 
-  '"email"@example.com', // quoted characters
-  '" "@example.org', // quoted space
-  '"   "@example.org', // quoted spaces
-  '"abc@"@example.org', // quoted at sign
+  '"email"@example.com', // fully quoted local-part
+  '" "@example.org', // space in quoted local-part
+  '"   "@example.org', // spaces in quoted local-part
+  '"abc@"@example.org', // @ sign in quoted local-part
+  '"very.(),:;<>[].VERY.very@\\ very.unusual"@strange.example.com', // fully quoted local-part
 
   '한글@example.com', // unicode character in local-part
   'あいうえお@example.com', // unicode character in local-part
@@ -46,10 +47,10 @@ const vaildButNotAllowed = [
   'postmaster@[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]', // IP address in square brackets
   'john.smith@(comment)example.com', // comment in domain name
   'john.smith@example.com(comment)', // comment in domain name
-  '"john..doe"@example.org', // quoted double dot
-  'much."more unusual"@example.com', // mixed quoted characters
-  'very.unusual."@".unusual.com@example.com', // mixed quoted at sign
-  '"very.(),:;<>[]".VERY."very@\\ "very".unusual"@strange.example.com', // quoted illegal characters
+  '"john..doe"@example.org', // double dot in quoted local-part
+  'much."more unusual"@example.com', // partically quoted local-part
+  'very.unusual."@".unusual.com@example.com', // partically quoted local-part
+  '"very.(),:;<>[]".VERY."very@\\ "very".unusual"@strange.example.com', // quotations within quotations
 ];
 
 const invalidEmails = [
