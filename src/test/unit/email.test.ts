@@ -1,5 +1,6 @@
 import { isEmailValid } from '../../utils/email';
 
+// https://www.rfc-editor.org/rfc/rfc5322
 // https://www.w3resource.com/javascript/form/email-validation.php
 // https://gist.github.com/cjaoude/fd9910626629b53c4d25
 
@@ -34,7 +35,7 @@ const validEmails = [
   '" "@example.org', // space in quoted local-part
   '"   "@example.org', // spaces in quoted local-part
   '"abc@"@example.org', // @ sign in quoted local-part
-  '"very.(),:;<>[].VERY.very@\\ very.unusual"@strange.example.com', // fully quoted local-part
+  '"very.(),:;<>[].@\\ VERY.unusual"@strange.com', // fully quoted local-part
 
   '한글@example.com', // unicode character in local-part
   'あいうえお@example.com', // unicode character in local-part
@@ -42,6 +43,7 @@ const validEmails = [
 ];
 
 const vaildButNotAllowed = [
+  'email@example.com.', // ends with a dot
   'admin@mailserver1', // local domain name with no TLD
   'postmaster@[123.123.123.123]', // IP address in square brackets
   'postmaster@[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]', // IP address in square brackets
@@ -51,6 +53,7 @@ const vaildButNotAllowed = [
   'much."more unusual"@example.com', // partically quoted local-part
   'very.unusual."@".unusual.com@example.com', // partically quoted local-part
   '"very.(),:;<>[]".VERY."very@\\ "very".unusual"@strange.example.com', // quotations within quotations
+  'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@a.com', // too long (> 50 letters)
 ];
 
 const invalidEmails = [
