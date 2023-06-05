@@ -3,14 +3,14 @@ import db from '../../utils/db';
 
 const SQL_CHECK_TOPIC = `SELECT id
 FROM push_sub_topics
-WHERE topic=($1::VARCHAR(20))`;
+WHERE topic=$1::VARCHAR(20);`;
 
 const SQL_CHECK_SUB = `SELECT id
 FROM push_subscription
-WHERE sub=($1::TEXT)`;
+WHERE sub=$1::TEXT;`;
 
 const SQL_INSERT = `INSERT INTO push_subscription(sub, topic_id)
-SELECT (($1::TEXT), (SELECT id FROM push_sub_topics WHERE topic=($2::VARCHAR(20)))`;
+SELECT ($1::TEXT, (SELECT id FROM push_sub_topics WHERE topic=$2::VARCHAR(20));`;
 
 const provider = async (subscription: PushSubscription, topic: string) => {
   const sub = JSON.stringify(subscription);

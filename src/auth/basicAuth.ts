@@ -22,8 +22,8 @@ export const decodeCredential = (cred: string) => {
   return { username, password } as ICredential;
 };
 
-const SQL_GET_INFO = `SELECT id, pw, salt FROM userpool WHERE email=$1::VARCHAR(50)`;
-const SQL_UPDATE_LOGIN_TIME = `UPDATE userpool SET last_login=NOW() email=$1::VARCHAR(50)`;
+const SQL_GET_INFO = `SELECT id, pw, salt FROM userpool WHERE email=$1::VARCHAR(50);`;
+const SQL_UPDATE_LOGIN_TIME = `UPDATE userpool SET last_login=NOW() WHERE email=$1::VARCHAR(50);`;
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
