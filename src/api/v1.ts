@@ -5,8 +5,8 @@ import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
 
+import basicAuth from '../auth/basicAuth';
 import bearerAuth from '../auth/bearerAuth';
-import basicAuth from './basicAuth';
 
 import resPushAdmin from '../auth/resPushAdmin';
 import resPushUser from '../auth/resPushUser';
