@@ -41,8 +41,6 @@ paths:
                     example: 1
         400:
           $ref: '#/components/responses/400'
-        406:
-          $ref: '#/components/responses/406'
         500:
           $ref: '#/components/responses/500'
   /auth/token:
@@ -65,8 +63,6 @@ paths:
           $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
-        406:
-          $ref: '#/components/responses/406'
         500:
           $ref: '#/components/responses/500'
   /push/key:
