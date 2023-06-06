@@ -30,7 +30,9 @@ describe('Test /src/errorHandler', () => {
   it('should handle errors correctly in development mode', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new Error('test error');
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${JSON.stringify(error)}`;
+    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
+      error.message
+    } | ${JSON.stringify(error)}`;
     const expectedError: any = {};
     expectedError.status = 500;
     expectedError.code = 'ERROR';
@@ -54,7 +56,9 @@ describe('Test /src/errorHandler', () => {
   it('should handle AppErrors correctly in development mode', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new AppError(errDef[400].InvalidEmailFormat);
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${JSON.stringify(error)}`;
+    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
+      error.message
+    } | ${JSON.stringify(error)}`;
     const expectedError: any = {};
     expectedError.status = error.status;
     expectedError.code = error.code;
@@ -78,7 +82,9 @@ describe('Test /src/errorHandler', () => {
   it('should handle errors correctly in production mode', () => {
     mockedReqAppGet.mockReturnValue('production');
     const error = new AppError();
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${JSON.stringify(error)}`;
+    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
+      error.message
+    } | ${JSON.stringify(error)}`;
     const expectedError: any = {};
     expectedError.status = error.status;
     expectedError.code = error.code;
@@ -99,7 +105,9 @@ describe('Test /src/errorHandler', () => {
   it('should handle 401 errors correctly for basic auth scheme', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new AppError(errDef[401].AuthorizationNotFound);
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${JSON.stringify(error)}`;
+    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
+      error.message
+    } | ${JSON.stringify(error)}`;
     const msg401 = `Basic realm="${SERVICE_NAME}"`;
     const expectedError: any = {};
     expectedError.status = error.status;
@@ -125,7 +133,9 @@ describe('Test /src/errorHandler', () => {
   it('should handle 401 errors correctly for bearer auth scheme', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new AppError(errDef[401].AccessTokenNotFound);
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${JSON.stringify(error)}`;
+    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
+      error.message
+    } | ${JSON.stringify(error)}`;
     const msg401 = `Bearer realm="${SERVICE_NAME}"`;
     const expectedError: any = {};
     expectedError.status = error.status;
