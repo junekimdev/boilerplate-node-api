@@ -1,27 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
+import db from '../../utils/db';
 import { AppError, errDef } from '../../utils/errors';
+import { isValidSub, isValidTopic } from '../../utils/webpush';
 import provider from './provider';
 import { IReqBody } from './types';
 
-export const isValidSub = (subscription: any) => {
-  try {
-    const n =
-      subscription.endpoint.length &&
-      subscription.keys.auth.length &&
-      subscription.keys.p256dh.length;
-    return n !== 0;
-  } catch (error) {
-    return false;
-  }
-};
-
-export const isValidTopic = (topic: any) => {
-  try {
-    return 0 < topic.length && topic.length <= 50;
-  } catch (error) {
-    return false;
-  }
-};
+const SQL_CHECK_TOPIC = `SELECT id
+FROM push_sub_topics
+WHERE topic=$1::VARCHAR(20);`;
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -29,16 +15,15 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check validity
     if (!isValidSub(subscription)) throw new AppError(errDef[400].InvalidPushSubscription);
-    if (typeof topic === 'string') topic = topic.toLowerCase().trim();
     if (!isValidTopic(topic)) throw new AppError(errDef[400].InvalidPushTopic);
+    const validTopic = topic.toLowerCase().trim();
+
+    const result = await db.query(SQL_CHECK_TOPIC, [validTopic]);
+    if (!result.rowCount) throw new AppError(errDef[400].InvalidPushTopic); // Topic doesn't exist
 
     // Provide
-    const result = await provider(subscription, topic);
-    if (result) {
-      res.sendStatus(200);
-    } else {
-      throw new AppError(errDef[400].InvalidPushTopic);
-    }
+    await provider(subscription, validTopic);
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }

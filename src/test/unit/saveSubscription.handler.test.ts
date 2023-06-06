@@ -1,64 +1,23 @@
 // Mocks
-const mockErrdef = {
-  400: { InvalidPushSubscription: 'InvalidPushSubscription', InvalidPushTopic: 'InvalidPushTopic' },
-};
-jest.mock('../../utils/errors', () => ({
-  AppError: jest.fn((msg: string) => new Error(msg)),
-  errDef: mockErrdef,
-}));
 jest.mock('../../services/saveSubscription/provider', () => jest.fn());
+jest.mock('../../utils/webpush', () => ({ isValidSub: jest.fn(), isValidTopic: jest.fn() }));
+jest.mock('../../utils/db', () => ({ query: jest.fn() }));
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
-import handler, { isValidSub, isValidTopic } from '../../services/saveSubscription/apiHandler';
+import handler from '../../services/saveSubscription/apiHandler';
 import provider from '../../services/saveSubscription/provider';
+import db from '../../utils/db';
+import { AppError, errDef } from '../../utils/errors';
+import { isValidSub, isValidTopic } from '../../utils/webpush';
 
 const mockedProvider = provider as jest.Mock;
+const mockedSubValidator = isValidSub as jest.Mock;
+const mockedTopicValidator = isValidTopic as jest.Mock;
+const mockedQuery = db.query as jest.Mock;
 
 // Tests
 describe('Test /src/services/saveSubscription/apiHandler', () => {
-  describe('isValidSub()', () => {
-    it('should return true if the subscription is valid', () => {
-      const sub = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
-      const result = isValidSub(sub);
-      expect(result).toBe(true);
-    });
-
-    it('should return false if the subscription is invalid', () => {
-      expect(isValidSub({ endpoint: 'a', keys: { auth: 'a', p256dh: '' } })).toBe(false);
-      expect(isValidSub({ endpoint: 'a', keys: { auth: '', p256dh: 'a' } })).toBe(false);
-      expect(isValidSub({ endpoint: '', keys: { auth: 'a', p256dh: 'a' } })).toBe(false);
-      expect(isValidSub({ endpoint: 'a', keys: { auth: '', p256dh: '' } })).toBe(false);
-      expect(isValidSub({ endpoint: '', keys: { auth: 'a', p256dh: '' } })).toBe(false);
-      expect(isValidSub({ endpoint: '', keys: { auth: '', p256dh: 'a' } })).toBe(false);
-      expect(isValidSub({ endpoint: '', keys: { auth: '', p256dh: '' } })).toBe(false);
-      expect(isValidSub({ endpoint: 'a' })).toBe(false);
-      expect(isValidSub({ keys: { auth: 'a', p256dh: 'a' } })).toBe(false);
-      expect(isValidSub({ keys: { auth: 'a' } })).toBe(false);
-      expect(isValidSub({ keys: { p256dh: 'a' } })).toBe(false);
-      expect(isValidSub({ endpoint: 'a', keys: { auth: 'a' } })).toBe(false);
-      expect(isValidSub({ endpoint: 'a', keys: { p256dh: 'a' } })).toBe(false);
-      expect(isValidSub({ endpoint: 'a', keys: {} })).toBe(false);
-      expect(isValidSub({})).toBe(false);
-      expect(isValidSub(undefined)).toBe(false);
-    });
-  });
-
-  describe('isValidTopic()', () => {
-    it('should return true if the topic is valid', () => {
-      const topic = 'valid-topic';
-      const result = isValidTopic(topic);
-      expect(result).toBe(true);
-    });
-
-    it('should return false if the topic is invalid', () => {
-      expect(isValidTopic(undefined)).toBe(false);
-      expect(isValidTopic(0)).toBe(false);
-      expect(isValidTopic('')).toBe(false);
-      expect(isValidTopic('a'.repeat(51))).toBe(false);
-    });
-  });
-
   describe('handler', () => {
     let req: Request;
     let res: Response;
@@ -72,52 +31,70 @@ describe('Test /src/services/saveSubscription/apiHandler', () => {
     });
 
     it('should call next with InvalidPushSubscription error if the subscription is invalid', async () => {
-      const sub = { endpoint: '', keys: { auth: '', p256dh: '' } };
-      req.body = { topic: 'valid-topic', subscription: sub };
-      const expectedError = new Error(mockErrdef[400].InvalidPushSubscription);
+      const subscription = { endpoint: '', keys: { auth: '', p256dh: '' } };
+      const topic = 'valid-topic';
+      req.body = { topic, subscription };
+      mockedSubValidator.mockReturnValue(false);
+      const expectedError = new AppError(errDef[400].InvalidPushSubscription);
 
       await handler(req, res, next);
 
-      expect(next).toHaveBeenCalledWith(expectedError);
+      expect(isValidSub).toBeCalledWith(subscription);
+      expect(provider).not.toHaveBeenCalled();
       expect(res.sendStatus).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(expectedError);
     });
 
     it('should call next with InvalidPushTopic error if the topic is invalid', async () => {
-      const sub = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
-      req.body = { topic: 'a'.repeat(51), subscription: sub };
-      const expectedError = new Error(mockErrdef[400].InvalidPushTopic);
+      const subscription = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
+      const topic = 'a'.repeat(51);
+      req.body = { topic, subscription };
+      mockedSubValidator.mockReturnValue(true);
+      mockedTopicValidator.mockReturnValue(false);
+      const expectedError = new AppError(errDef[400].InvalidPushTopic);
 
       await handler(req, res, next);
 
-      expect(next).toHaveBeenCalledWith(expectedError);
+      expect(isValidTopic).toBeCalledWith(topic);
+      expect(provider).not.toHaveBeenCalled();
       expect(res.sendStatus).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(expectedError);
+    });
+
+    it('should call next with InvalidPushTopic error if topic does not exist in DB', async () => {
+      const subscription = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
+      const topic = 'valid-topic';
+      req.body = { topic, subscription };
+      mockedSubValidator.mockReturnValue(true);
+      mockedTopicValidator.mockReturnValue(true);
+      mockedQuery.mockReturnValue({ rowCount: 0 });
+      const expectedError = new AppError(errDef[400].InvalidPushTopic);
+
+      await handler(req, res, next);
+
+      expect(db.query).toBeCalledWith(expect.any(String), [topic]);
+      expect(provider).not.toHaveBeenCalled();
+      expect(res.sendStatus).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(expectedError);
     });
 
     it('should call provider and send status 200 if the subscription and topic are valid', async () => {
-      const sub = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
-      req.body = { topic: 'valid-topic', subscription: sub };
+      const subscription = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
+      const topic = 'valid-topic';
+      req.body = { topic, subscription };
+      mockedSubValidator.mockReturnValue(true);
+      mockedTopicValidator.mockReturnValue(true);
+      mockedQuery.mockReturnValue({ rowCount: 1 });
       mockedProvider.mockResolvedValue(true);
 
       await handler(req, res, next);
 
-      expect(provider).toHaveBeenCalledTimes(1);
-      expect(provider).toHaveBeenCalledWith(sub, 'valid-topic');
-      expect(next).not.toHaveBeenCalled();
+      expect(isValidSub).toBeCalledWith(subscription);
+      expect(isValidTopic).toBeCalledWith(topic);
+      expect(db.query).toBeCalledWith(expect.any(String), [topic]);
+      expect(provider).toHaveBeenCalledWith(subscription, topic);
       expect(res.sendStatus).toHaveBeenCalledWith(200);
-    });
-
-    it('should call next with InvalidPushTopic error if provider returns false', async () => {
-      const sub = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
-      req.body = { topic: 'valid-topic', subscription: sub };
-      const expectedError = new Error(mockErrdef[400].InvalidPushTopic);
-      mockedProvider.mockResolvedValue(false);
-
-      await handler(req, res, next);
-
-      expect(provider).toHaveBeenCalledTimes(1);
-      expect(provider).toHaveBeenCalledWith(sub, 'valid-topic');
-      expect(next).toHaveBeenCalledWith(expectedError);
-      expect(res.sendStatus).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
     });
   });
 });
