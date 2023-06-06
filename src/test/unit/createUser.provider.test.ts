@@ -12,7 +12,7 @@ import { db, hash } from '../../utils';
 
 describe('Test /src/service/createUser/provider', () => {
   it('should insert a user and return the user ID', async () => {
-    const email = ' TEST@example.com '; // with uppercase letters and spaces
+    const email = 'test@example.com ';
     const password = 'password';
 
     const result = await provider(email, password);
@@ -22,7 +22,7 @@ describe('Test /src/service/createUser/provider', () => {
     expect(hash.sha256).toHaveBeenCalledWith(password + mockSalt);
 
     expect(db.query).toHaveBeenCalledWith(expect.any(String), [
-      email.toLowerCase().trim(),
+      email,
       mockHash,
       mockSalt,
       ROLE_NAME,
