@@ -1,5 +1,8 @@
 import { QueryResult } from 'pg';
-import { AccessControlRow, convertToString, db, jwt } from '../../utils';
+import { AccessControlRow, convertToString } from '../../utils/access';
+import db from '../../utils/db';
+import hash from '../../utils/hash';
+import jwt from '../../utils/jwt';
 
 const SQL_ACCESS = `SELECT name, readable, writable
 FROM access_control
@@ -8,15 +11,29 @@ LEFT JOIN resource ON access_control.resource_id=resource.id
 WHERE email=$1::VARCHAR(50)
 ORDER BY name ASC;`;
 
-const provider = async (userId: number, email: string) => {
-  const result = (await db.query(SQL_ACCESS, [email])) as QueryResult<AccessControlRow>;
+const SQL_UPSERT_TOKEN = `INSERT INTO refresh_token(user_id, device, token)
+SELECT
+(SELECT id FROM userpool WHERE email=$1::VARCHAR(50)), $2::TEXT, $3::TEXT
+ON CONFLICT (user_id, device) DO UPDATE
+SET token=EXCLUDED.token;`;
+
+const provider = async (userId: number, email: string, device: string) => {
+  // Generate "aud" string from access control
+  const accessResult = (await db.query(SQL_ACCESS, [email])) as QueryResult<AccessControlRow>;
   const aud: string[] = [];
-  result.rows.forEach((row) => {
+  accessResult.rows.forEach((row) => {
     const str = convertToString(row);
     if (str) aud.push(str);
   });
+
+  // Generate tokens
   const access_token = jwt.sign({ user_id: userId }, email, aud.join(' '), '1d');
   const refresh_token = jwt.sign({ user_id: userId }, email, 'refresh', '30d');
+  const hashed_token = await hash.sha256(refresh_token);
+
+  // Save refresh token for automatic reuse detection
+  await db.query(SQL_UPSERT_TOKEN, [email, device, hashed_token]);
+
   return { access_token, refresh_token };
 };
 

@@ -1,85 +1,91 @@
-jest.mock('../../utils', () => ({
-  db: {
-    query: jest.fn(),
-  },
-  convertToString: jest.fn(),
-  jwt: {
-    sign: jest.fn(),
-  },
-}));
+// Mocks
+jest.mock('../../utils/hash', () => ({ sha256: jest.fn() }));
+jest.mock('../../utils/db', () => ({ query: jest.fn() }));
+jest.mock('../../utils/jwt', () => ({ sign: jest.fn() }));
+jest.mock('../../utils/access', () => ({ convertToString: jest.fn() }));
 
+// Imports
 import { QueryResult } from 'pg';
 import provider from '../../services/createToken/provider';
-import { AccessControlRow, convertToString, db, jwt } from '../../utils';
+import { AccessControlRow, convertToString } from '../../utils/access';
+import db from '../../utils/db';
+import hash from '../../utils/hash';
+import jwt from '../../utils/jwt';
 
+const mockedDbQuery = db.query as jest.Mock;
+const mockedConvertToString = convertToString as jest.Mock;
+const mockedJwtSign = jwt.sign as jest.Mock;
+const mockedHashSha256 = hash.sha256 as jest.Mock;
+
+// Tests
 describe('Test /src/services/createToken/provider', () => {
-  const mockedDbQuery = db.query as jest.Mock;
-  const mockedConvertToString = convertToString as jest.Mock;
-  const mockedJwtSign = jwt.sign as jest.Mock;
-  const mockedToken = 'mockedJWTToken';
+  const token = 'mockedJWTToken';
+  const hashedToken = 'mockedhashedJWTToken';
   const userId = 123;
   const email = 'test@example.com';
+  const device = 'device_uuid';
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should query the database and generate a JWT token', async () => {
+  it('should query the database and generate a JWT token and save refresh token', async () => {
     //@ts-ignore
-    const queryResult: QueryResult<AccessControlRow> = {
+    const queryResult: any = {
       rows: [
         { name: 'resource1', readable: true, writable: false },
         { name: 'resource2', readable: true, writable: false },
       ],
     };
     const expectedAccessString = 'resource1:read resource2:read';
-    const expectedResult = { access_token: mockedToken, refresh_token: mockedToken };
+    const expectedSignArgs = [
+      [{ user_id: userId }, email, expectedAccessString, '1d'],
+      [{ user_id: userId }, email, 'refresh', '30d'],
+    ];
+    const expectedResult = { access_token: token, refresh_token: token };
 
     mockedDbQuery.mockResolvedValue(queryResult);
     mockedConvertToString.mockImplementation((row) => `${row.name}:read`);
-    mockedJwtSign.mockReturnValue(mockedToken);
+    mockedJwtSign.mockReturnValue(token);
+    mockedHashSha256.mockReturnValue(hashedToken);
 
-    const result = await provider(userId, email);
+    const result = await provider(userId, email, device);
 
-    expect(mockedDbQuery).toHaveBeenCalledWith(expect.any(String), [email]);
-    expect(mockedConvertToString).toHaveBeenCalledTimes(2);
-    expect(mockedConvertToString).toHaveBeenCalledWith(queryResult.rows[0]);
-    expect(mockedConvertToString).toHaveBeenCalledWith(queryResult.rows[1]);
-    expect(mockedJwtSign).toHaveBeenCalledTimes(2);
-    expect(mockedJwtSign).toHaveBeenNthCalledWith(
-      1,
-      { user_id: userId },
-      email,
-      expectedAccessString,
-      '1d',
-    );
-    expect(mockedJwtSign).toHaveBeenNthCalledWith(2, { user_id: userId }, email, 'refresh', '30d');
+    expect(db.query).toHaveBeenCalledTimes(2);
+    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [email]);
+    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [email, device, hashedToken]);
+    expect(convertToString).toHaveBeenCalledTimes(2);
+    expect(convertToString).toHaveBeenCalledWith(queryResult.rows[0]);
+    expect(convertToString).toHaveBeenCalledWith(queryResult.rows[1]);
+    expect(jwt.sign).toHaveBeenCalledTimes(2);
+    expect(jwt.sign).toHaveBeenNthCalledWith(1, ...expectedSignArgs[0]);
+    expect(jwt.sign).toHaveBeenNthCalledWith(2, ...expectedSignArgs[1]);
+    expect(hash.sha256).toHaveBeenCalledTimes(1);
     expect(result).toEqual(expectedResult);
   });
 
-  it('should query the database and generate a JWT token with aud being an empty string if no access control rows are readable', async () => {
-    //@ts-ignore
-    const queryResult: QueryResult<AccessControlRow> = {
-      rows: [
-        { name: 'resource1', readable: false, writable: false },
-        { name: 'resource2', readable: false, writable: false },
-      ],
-    };
-    const expectedResult = { access_token: mockedToken, refresh_token: mockedToken };
+  it('should query the database and generate a JWT token with empty string "aud" if no access permits found', async () => {
+    const expectedResult = { access_token: token, refresh_token: token };
+    const expectedSignArgs = [
+      [{ user_id: userId }, email, '', '1d'],
+      [{ user_id: userId }, email, 'refresh', '30d'],
+    ];
 
-    mockedDbQuery.mockResolvedValue(queryResult);
+    mockedDbQuery.mockResolvedValue({ rows: [] });
     mockedConvertToString.mockReturnValue(undefined);
-    mockedJwtSign.mockReturnValue(mockedToken);
+    mockedJwtSign.mockReturnValue(token);
+    mockedHashSha256.mockReturnValue(hashedToken);
 
-    const result = await provider(userId, email);
+    const result = await provider(userId, email, device);
 
-    expect(mockedDbQuery).toHaveBeenCalledWith(expect.any(String), [email]);
-    expect(mockedConvertToString).toHaveBeenCalledTimes(2);
-    expect(mockedConvertToString).toHaveBeenCalledWith(queryResult.rows[0]);
-    expect(mockedConvertToString).toHaveBeenCalledWith(queryResult.rows[1]);
-    expect(mockedJwtSign).toHaveBeenCalledTimes(2);
-    expect(mockedJwtSign).toHaveBeenNthCalledWith(1, { user_id: userId }, email, '', '1d');
-    expect(mockedJwtSign).toHaveBeenNthCalledWith(2, { user_id: userId }, email, 'refresh', '30d');
+    expect(db.query).toHaveBeenCalledTimes(2);
+    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [email]);
+    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [email, device, hashedToken]);
+    expect(convertToString).not.toHaveBeenCalled();
+    expect(jwt.sign).toHaveBeenCalledTimes(2);
+    expect(jwt.sign).toHaveBeenNthCalledWith(1, ...expectedSignArgs[0]);
+    expect(jwt.sign).toHaveBeenNthCalledWith(2, ...expectedSignArgs[1]);
+    expect(hash.sha256).toHaveBeenCalledTimes(1);
     expect(result).toEqual(expectedResult);
   });
 });
