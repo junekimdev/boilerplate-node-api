@@ -3,11 +3,14 @@ import { logger } from './utils/logger';
 
 const { SERVICE_NAME = 'my_api' } = process.env;
 
+export const getErrorLog = (req: Request, err: Error) =>
+  `[${req.method} ${req.originalUrl}] from ${req.ip} to ${req.headers.host} | ${
+    err.message
+  } ${JSON.stringify(err)}`;
+
 const handler = (err: any, req: Request, res: Response, next: NextFunction) => {
   // logging
-  logger.error(
-    `[${req.method} ${req.originalUrl}] from ${req.ip} | ${err.message} | ${JSON.stringify(err)}`,
-  );
+  logger.error(getErrorLog(req, err));
 
   // 401 MUST include a WWW-Authenticate header field
   // @see https://tools.ietf.org/html/rfc7235#section-4.1

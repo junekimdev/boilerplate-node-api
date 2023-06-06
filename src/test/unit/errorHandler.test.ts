@@ -4,7 +4,7 @@ const SERVICE_NAME = 'my_api';
 process.env = { SERVICE_NAME };
 
 import { NextFunction, Request, Response } from 'express';
-import handler from '../../errorHandler';
+import handler, { getErrorLog } from '../../errorHandler';
 import { AppError, errDef } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 
@@ -13,7 +13,8 @@ describe('Test /src/errorHandler', () => {
     app: { get: jest.fn() },
     method: 'GET',
     originalUrl: '/path',
-    iup: '127.0.0.1',
+    ip: '127.0.0.1',
+    headers: { host: 'localhost:3000' },
   } as unknown as Request;
   const res = {
     status: jest.fn().mockReturnThis(),
@@ -30,9 +31,7 @@ describe('Test /src/errorHandler', () => {
   it('should handle errors correctly in development mode', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new Error('test error');
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
-      error.message
-    } | ${JSON.stringify(error)}`;
+    const log = getErrorLog(req, error);
     const expectedError: any = {};
     expectedError.status = 500;
     expectedError.code = 'ERROR';
@@ -42,7 +41,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(log);
+    expect(logger.error).toHaveBeenCalledWith(error, log);
     expect(res.set).not.toHaveBeenCalled();
     expect(req.app.get).toHaveBeenCalledTimes(1);
     expect(req.app.get).toHaveBeenCalledWith('env');
@@ -56,9 +55,7 @@ describe('Test /src/errorHandler', () => {
   it('should handle AppErrors correctly in development mode', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new AppError(errDef[400].InvalidEmailFormat);
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
-      error.message
-    } | ${JSON.stringify(error)}`;
+    const log = getErrorLog(req, error);
     const expectedError: any = {};
     expectedError.status = error.status;
     expectedError.code = error.code;
@@ -68,7 +65,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(log);
+    expect(logger.error).toHaveBeenCalledWith(error, log);
     expect(res.set).not.toHaveBeenCalled();
     expect(req.app.get).toHaveBeenCalledTimes(1);
     expect(req.app.get).toHaveBeenCalledWith('env');
@@ -82,9 +79,7 @@ describe('Test /src/errorHandler', () => {
   it('should handle errors correctly in production mode', () => {
     mockedReqAppGet.mockReturnValue('production');
     const error = new AppError();
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
-      error.message
-    } | ${JSON.stringify(error)}`;
+    const log = getErrorLog(req, error);
     const expectedError: any = {};
     expectedError.status = error.status;
     expectedError.code = error.code;
@@ -93,7 +88,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(log);
+    expect(logger.error).toHaveBeenCalledWith(error, log);
     expect(res.set).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(expectedError.status);
@@ -105,9 +100,7 @@ describe('Test /src/errorHandler', () => {
   it('should handle 401 errors correctly for basic auth scheme', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new AppError(errDef[401].AuthorizationNotFound);
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
-      error.message
-    } | ${JSON.stringify(error)}`;
+    const log = getErrorLog(req, error);
     const msg401 = `Basic realm="${SERVICE_NAME}"`;
     const expectedError: any = {};
     expectedError.status = error.status;
@@ -118,7 +111,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(log);
+    expect(logger.error).toHaveBeenCalledWith(error, log);
     expect(res.set).toHaveBeenCalledTimes(1);
     expect(res.set).toHaveBeenCalledWith('WWW-Authenticate', msg401);
     expect(req.app.get).toHaveBeenCalledTimes(1);
@@ -133,9 +126,7 @@ describe('Test /src/errorHandler', () => {
   it('should handle 401 errors correctly for bearer auth scheme', () => {
     mockedReqAppGet.mockReturnValue('development');
     const error = new AppError(errDef[401].AccessTokenNotFound);
-    const log = `[${req.method} ${req.originalUrl}] from ${req.ip} | ${
-      error.message
-    } | ${JSON.stringify(error)}`;
+    const log = getErrorLog(req, error);
     const msg401 = `Bearer realm="${SERVICE_NAME}"`;
     const expectedError: any = {};
     expectedError.status = error.status;
@@ -146,7 +137,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(log);
+    expect(logger.error).toHaveBeenCalledWith(error, log);
     expect(res.set).toHaveBeenCalledTimes(1);
     expect(res.set).toHaveBeenCalledWith('WWW-Authenticate', msg401);
     expect(req.app.get).toHaveBeenCalledTimes(1);
