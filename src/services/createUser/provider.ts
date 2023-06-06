@@ -5,6 +5,7 @@ const SQL_INSERT_USER = `INSERT INTO userpool(email, pw, salt, role_id)
 SELECT
 $1::VARCHAR(50), $2::CHAR(44), $3::CHAR(16),
 (SELECT id FROM user_role WHERE name=$4::VARCHAR(50))
+ON CONFLICT (email) DO NOTHING
 RETURNING id;`;
 
 export const ROLE_NAME = 'user1';
