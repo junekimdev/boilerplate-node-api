@@ -1,4 +1,5 @@
-require('dotenv').config();
+import config from './utils/config';
+config();
 
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
@@ -25,6 +26,9 @@ app.use('/api', apiRouter); // Routing middleware
 app.use(express.static('public')); // static files
 app.use(errorHandler); // Error Handler
 
-app.listen(PORT, () => logger.info(`Server started on port ${PORT}`));
+const server = app.listen(PORT, () => logger.info(`Server started on port ${PORT}`));
 
-export default app;
+module.exports = {
+  default: app,
+  server,
+};
