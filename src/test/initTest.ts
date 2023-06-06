@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { Client } from 'pg';
 
-const init = async (testName: string) => {
+const init = async (testName: string, port: string) => {
   const sqlInitFile = readFileSync(path.resolve(__dirname, '../../init.sql'));
   const sqlInit = sqlInitFile.toString();
   const sqlPopFile = readFileSync(path.resolve(__dirname, '../../example.sql'));
@@ -33,6 +33,7 @@ const init = async (testName: string) => {
   await client.end();
 
   process.env.TEST_NAME = testName;
+  process.env.PORT = port;
 };
 
 export default init;

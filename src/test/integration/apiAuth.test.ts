@@ -3,7 +3,7 @@ import { Server } from 'http';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../utils/hash';
-import initTestDB from '../initTestDB';
+import initTest from '../initTest';
 
 describe('Test /api/v1/auth', () => {
   let app: Express;
@@ -11,7 +11,7 @@ describe('Test /api/v1/auth', () => {
   let db: any;
 
   beforeAll(async () => {
-    await initTestDB('test_auth');
+    await initTest('test_auth', '3001');
     const mod: any = require('../../server');
     app = mod.default;
     server = mod.server;
