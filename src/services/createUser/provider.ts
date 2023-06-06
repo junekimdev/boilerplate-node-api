@@ -11,11 +11,10 @@ RETURNING id;`;
 export const ROLE_NAME = 'user1';
 
 const provider = async (email: string, password: string) => {
-  const emailLow = email.toLowerCase().trim();
   const salt = hash.createSalt();
   const hashed = await hash.sha256(password + salt);
 
-  const result = await db.query(SQL_INSERT_USER, [emailLow, hashed, salt, ROLE_NAME]);
+  const result = await db.query(SQL_INSERT_USER, [email, hashed, salt, ROLE_NAME]);
   return result.rows[0].id as number;
 };
 

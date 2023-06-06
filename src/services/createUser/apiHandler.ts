@@ -13,13 +13,14 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check validity
     if (!isEmailValid(email)) throw new AppError(errDef[400].InvalidEmailFormat);
+    const validEmail = email.toLowerCase().trim();
 
     // Check if email already exists
-    const result = await db.query(SQL_CHECK_EMAIL, [email]);
+    const result = await db.query(SQL_CHECK_EMAIL, [validEmail]);
     if (result.rowCount) throw new AppError(errDef[403].UserAlreadyExists);
 
     // Provide
-    const id = await provider(email, password);
+    const id = await provider(validEmail, password);
     const resBody: IResBody = { user_id: id };
     res.status(201).json(resBody);
   } catch (error) {

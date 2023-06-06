@@ -42,9 +42,10 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     // Check validity
     // Email validity
     if (!isEmailValid(email)) throw new AppError(errDef[400].InvalidEmailFormatAuth);
+    const validEmail = email.toLowerCase().trim();
 
     // Verify password
-    const result = await db.query(SQL_GET_INFO, [email]);
+    const result = await db.query(SQL_GET_INFO, [validEmail]);
     if (!result.rowCount) throw new AppError(errDef[401].InvalidCredential); // No email found
 
     const queryRes = result.rows[0] as QueryResult;
@@ -52,8 +53,8 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (recvHash !== queryRes.pw) throw new AppError(errDef[401].InvalidCredential); // Wrong password
 
     res.locals.userId = queryRes.id;
-    res.locals.email = email;
-    await db.query(SQL_UPDATE_LOGIN_TIME, [email]); // consider the user logged in
+    res.locals.email = validEmail;
+    await db.query(SQL_UPDATE_LOGIN_TIME, [validEmail]); // consider the user logged in
     next(); // Verified
   } catch (error) {
     next(error);
