@@ -41,7 +41,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check validity
     // Email validity
-    if (!isEmailValid(email)) throw new AppError(errDef[400].InvalidEmailFormat);
+    if (!isEmailValid(email)) throw new AppError(errDef[400].InvalidEmailFormatAuth);
 
     // Verify password
     const result = await db.query(SQL_GET_INFO, [email]);

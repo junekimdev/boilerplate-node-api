@@ -81,7 +81,7 @@ describe('Test /src/auth/basicAuth', () => {
     expect(next).toHaveBeenCalledWith(new AppError(errDef[401].UserCredentialNotFound));
   });
 
-  it('should call next with InvalidEmailFormat error when the email format is invalid', async () => {
+  it('should call next with InvalidEmailFormatAuth error when the email format is invalid', async () => {
     const email = 'test_example.com';
     const password = 'password';
     const cred = Buffer.from(`${email}:${password}`).toString('base64');
@@ -93,7 +93,7 @@ describe('Test /src/auth/basicAuth', () => {
     expect(mockedHashSha256).not.toHaveBeenCalled();
     expect(mockedIsEmailValid).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[400].InvalidEmailFormat));
+    expect(next).toHaveBeenCalledWith(new AppError(errDef[400].InvalidEmailFormatAuth));
   });
 
   it('should call next with InvalidCredential error when the email is not found in the database', async () => {
