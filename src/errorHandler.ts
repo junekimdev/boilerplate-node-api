@@ -20,7 +20,7 @@ const handler = (err: any, req: Request, res: Response, next: NextFunction) => {
   errPresenter.status = err.status ?? 500;
   errPresenter.code = err.code ?? 'ERROR';
   errPresenter.message = err.message;
-  if (req.app.get('env') === 'development') errPresenter.error = err; // for debugging
+  if (req.app.get('env') !== 'production') errPresenter.error = err; // for debugging
   res.status(errPresenter.status).json(errPresenter);
 
   next();
