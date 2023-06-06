@@ -1,12 +1,9 @@
-import crypto from 'crypto';
 import { Express } from 'express';
 import { Server } from 'http';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../utils/hash';
 import initTestDB from '../initTestDB';
-
-const getRandomString = () => crypto.randomUUID();
 
 describe('Test /api/v1/auth', () => {
   let app: Express;
