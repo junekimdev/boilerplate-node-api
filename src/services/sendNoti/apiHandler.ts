@@ -1,24 +1,25 @@
 import { NextFunction, Request, Response } from 'express';
+import db from '../../utils/db';
 import { AppError, errDef } from '../../utils/errors';
+import { isValidTopic } from '../../utils/webpush';
 import provider from './provider';
 import { IReqBody } from './types';
 
-export const isValidTopic = (topic: any) => {
-  try {
-    return 0 < topic.length && topic.length <= 50;
-  } catch (error) {
-    return false;
-  }
-};
+const SQL_CHECK_TOPIC = `SELECT id
+FROM push_sub_topics
+WHERE topic=$1::VARCHAR(20);`;
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let { topic, payload } = req.body as IReqBody;
-    if (typeof topic === 'string') topic = topic.toLowerCase().trim();
     if (!isValidTopic(topic)) throw new AppError(errDef[400].InvalidPushTopic);
     if (!payload) throw new AppError(errDef[400].InvalidPayload);
+    const validTopic = topic.toLowerCase().trim();
 
-    await provider(topic, payload);
+    const result = await db.query(SQL_CHECK_TOPIC, [validTopic]);
+    if (!result.rowCount) throw new AppError(errDef[400].InvalidPushTopic); // Topic doesn't exist
+
+    await provider(validTopic, payload);
     res.sendStatus(200);
   } catch (error) {
     next(error);

@@ -1,20 +1,16 @@
 // Mocks
-jest.mock('../../utils', () => ({
-  webpush: {
-    sendNotiByTopic: jest.fn(),
-  },
+jest.mock('../../utils/webpush', () => ({
+  sendNotiByTopic: jest.fn(),
 }));
 
 // Imports
 import provider from '../../services/sendNoti/provider';
-import { webpush } from '../../utils';
-
-const mockedWebpush = webpush as jest.Mocked<typeof webpush>;
+import webpush from '../../utils/webpush';
 
 // Tests
 describe('Test /src/services/sendNoti/provider', () => {
   beforeEach(() => {
-    mockedWebpush.sendNotiByTopic.mockClear();
+    jest.clearAllMocks();
   });
 
   it('should call sendNotiByTopic with the correct arguments', async () => {
@@ -24,8 +20,8 @@ describe('Test /src/services/sendNoti/provider', () => {
 
     await provider(topic, payload);
 
-    expect(mockedWebpush.sendNotiByTopic).toHaveBeenCalledTimes(1);
-    expect(mockedWebpush.sendNotiByTopic).toHaveBeenCalledWith(topic, payloadStr, {
+    expect(webpush.sendNotiByTopic).toHaveBeenCalledTimes(1);
+    expect(webpush.sendNotiByTopic).toHaveBeenCalledWith(topic, payloadStr, {
       contentEncoding: 'aes128gcm',
     });
   });

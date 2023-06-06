@@ -1,4 +1,4 @@
-import { webpush } from '../../utils';
+import webpush from '../../utils/webpush';
 
 const provider = async (topic: string, payload: any) => {
   const payloadStr = JSON.stringify(payload);
