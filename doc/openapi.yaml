@@ -41,6 +41,8 @@ paths:
                     example: 1
         400:
           $ref: '#/components/responses/400'
+        403:
+          $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
   /auth/token:
@@ -50,6 +52,12 @@ paths:
       summary: Get an access token
       security:
         - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceIdentity'
       responses:
         201:
           description: Created
@@ -61,8 +69,6 @@ paths:
           $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
   /push/key:
@@ -148,16 +154,32 @@ components:
   schemas:
     UserIdentity:
       type: object
+      required:
+        - email
+        - password
       properties:
         email:
           type: string
           format: email
+          maximum: 50
           example: user@example.com
         password:
           type: string
+          minimum: 1
           example: pa$$w@rd
+    DeviceIdentity:
+      type: object
+      required:
+        - device
+      properties:
+        device:
+          type: string
+          example: device_uuid
     Tokens:
       type: object
+      required:
+        - access_token
+        - refresh_token
       properties:
         access_token:
           type: string
@@ -167,12 +189,18 @@ components:
           example: abcdefghijkl.abcdefghijkl.abcdefghijkl
     PushSubscription:
       type: object
+      required:
+        - topic
+        - subscription
       properties:
         topic:
           type: string
           example: myapp_marketing
         subscription:
           type: object
+          required:
+            - endpoint
+            - keys
           properties:
             endpoint:
               type: string
@@ -180,6 +208,9 @@ components:
               example: http://push.endpoint@provider.io
             keys:
               type: object
+              required:
+                - p256dh
+                - auth
               properties:
                 p256dh:
                   type: string
@@ -189,6 +220,9 @@ components:
                   example: abcdefghijkl
     PushNotification:
       type: object
+      required:
+        - topic
+        - payload
       properties:
         topic:
           type: string
