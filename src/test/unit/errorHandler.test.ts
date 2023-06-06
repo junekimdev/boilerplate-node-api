@@ -41,7 +41,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(error, log);
+    expect(logger.error).toHaveBeenCalledWith(log);
     expect(res.set).not.toHaveBeenCalled();
     expect(req.app.get).toHaveBeenCalledTimes(1);
     expect(req.app.get).toHaveBeenCalledWith('env');
@@ -65,7 +65,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(error, log);
+    expect(logger.error).toHaveBeenCalledWith(log);
     expect(res.set).not.toHaveBeenCalled();
     expect(req.app.get).toHaveBeenCalledTimes(1);
     expect(req.app.get).toHaveBeenCalledWith('env');
@@ -88,7 +88,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(error, log);
+    expect(logger.error).toHaveBeenCalledWith(log);
     expect(res.set).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(expectedError.status);
@@ -111,7 +111,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(error, log);
+    expect(logger.error).toHaveBeenCalledWith(log);
     expect(res.set).toHaveBeenCalledTimes(1);
     expect(res.set).toHaveBeenCalledWith('WWW-Authenticate', msg401);
     expect(req.app.get).toHaveBeenCalledTimes(1);
@@ -137,7 +137,7 @@ describe('Test /src/errorHandler', () => {
     handler(error, req, res, next);
 
     expect(logger.error).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalledWith(error, log);
+    expect(logger.error).toHaveBeenCalledWith(log);
     expect(res.set).toHaveBeenCalledTimes(1);
     expect(res.set).toHaveBeenCalledWith('WWW-Authenticate', msg401);
     expect(req.app.get).toHaveBeenCalledTimes(1);
