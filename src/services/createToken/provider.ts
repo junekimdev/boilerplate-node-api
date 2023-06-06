@@ -11,11 +11,11 @@ LEFT JOIN resource ON access_control.resource_id=resource.id
 WHERE email=$1::VARCHAR(50)
 ORDER BY name ASC;`;
 
-const SQL_UPSERT_TOKEN = `INSERT INTO refresh_token(user_id, device, token)
+const SQL_UPSERT_TOKEN = `INSERT INTO refresh_token(user_id, device, token, created_at)
 SELECT
-(SELECT id FROM userpool WHERE email=$1::VARCHAR(50)), $2::TEXT, $3::TEXT
+(SELECT id FROM userpool WHERE email=$1::VARCHAR(50)), $2::TEXT, $3::CHAR(44), NOW()
 ON CONFLICT (user_id, device) DO UPDATE
-SET token=EXCLUDED.token;`;
+SET token=EXCLUDED.token, created_at=NOW();`;
 
 const provider = async (userId: number, email: string, device: string) => {
   // Generate "aud" string from access control
