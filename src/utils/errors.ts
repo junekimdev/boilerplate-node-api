@@ -114,15 +114,21 @@ export const errDef: errDefType = {
     },
   },
   '403': {
-    AccessDenied: {
+    UserAlreadyExists: {
       status: 403,
       code: 'E403-1',
+      error_in: 'Auth',
+      message: 'User Already Exists',
+    },
+    AccessDenied: {
+      status: 403,
+      code: 'E403-2',
       error_in: 'Auth',
       message: 'Not Allowed To Access Resources',
     },
     AccessUndefined: {
       status: 403,
-      code: 'E403-2',
+      code: 'E403-3',
       error_in: 'Auth',
       message: 'Access Control is undefined',
     },
