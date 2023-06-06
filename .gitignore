@@ -42,3 +42,5 @@ logs
 # keys
 *.pem
 *.key
+!*.test.pem
+!*.test.key
