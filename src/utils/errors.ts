@@ -13,14 +13,12 @@ export class AppError extends Error implements IError {
   status: number;
   code: string;
   error_in: string;
-  message: string;
 
   constructor(obj: IError = errDef[500].InternalError, options?: ErrorOptions) {
     super(obj.message, options);
     this.status = obj.status;
     this.code = obj.code;
     this.error_in = obj.error_in;
-    this.message = obj.message;
   }
 }
 
