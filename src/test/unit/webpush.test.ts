@@ -26,7 +26,7 @@ jest.mock('../../utils/logger', () => {
 import webpush, { RequestOptions } from 'web-push';
 import db from '../../utils/db';
 import { logger } from '../../utils/logger';
-import webpushUtil from '../../utils/webpush';
+import webpushUtil, { isValidSub, isValidTopic } from '../../utils/webpush';
 
 // Tests
 describe('Test /src/util/webpush', () => {
@@ -161,6 +161,48 @@ describe('Test /src/util/webpush', () => {
 
       expect(logger.info).toBeCalledTimes(2);
       expect(logger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('isValidSub()', () => {
+    it('should return true if the subscription is valid', () => {
+      const sub = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
+      const result = isValidSub(sub);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if the subscription is invalid', () => {
+      expect(isValidSub({ endpoint: 'a', keys: { auth: 'a', p256dh: '' } })).toBe(false);
+      expect(isValidSub({ endpoint: 'a', keys: { auth: '', p256dh: 'a' } })).toBe(false);
+      expect(isValidSub({ endpoint: '', keys: { auth: 'a', p256dh: 'a' } })).toBe(false);
+      expect(isValidSub({ endpoint: 'a', keys: { auth: '', p256dh: '' } })).toBe(false);
+      expect(isValidSub({ endpoint: '', keys: { auth: 'a', p256dh: '' } })).toBe(false);
+      expect(isValidSub({ endpoint: '', keys: { auth: '', p256dh: 'a' } })).toBe(false);
+      expect(isValidSub({ endpoint: '', keys: { auth: '', p256dh: '' } })).toBe(false);
+      expect(isValidSub({ endpoint: 'a' })).toBe(false);
+      expect(isValidSub({ keys: { auth: 'a', p256dh: 'a' } })).toBe(false);
+      expect(isValidSub({ keys: { auth: 'a' } })).toBe(false);
+      expect(isValidSub({ keys: { p256dh: 'a' } })).toBe(false);
+      expect(isValidSub({ endpoint: 'a', keys: { auth: 'a' } })).toBe(false);
+      expect(isValidSub({ endpoint: 'a', keys: { p256dh: 'a' } })).toBe(false);
+      expect(isValidSub({ endpoint: 'a', keys: {} })).toBe(false);
+      expect(isValidSub({})).toBe(false);
+      expect(isValidSub(undefined)).toBe(false);
+    });
+  });
+
+  describe('isValidTopic()', () => {
+    it('should return true if the topic is valid', () => {
+      const topic = 'valid-topic';
+      const result = isValidTopic(topic);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if the topic is invalid', () => {
+      expect(isValidTopic(undefined)).toBe(false);
+      expect(isValidTopic(0)).toBe(false);
+      expect(isValidTopic('')).toBe(false);
+      expect(isValidTopic('a'.repeat(51))).toBe(false);
     });
   });
 });

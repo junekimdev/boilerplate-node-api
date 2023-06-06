@@ -66,4 +66,20 @@ export const sendNotiToAll = async (payload?: string | Buffer | null, options?: 
   await sendNotiByTopic(ALL, payload, options);
 };
 
+export const isValidSub = (subscription: any) => {
+  try {
+    const n =
+      subscription.endpoint.length &&
+      subscription.keys.auth.length &&
+      subscription.keys.p256dh.length;
+    return n !== 0;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const isValidTopic = (topic: any) => {
+  return typeof topic === 'string' && 0 < topic.length && topic.length <= 50;
+};
+
 export default { sendNotiToAll, sendNotiByTopic };
