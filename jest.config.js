@@ -23,7 +23,7 @@ module.exports = {
   coverageDirectory: 'test/coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['src/test', 'src/server.ts'],
+  coveragePathIgnorePatterns: ['src/test'],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
