@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from '../../utils';
+import { AppError } from '../../utils/errors';
 import { IResBody } from './types';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,5 +1,5 @@
-//import {} from './types';
-import { db, hash } from '../../utils';
+import db from '../../utils/db';
+import hash from '../../utils/hash';
 
 const SQL_INSERT_USER = `INSERT INTO userpool(email, pw, salt, role_id)
 SELECT

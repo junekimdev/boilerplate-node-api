@@ -1,15 +1,13 @@
 // Mocks
-const mockedVapidPubKey = 'mockedVapidPublicKey';
-const mockedError = new Error('mockedError');
-
 jest.mock('express', () => ({
   Request: jest.fn(),
   Response: jest.fn(),
 }));
 
-jest.mock('../../utils', () => ({
-  AppError: jest.fn(() => mockedError),
-}));
+// Imports
+import { NextFunction, Request, Response } from 'express';
+import handler from '../../services/readVapidPubKey/apiHandler';
+import { AppError } from '../../utils/errors';
 
 const mockedRequest = (body: any = {}): Request => ({ body } as Request);
 const mockedResponse = (): Response => {
@@ -20,10 +18,7 @@ const mockedResponse = (): Response => {
   return res as Response;
 };
 const mockedNext = () => jest.fn() as NextFunction;
-
-// Imports
-import { NextFunction, Request, Response } from 'express';
-import handler from '../../services/readVapidPubKey/apiHandler';
+const mockedVapidPubKey = 'mockedVapidPublicKey';
 
 // Tests
 describe('Test /src/services/readVapidPubKey', () => {
@@ -56,6 +51,6 @@ describe('Test /src/services/readVapidPubKey', () => {
 
     expect(res.status).not.toHaveBeenCalled();
     expect(res.json).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(mockedError);
+    expect(next).toHaveBeenCalledWith(new AppError());
   });
 });
