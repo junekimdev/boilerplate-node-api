@@ -36,8 +36,8 @@ const main = async () => {
 
     const prvfile = `${name}_prv.pem`;
     const pubfile = `${name}_pub.pem`;
-    const prvFilePath = path.join(__dirname, prvfile);
-    const pubFilePath = path.join(__dirname, pubfile);
+    const prvFilePath = path.join(__dirname, 'keys', prvfile);
+    const pubFilePath = path.join(__dirname, 'keys', pubfile);
 
     try {
       fs.accessSync(prvFilePath);
