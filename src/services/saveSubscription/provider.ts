@@ -1,8 +1,8 @@
 import { PushSubscription } from 'web-push';
 import db from '../../utils/db';
 
-const SQL_INSERT = `INSERT INTO push_subscription(sub, topic_id)
-SELECT $1::TEXT, (SELECT id FROM push_sub_topics WHERE topic=$2::VARCHAR(20))
+const SQL_INSERT = `INSERT INTO subscription(sub, topic_id)
+SELECT $1::TEXT, (SELECT id FROM topic WHERE name=$2::VARCHAR(50))
 ON CONFLICT (sub) DO NOTHING;`;
 
 const provider = async (subscription: PushSubscription, topic: string) => {

@@ -5,9 +5,7 @@ import { isValidTopic } from '../../utils/webpush';
 import provider from './provider';
 import { IReqBody } from './types';
 
-const SQL_CHECK_TOPIC = `SELECT id
-FROM push_sub_topics
-WHERE topic=$1::VARCHAR(20);`;
+const SQL_CHECK_TOPIC = `SELECT id FROM topic WHERE name=$1::VARCHAR(50);`;
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
