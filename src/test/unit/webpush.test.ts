@@ -67,7 +67,9 @@ describe('Test /src/util/webpush', () => {
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
 
-      await expect(webpushUtil.sendNotiByTopic(topic, payload, option)).rejects.toThrow('err');
+      await expect(webpushUtil.sendNotiByTopic(topic, payload, option)).rejects.toThrow(
+        'WebPush Error',
+      );
 
       expect(db.query).toBeCalledTimes(2);
       expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [topic]);
@@ -92,11 +94,14 @@ describe('Test /src/util/webpush', () => {
     it('should throw an error and leave an error level log about the error as well as info level log about success and unsubscribers', async () => {
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
 
-      await expect(webpushUtil.sendNotiByTopic(topic, payload, option)).rejects.toThrow('err');
+      await expect(webpushUtil.sendNotiByTopic(topic, payload, option)).rejects.toThrow(
+        'WebPush Error',
+      );
 
       expect(logger.info).toBeCalledTimes(2);
-      expect(logger.error).toBeCalledTimes(1);
+      expect(logger.error).toBeCalledTimes(3);
     });
   });
 
@@ -131,7 +136,7 @@ describe('Test /src/util/webpush', () => {
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
 
-      await expect(webpushUtil.sendNotiToAll(payload, option)).rejects.toThrow('err');
+      await expect(webpushUtil.sendNotiToAll(payload, option)).rejects.toThrow('WebPush Error');
 
       expect(db.query).toBeCalledTimes(2);
       expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String));
@@ -156,11 +161,12 @@ describe('Test /src/util/webpush', () => {
     it('should throw an error and leave an error level log about the error as well as info level log about success and unsubscribers', async () => {
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce({ statusCode: 404 });
       (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
+      (webpush.sendNotification as jest.Mock).mockRejectedValueOnce(new Error('err'));
 
-      await expect(webpushUtil.sendNotiToAll(payload, option)).rejects.toThrow('err');
+      await expect(webpushUtil.sendNotiToAll(payload, option)).rejects.toThrow('WebPush Error');
 
       expect(logger.info).toBeCalledTimes(2);
-      expect(logger.error).toBeCalledTimes(1);
+      expect(logger.error).toBeCalledTimes(3);
     });
   });
 

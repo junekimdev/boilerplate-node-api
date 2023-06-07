@@ -58,7 +58,8 @@ export const sendNotiByTopic = async (
   if (errors.length) {
     const msg = `[WebPush Error] ${errors.length} errors occurred in sending by topic <${topic}>`;
     logger.error(msg);
-    throw new Error(msg, { cause: errors });
+    errors.forEach((err) => logger.error((err as Error).message));
+    throw new Error('WebPush Error', { cause: errors });
   }
 };
 
