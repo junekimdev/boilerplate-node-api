@@ -277,9 +277,7 @@ This will create a ES256 key pair to be used
 node keygen-vapid.js
 ```
 
-This will outputs a VAPID key pair to your console
-This requires `web-push` installed beforehand
-Copy and paste the keys in your `.env` file
+This will append a VAPID key pair in `.env` file
 
 ## What's Next?
 
