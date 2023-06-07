@@ -9,15 +9,14 @@ const SQL_CHECK_TOPIC = `SELECT id FROM topic WHERE name=$1::VARCHAR(50);`;
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let { topic, payload } = req.body as IReqBody;
+    const { topic, payload } = req.body as IReqBody;
     if (!isValidTopic(topic)) throw new AppError(errDef[400].InvalidPushTopic);
     if (!payload) throw new AppError(errDef[400].InvalidPayload);
-    const validTopic = topic.toLowerCase().trim();
 
-    const result = await db.query(SQL_CHECK_TOPIC, [validTopic]);
+    const result = await db.query(SQL_CHECK_TOPIC, [topic]);
     if (!result.rowCount) throw new AppError(errDef[400].InvalidPushTopic); // Topic doesn't exist
 
-    await provider(validTopic, payload);
+    await provider(topic, payload);
     res.sendStatus(200);
   } catch (error) {
     next(error);
