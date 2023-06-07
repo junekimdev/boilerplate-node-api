@@ -16,8 +16,6 @@ RUN set -eux \
   && yarn install \
   && apk del .build-deps
 
-ARG GIT_HASH
-
 ENV NODE_ENV=production
 
 # Add all files

@@ -26,8 +26,8 @@ services:
     expose:
       - 3000
     volumes:
-      - ./es256_prv.pem:/app/es256_prv.pem
-      - ./es256_pub.pem:/app/es256_pub.pem
+      - ./keys/es256_prv.pem:/app/keys/es256_prv.pem
+      - ./keys/es256_pub.pem:/app/keys/es256_pub.pem
     networks:
       - nginx-proxy
       - backend

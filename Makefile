@@ -8,7 +8,6 @@ TAG=1.0-alpine
 
 build:
 	docker build \
-	--build-arg GIT_HASH=$(shell git ls-remote --heads $(GIT_URL) | cut -c 1-40) \
 	-t YOUR-REPO/$(NAME):$(TAG) .
 
 # This updates local repo
