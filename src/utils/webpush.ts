@@ -12,8 +12,8 @@ const { VAPID_SUBJECT = '', VAPID_PUB_KEY = '', VAPID_PRI_KEY = '' } = process.e
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUB_KEY, VAPID_PRI_KEY);
 
 const SQL_GET_ALL = `SELECT (id, sub) FROM subscription`;
-const SQL_GET_BY_TOPIC = `
-SELECT (id, sub) FROM subscription WHERE topic_id=(SELECT id FROM topic WHERE name=$1::VARCHAR(20))`;
+const SQL_GET_BY_TOPIC = `SELECT (id, sub) FROM subscription
+WHERE topic_id=(SELECT id FROM topic WHERE name=$1::VARCHAR(50))`;
 const SQL_DELETE = `DELETE FROM subscription WHERE id IN ($1::INT[])`;
 
 export async function* getSubsByTopicFromDB(topic: string) {
