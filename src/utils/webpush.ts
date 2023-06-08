@@ -42,7 +42,7 @@ export const sendNotiByTopic = async (
       if (err?.statusCode === 404 || err?.statusCode === 410) {
         subsTodelete.push(id);
       } else {
-        errors.push(err);
+        errors.push(err?.message);
       }
     }
   }
@@ -58,7 +58,7 @@ export const sendNotiByTopic = async (
   if (errors.length) {
     const msg = `[WebPush Error] ${errors.length} errors occurred in sending by topic <${topic}>`;
     logger.error(msg);
-    errors.forEach((err) => logger.error((err as Error).message));
+    errors.forEach((err) => logger.error(`[WebPush Error] ${topic} | ${err}`));
     throw new Error('WebPush Error', { cause: errors });
   }
 };
