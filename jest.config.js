@@ -23,7 +23,7 @@ module.exports = {
   coverageDirectory: 'test/coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['src/test'],
+  coveragePathIgnorePatterns: ['test'],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
@@ -116,7 +116,7 @@ module.exports = {
   // restoreMocks: false,
 
   // The root directory that Jest should scan for tests and modules within
-  rootDir: 'src',
+  // rootDir: 'src',
 
   // A list of paths to directories that Jest should use to search for files in
   // roots: [],
