@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { QueryResultRow } from 'pg';
 import db from '../utils/db';
 import { isEmailValid } from '../utils/email';
 import { AppError, errDef } from '../utils/errors';
@@ -9,11 +10,11 @@ interface ICredential {
   password: string | undefined;
 }
 
-type QueryResult = {
+interface IUserpoolRow extends QueryResultRow {
   id: number;
   pw: string;
   salt: string;
-};
+}
 
 export const decodeCredential = (cred: string) => {
   const buf = Buffer.from(cred, 'base64');
@@ -23,7 +24,7 @@ export const decodeCredential = (cred: string) => {
 };
 
 const SQL_GET_INFO = `SELECT id, pw, salt FROM userpool WHERE email=$1::VARCHAR(50);`;
-const SQL_UPDATE_LOGIN_TIME = `UPDATE userpool SET last_login=NOW() WHERE email=$1::VARCHAR(50);`;
+const SQL_UPDATE_LOGIN_TIME = `UPDATE userpool SET last_login=NOW() WHERE id=$1::INT;`;
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -48,13 +49,13 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     const result = await db.query(SQL_GET_INFO, [validEmail]);
     if (!result.rowCount) throw new AppError(errDef[401].InvalidCredential); // No email found
 
-    const queryRes = result.rows[0] as QueryResult;
+    const queryRes = result.rows[0] as IUserpoolRow;
     const recvHash = await hash.sha256(password + queryRes.salt);
     if (recvHash !== queryRes.pw) throw new AppError(errDef[401].InvalidCredential); // Wrong password
 
     res.locals.userId = queryRes.id;
     res.locals.email = validEmail;
-    await db.query(SQL_UPDATE_LOGIN_TIME, [validEmail]); // consider the user logged in
+    await db.query(SQL_UPDATE_LOGIN_TIME, [queryRes.id]); // consider the user logged in
     next(); // Verified
   } catch (error) {
     next(error);

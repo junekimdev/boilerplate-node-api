@@ -142,13 +142,14 @@ describe('Test /src/auth/basicAuth', () => {
   it('should set res.locals with userId and email, and call next when the credentials are valid', async () => {
     const email = 'test@example.com';
     const password = 'password';
+    const userId = 123;
     const validCred = Buffer.from(`${email}:${password}`).toString('base64');
     req.headers = { authorization: `Basic ${validCred}` };
 
     mockedIsEmailValid.mockReturnValue(true);
     mockedDbQuery.mockResolvedValue({
       rowCount: 1,
-      rows: [{ id: 1, pw: 'hashed-password', salt: 'salt' }],
+      rows: [{ id: userId, pw: 'hashed-password', salt: 'salt' }],
     } as QueryResult);
     mockedHashSha256.mockResolvedValue('hashed-password');
 
@@ -156,11 +157,11 @@ describe('Test /src/auth/basicAuth', () => {
 
     expect(mockedDbQuery).toHaveBeenCalledTimes(2);
     expect(mockedDbQuery).toHaveBeenNthCalledWith(1, expect.any(String), [email]);
-    expect(mockedDbQuery).toHaveBeenNthCalledWith(2, expect.any(String), [email]);
+    expect(mockedDbQuery).toHaveBeenNthCalledWith(2, expect.any(String), [userId]);
     expect(mockedHashSha256).toHaveBeenCalledTimes(1);
     expect(mockedHashSha256).toHaveBeenCalledWith(password + 'salt');
     expect(mockedIsEmailValid).toHaveBeenCalledTimes(1);
-    expect(res.locals.userId).toEqual(1);
+    expect(res.locals.userId).toEqual(userId);
     expect(res.locals.email).toEqual(email);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith();
