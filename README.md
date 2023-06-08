@@ -162,35 +162,38 @@ root/
 │   └── document_files
 ├── keys/
 │   └── key_files
-└── src/
-    ├── server.ts
-    ├── errorHandler.ts
-    ├── api/
-    │   ├── index.ts
-    │   └── v1.ts
-    ├── auth/
-    │   ├── basicAuth.ts
-    │   ├── bearerAuth.ts
-    │   └── access_control_files
-    ├── services/
-    │   └── eachService/
-    │       ├── index.ts
-    │       ├── apiHandler.ts
-    │       ├── provider.ts
-    │       └── types.ts
-    ├── utils/
-    │   ├── errors.ts
-    │   └── utility_files
-    └── test/
-        ├── test.config
-        ├── initTest.ts
-        ├── testData.sql
-        ├── unit/
-        │   └── unit_test_files
-        ├── integration/
-        │   └── integration_test_files
-        └── coverage/
-            └── test_coverage_report_files
+├── src/
+│   ├── server.ts
+│   ├── errorHandler.ts
+│   ├── api/
+│   │   ├── index.ts
+│   │   └── v1.ts
+│   ├── auth/
+│   │   ├── basicAuth.ts
+│   │   ├── bearerAuth.ts
+│   │   └── access_control_files
+│   ├── services/
+│   │   └── eachService/
+│   │       ├── index.ts
+│   │       ├── apiHandler.ts
+│   │       ├── provider.ts
+│   │       └── types.ts
+│   └── utils/
+│       ├── errors.ts
+│       └── utility_files
+└── test/
+    ├── test.config
+    ├── initTest.ts
+    ├── testData.sql
+    ├── unit/
+    │   ├── eachService/
+    │   │   ├── handler.test.ts
+    │   │   └── provider.test.ts
+    │   └── unit_test_files
+    ├── integration/
+    │   └── integration_test_files
+    └── coverage/
+        └── test_coverage_report_files
 ```
 
 ### Explanation of the Architecture
@@ -257,7 +260,7 @@ root/
 ### Adding a New Service
 
 ```shell
-node codegen-service.js -name=servicename
+node codegen.js -name=servicename
 ```
 
 This will create files according to the architecture explained above
