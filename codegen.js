@@ -36,13 +36,13 @@ export default handler;
 `;
 
 const getTestTxtForHanlder = (name) => `// Mocks
-jest.mock('../../../../services/${name}/provider', () => jest.fn());
+jest.mock('../../../../src/services/${name}/provider', () => jest.fn());
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
-import handler from '../../../../services/${name}/apiHandler';
-import provider from '../../../../services/${name}/provider';
-import { AppError, errDef } from '../../../../utils/errors';
+import handler from '../../../../src/services/${name}/apiHandler';
+import provider from '../../../../src/services/${name}/provider';
+import { AppError, errDef } from '../../../../src/utils/errors';
 
 const mockedProvider = provider as jest.Mock;
 
@@ -78,11 +78,11 @@ describe('Test /src/services/${name}/apiHandler', () => {
 `;
 
 const getTestTxtForProvider = (name) => `// Mocks
-jest.mock('../../../../utils/db', () => ({ query: jest.fn() }));
+jest.mock('../../../../src/utils/db', () => ({ query: jest.fn() }));
 
 // Imports
-import provider from '../../../../services/${name}/provider';
-import db from '../../../../utils/db';
+import provider from '../../../../src/services/${name}/provider';
+import db from '../../../../src/utils/db';
 
 const mockedDbQuery = db.query as jest.Mock;
 
