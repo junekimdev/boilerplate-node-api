@@ -1,10 +1,11 @@
 import { Locals, NextFunction, Request, Response } from 'express';
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { AppError, errDef } from '../utils/errors';
 import jwt from '../utils/jwt';
 
 export interface IResLocals {
   accessRegex?: RegExp;
+  verfiedToken?: JwtPayload;
 }
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +24,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 
     // Verify token
     try {
-      jwt.verify(accessToken, accessRegex);
+      (res.locals as IResLocals).verfiedToken = jwt.verify(accessToken, accessRegex);
     } catch (error) {
       // Caused by expired token
       if (error instanceof TokenExpiredError) {
@@ -41,7 +42,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
       }
 
       // Caused by unknown error
-      throw new AppError(errDef[500].InternalError, { cause: error });
+      throw error;
     }
     next();
   } catch (error) {

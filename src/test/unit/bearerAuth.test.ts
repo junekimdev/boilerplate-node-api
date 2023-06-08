@@ -27,7 +27,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).not.toHaveBeenCalled();
+    expect(jwt.verify).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(new AppError(errDef[401].AuthorizationNotFound));
   });
@@ -37,7 +37,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).not.toHaveBeenCalled();
+    expect(jwt.verify).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(new AppError(errDef[401].InvalidAuthScheme));
   });
@@ -47,7 +47,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).not.toHaveBeenCalled();
+    expect(jwt.verify).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(new AppError(errDef[401].AccessTokenNotFound));
   });
@@ -59,20 +59,25 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).not.toHaveBeenCalled();
+    expect(jwt.verify).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(new AppError(errDef[403].AccessUndefined));
   });
 
-  it('should call jwt.verify with the correct arguments and call next when the token is valid', async () => {
+  it('should call jwt.verify with the correct arguments and put the result in res.local and call next when the token is valid', async () => {
     const accessToken = 'valid-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
     res.locals = { accessRegex: /.*/ } as IResLocals;
+    const expectedPayload = { payload: 'payload' };
+
+    mockedJwtVerify.mockImplementationOnce(() => expectedPayload);
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).toHaveBeenCalledTimes(1);
-    expect(mockedJwtVerify).toHaveBeenCalledWith(accessToken, /.*/);
+    expect(jwt.verify).toHaveBeenCalledTimes(1);
+    expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
+    expect(res.locals).toHaveProperty('verfiedToken');
+    expect(res.locals.verfiedToken).toEqual(expectedPayload);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith();
   });
@@ -89,8 +94,8 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).toHaveBeenCalledTimes(1);
-    expect(mockedJwtVerify).toHaveBeenCalledWith(accessToken, /.*/);
+    expect(jwt.verify).toHaveBeenCalledTimes(1);
+    expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(
       new AppError(errDef[401].TokenExpired, { cause: tokenExpiredError }),
@@ -109,8 +114,8 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).toHaveBeenCalledTimes(1);
-    expect(mockedJwtVerify).toHaveBeenCalledWith(accessToken, /.*/);
+    expect(jwt.verify).toHaveBeenCalledTimes(1);
+    expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(
       new AppError(errDef[403].AccessDenied, { cause: deniedAccessError }),
@@ -129,15 +134,15 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).toHaveBeenCalledTimes(1);
-    expect(mockedJwtVerify).toHaveBeenCalledWith(accessToken, /.*/);
+    expect(jwt.verify).toHaveBeenCalledTimes(1);
+    expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(
       new AppError(errDef[401].InvalidToken, { cause: invalidTokenError }),
     );
   });
 
-  it('should call next with InternalError error when an unknown error occurs', async () => {
+  it('should call next with the error when an unknown error occurs', async () => {
     const accessToken = 'unknown-error-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
     res.locals = { accessRegex: /.*/ } as IResLocals;
@@ -149,11 +154,9 @@ describe('Test /src/auth/bearerAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedJwtVerify).toHaveBeenCalledTimes(1);
-    expect(mockedJwtVerify).toHaveBeenCalledWith(accessToken, /.*/);
+    expect(jwt.verify).toHaveBeenCalledTimes(1);
+    expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
     expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(
-      new AppError(errDef[500].InternalError, { cause: unknownError }),
-    );
+    expect(next).toHaveBeenCalledWith(unknownError);
   });
 });
