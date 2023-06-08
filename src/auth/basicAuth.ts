@@ -16,6 +16,11 @@ interface IUserpoolRow extends QueryResultRow {
   salt: string;
 }
 
+export interface IBasicAuthResLocals {
+  userId: number;
+  email: string;
+}
+
 export const decodeCredential = (cred: string) => {
   const buf = Buffer.from(cred, 'base64');
   const decoded = buf.toString('utf8');
@@ -53,8 +58,8 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     const recvHash = await hash.sha256(password + queryRes.salt);
     if (recvHash !== queryRes.pw) throw new AppError(errDef[401].InvalidCredential); // Wrong password
 
-    res.locals.userId = queryRes.id;
-    res.locals.email = validEmail;
+    (res.locals as IBasicAuthResLocals).userId = queryRes.id;
+    (res.locals as IBasicAuthResLocals).email = validEmail;
     await db.query(SQL_UPDATE_LOGIN_TIME, [queryRes.id]); // consider the user logged in
     next(); // Verified
   } catch (error) {
