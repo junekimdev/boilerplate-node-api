@@ -36,10 +36,10 @@ describe('Test /api/v1/auth', () => {
       expect(check.rowCount).toBe(0);
     });
 
-    it('should fail to create a user return 403 when email already exists', async () => {
+    it('should fail to create a user return 409 when email already exists', async () => {
       const data = { email: testObj.user, password: testObj.password };
       const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(409);
 
       const check: QueryResult = await db.query(sqlUser, [testObj.user]);
       expect(check.rowCount).toBe(1);

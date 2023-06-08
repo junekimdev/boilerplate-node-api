@@ -79,13 +79,13 @@ describe('Test /src/services/createUser/apiHandler', () => {
     expect(next).toHaveBeenCalledWith(expectedError);
   });
 
-  it('should throw AppError with 403 status if email already exists', async () => {
+  it('should throw AppError with 409 status if email already exists', async () => {
     const email = 'invalid_email';
     const password = 'password';
     const req = mockedRequest({ email, password });
     const res = mockedResponse();
     const next = mockedNext();
-    const expectedError = new AppError(errDef[403].UserAlreadyExists);
+    const expectedError = new AppError(errDef[409].UserAlreadyExists);
 
     mockedEmailValidator.mockReturnValue(true);
     mockedQuery.mockReturnValue({ rowCount: 1 });

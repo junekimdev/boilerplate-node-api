@@ -17,7 +17,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
     // Check if email already exists
     const result = await db.query(SQL_CHECK_EMAIL, [validEmail]);
-    if (result.rowCount) throw new AppError(errDef[403].UserAlreadyExists);
+    if (result.rowCount) throw new AppError(errDef[409].UserAlreadyExists);
 
     // Provide
     const id = await provider(validEmail, password);
