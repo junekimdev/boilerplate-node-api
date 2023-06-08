@@ -3,8 +3,9 @@ import jsonwebtoken, { SignOptions, VerifyOptions } from 'jsonwebtoken';
 import path from 'path';
 
 const { JWT_PRI_FILENAME = '', JWT_PUB_FILENAME = '', JWT_ISS = '' } = process.env;
-const prv_path = path.resolve(__dirname, '..', '..', 'keys', JWT_PRI_FILENAME);
-const pub_path = path.resolve(__dirname, '..', '..', 'keys', JWT_PUB_FILENAME);
+const prv_path = path.resolve(__dirname, '../../keys', JWT_PRI_FILENAME);
+const pub_path = path.resolve(__dirname, '../../keys', JWT_PUB_FILENAME);
+
 const priFile = fs.readFileSync(prv_path);
 const pubFile = fs.readFileSync(pub_path);
 const alg = 'ES256';
