@@ -59,6 +59,20 @@ describe('Test /src/services/createToken/apiHandler', () => {
     expect(next).toHaveBeenCalledWith(expectedError);
   });
 
+  it('should call next with InvalidDeviceId error if device id in request body is not a string', async () => {
+    const req = mockedRequest({ device: { id: 'device' } });
+    const res = mockedResponse();
+    const next = mockedNext();
+    const expectedError = new AppError(errDef[400].InvalidDeviceId);
+
+    await handler(req, res, next);
+
+    expect(mockedProvider).not.toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expectedError);
+  });
+
   it('should call next with the error if provider throws an error', async () => {
     const req = mockedRequest({ device });
     const res = mockedResponse();

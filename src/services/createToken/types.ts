@@ -1,6 +1,5 @@
-export interface IResLocals {
-  userId: number;
-  email: string;
+export interface IReqBody {
+  device?: any;
 }
 export interface IResBody {
   access_token: string;
