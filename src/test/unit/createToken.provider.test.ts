@@ -52,8 +52,8 @@ describe('Test /src/services/createToken/provider', () => {
     const result = await provider(userId, email, device);
 
     expect(db.query).toHaveBeenCalledTimes(2);
-    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [email]);
-    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [email, device, hashedToken]);
+    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [userId]);
+    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
     expect(convertToString).toHaveBeenCalledTimes(2);
     expect(convertToString).toHaveBeenCalledWith(queryResult.rows[0]);
     expect(convertToString).toHaveBeenCalledWith(queryResult.rows[1]);
@@ -79,8 +79,8 @@ describe('Test /src/services/createToken/provider', () => {
     const result = await provider(userId, email, device);
 
     expect(db.query).toHaveBeenCalledTimes(2);
-    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [email]);
-    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [email, device, hashedToken]);
+    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [userId]);
+    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
     expect(convertToString).not.toHaveBeenCalled();
     expect(jwt.sign).toHaveBeenCalledTimes(2);
     expect(jwt.sign).toHaveBeenNthCalledWith(1, ...expectedSignArgs[0]);
