@@ -1,4 +1,4 @@
-import { AppError, IError, errDef, errDefType } from '../../utils/errors';
+import { AppError, IError, errDef } from '../../utils/errors';
 
 describe('Test /src/utils/errors', () => {
   describe('Class "AppError" when constructed without an arg', () => {
@@ -6,9 +6,8 @@ describe('Test /src/utils/errors', () => {
 
     it('should have props: [status, code, error_in, message]', () => {
       expect(err).toHaveProperty('status');
-      expect(err).toHaveProperty('code');
-      expect(err).toHaveProperty('error_in');
       expect(err).toHaveProperty('message');
+      expect(err).toHaveProperty('error_in');
     });
 
     it('should be an instance of Error', () => {
@@ -23,18 +22,16 @@ describe('Test /src/utils/errors', () => {
   describe('Class "AppError" when constructed with an arg', () => {
     const mockErrDef = {
       status: 1,
-      code: 'aaa',
-      error_in: 'body',
       message: 'msg',
+      error_in: 'body',
     };
 
     const err = new AppError(mockErrDef);
 
     it('should have same info to the object in arg', () => {
       expect(err.status).toBe(mockErrDef.status);
-      expect(err.code).toBe(mockErrDef.code);
-      expect(err.error_in).toBe(mockErrDef.error_in);
       expect(err.message).toBe(mockErrDef.message);
+      expect(err.error_in).toBe(mockErrDef.error_in);
     });
   });
 
@@ -46,9 +43,8 @@ describe('Test /src/utils/errors', () => {
 
     const expected = expect.objectContaining({
       status: expect.any(Number),
-      code: expect.any(String),
-      error_in: expect.any(String),
       message: expect.any(String),
+      error_in: expect.any(String),
     });
 
     describe.each(Object.keys(errDef))(
