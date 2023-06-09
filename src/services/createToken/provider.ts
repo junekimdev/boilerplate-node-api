@@ -26,8 +26,8 @@ const provider = async (userId: number, email: string, device: string) => {
   });
 
   // Generate tokens
-  const access_token = jwt.sign({ user_id: userId }, email, aud.join(' '), '1d');
-  const refresh_token = jwt.sign({ user_id: userId }, email, 'refresh', '30d');
+  const access_token = jwt.sign({ user_id: userId, device }, email, aud.join(' '), '1d');
+  const refresh_token = jwt.sign({ user_id: userId, device }, email, 'refresh', '30d');
   const hashed_token = await hash.sha256(refresh_token);
 
   // Save refresh token for automatic reuse detection

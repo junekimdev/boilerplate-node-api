@@ -39,8 +39,8 @@ describe('Test /src/services/createToken/provider', () => {
     };
     const expectedAccessString = 'resource1:read resource2:read';
     const expectedSignArgs = [
-      [{ user_id: userId }, email, expectedAccessString, '1d'],
-      [{ user_id: userId }, email, 'refresh', '30d'],
+      [{ user_id: userId, device }, email, expectedAccessString, '1d'],
+      [{ user_id: userId, device }, email, 'refresh', '30d'],
     ];
     const expectedResult = { access_token: token, refresh_token: token };
 
@@ -67,8 +67,8 @@ describe('Test /src/services/createToken/provider', () => {
   it('should query the database and generate a JWT token with empty string "aud" if no access permits found', async () => {
     const expectedResult = { access_token: token, refresh_token: token };
     const expectedSignArgs = [
-      [{ user_id: userId }, email, '', '1d'],
-      [{ user_id: userId }, email, 'refresh', '30d'],
+      [{ user_id: userId, device }, email, '', '1d'],
+      [{ user_id: userId, device }, email, 'refresh', '30d'],
     ];
 
     mockedDbQuery.mockResolvedValue({ rows: [] });
