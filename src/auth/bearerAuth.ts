@@ -1,11 +1,11 @@
-import { Locals, NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { AppError, errDef } from '../utils/errors';
 import jwt from '../utils/jwt';
 
 export interface IResLocals {
   accessRegex?: RegExp;
-  verfiedToken?: JwtPayload;
+  decodedToken?: JwtPayload;
 }
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
@@ -24,21 +24,21 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 
     // Verify token
     try {
-      (res.locals as IResLocals).verfiedToken = jwt.verify(accessToken, accessRegex);
+      (res.locals as IResLocals).decodedToken = jwt.verify(accessToken, accessRegex);
     } catch (error) {
       // Caused by expired token
       if (error instanceof TokenExpiredError) {
-        throw new AppError(errDef[401].TokenExpired, { cause: error });
+        throw new AppError(errDef[401].TokenExpired, { cause: error.message });
       }
 
       if (error instanceof JsonWebTokenError) {
         // Caused by denied access
         if (error.message.startsWith('jwt audience invalid')) {
-          throw new AppError(errDef[403].AccessDenied, { cause: error });
+          throw new AppError(errDef[403].AccessDenied, { cause: error.message });
         }
 
         // Caused by invalid token
-        throw new AppError(errDef[401].InvalidToken, { cause: error });
+        throw new AppError(errDef[401].InvalidToken, { cause: error.message });
       }
 
       // Caused by unknown error

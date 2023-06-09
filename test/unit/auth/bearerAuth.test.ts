@@ -76,8 +76,8 @@ describe('Test /src/auth/bearerAuth', () => {
 
     expect(jwt.verify).toHaveBeenCalledTimes(1);
     expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
-    expect(res.locals).toHaveProperty('verfiedToken');
-    expect(res.locals.verfiedToken).toEqual(expectedPayload);
+    expect(res.locals).toHaveProperty('decodedToken');
+    expect(res.locals.decodedToken).toEqual(expectedPayload);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith();
   });
@@ -98,7 +98,7 @@ describe('Test /src/auth/bearerAuth', () => {
     expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(
-      new AppError(errDef[401].TokenExpired, { cause: tokenExpiredError }),
+      new AppError(errDef[401].TokenExpired, { cause: tokenExpiredError.message }),
     );
   });
 
@@ -118,7 +118,7 @@ describe('Test /src/auth/bearerAuth', () => {
     expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(
-      new AppError(errDef[403].AccessDenied, { cause: deniedAccessError }),
+      new AppError(errDef[403].AccessDenied, { cause: deniedAccessError.message }),
     );
   });
 
@@ -138,7 +138,7 @@ describe('Test /src/auth/bearerAuth', () => {
     expect(jwt.verify).toHaveBeenCalledWith(accessToken, /.*/);
     expect(next).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(
-      new AppError(errDef[401].InvalidToken, { cause: invalidTokenError }),
+      new AppError(errDef[401].InvalidToken, { cause: invalidTokenError.message }),
     );
   });
 
