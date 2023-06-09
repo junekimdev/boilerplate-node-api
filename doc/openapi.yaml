@@ -71,6 +71,33 @@ paths:
           $ref: '#/components/responses/401'
         500:
           $ref: '#/components/responses/500'
+  /auth/refresh:
+    post:
+      tags:
+        - AuthAPI
+      summary: Get an access token with refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+                  example: abcdefghijkl.abcdefghijkl.abcdefghijkl
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
   /push/key:
     get:
       tags:

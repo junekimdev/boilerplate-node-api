@@ -188,4 +188,68 @@ describe('Test /api/v1/auth', () => {
       expect(check.rows[0].token).toBe(hashedTokenNew);
     });
   });
+
+  describe('/api/v1/auth/refresh', () => {
+    const endPoint = '/api/v1/auth/refresh';
+    const sqlToken = `SELECT token FROM refresh_token
+    WHERE user_id=(SELECT id FROM userpool WHERE email=$1::VARCHAR(50))
+    AND device=$2::VARCHAR(50)`;
+
+    it('should failed to create a token and return 401 when no refreshToken found in req body', async () => {
+      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send({});
+
+      expect(res.status).toBe(401);
+    });
+
+    it('should create access_token and refresh_token and return 201 with them when valid refreshToken presented', async () => {
+      const token = await supertest(app)
+        .post('/api/v1/auth/token')
+        .auth(testObj.user, testObj.password, { type: 'basic' })
+        .set('Accept', 'application/json')
+        .send({ device: testObj.device });
+      expect(token.status).toBe(201);
+
+      const refresh_token = token.body.refresh_token;
+      const res = await supertest(app)
+        .post(endPoint)
+        .set('Accept', 'application/json')
+        .send({ refresh_token });
+
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty('access_token');
+      expect(res.body).toHaveProperty('refresh_token');
+
+      const hashedToken = await hash.sha256(res.body.refresh_token);
+      const check: QueryResult = await db.query(sqlToken, [testObj.user, testObj.device]);
+      expect(check.rowCount).toBe(1);
+      expect(check.rows[0].token).toBe(hashedToken);
+    });
+
+    it('should delete token in DB when refresh token reuse detected', async () => {
+      const tokenOld = await supertest(app)
+        .post('/api/v1/auth/token')
+        .auth(testObj.user, testObj.password, { type: 'basic' })
+        .set('Accept', 'application/json')
+        .send({ device: testObj.device });
+      expect(tokenOld.status).toBe(201);
+      const oldRefreshToken = tokenOld.body.refresh_token;
+
+      const tokenNew = await supertest(app)
+        .post('/api/v1/auth/token')
+        .auth(testObj.user, testObj.password, { type: 'basic' })
+        .set('Accept', 'application/json')
+        .send({ device: testObj.device });
+      expect(tokenNew.status).toBe(201);
+
+      const res = await supertest(app)
+        .post(endPoint)
+        .set('Accept', 'application/json')
+        .send({ refresh_token: oldRefreshToken });
+
+      expect(res.status).toBe(401);
+
+      const check: QueryResult = await db.query(sqlToken, [testObj.user, testObj.device]);
+      expect(check.rowCount).toBe(0);
+    });
+  });
 });
