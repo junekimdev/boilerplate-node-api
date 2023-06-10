@@ -75,10 +75,10 @@ describe('Test /src/services/${name}/apiHandler', () => {
 
       // await handler(req, res, next);
 
-      // expect(provider).toHaveBeenCalledWith();
-      // expect(res.status).toHaveBeenCalledWith(200);
-      // expect(res.json).toHaveBeenCalledWith(expected);
-      // expect(next).not.toHaveBeenCalled();
+      // expect(provider).toBeCalledWith();
+      // expect(res.status).toBeCalledWith(200);
+      // expect(res.json).toBeCalledWith(expected);
+      // expect(next).not.toBeCalled();
     });
   });
 });
@@ -107,9 +107,9 @@ describe('Test /src/services/${name}/provider', () => {
 
       // const result = await provider();
 
-      // expect(db.query).toHaveBeenCalledTimes(1);
-      // expect(db.query).toHaveBeenCalledWith(expect.any(String), [arg1, arg2]);
-      // expect(result).tobe(expected);
+      // expect(db.query).toBeCalledTimes(1);
+      // expect(db.query).toBeCalledWith(expect.any(String), [arg1, arg2]);
+      // expect(result).toEqual(expected);
     });
   });
 });
