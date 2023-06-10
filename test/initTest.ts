@@ -18,6 +18,8 @@ $1::VARCHAR(50), $2::CHAR(44), $3::CHAR(16),
 (SELECT id FROM user_role WHERE name=$4::VARCHAR(50))
 ON CONFLICT (email) DO NOTHING;`;
 
+const SQL_INSERT_TOPIC = `INSERT INTO topic(name) VALUES ($1::TEXT);`;
+
 const createUser = async (client: Client, username: string, rolename: string) => {
   const salt = hash.createSalt();
   const hashedPW = await hash.sha256(testObj.password + salt);
@@ -26,7 +28,6 @@ const createUser = async (client: Client, username: string, rolename: string) =>
 
 const init = async (testName: string, port: string) => {
   const sqlInit = readFileSync(path.resolve(__dirname, '../init.sql')).toString();
-  const sqlPop = readFileSync(path.resolve(__dirname, './testData.sql')).toString();
 
   const root = new Client({
     user: 'postgres',
@@ -49,9 +50,9 @@ const init = async (testName: string, port: string) => {
   });
   await client.connect();
   await client.query(sqlInit);
-  await client.query(sqlPop);
   await createUser(client, testObj.admin, testObj.role.admin);
   await createUser(client, testObj.user, testObj.role.user);
+  await client.query(SQL_INSERT_TOPIC, [testObj.pushTopic]);
   await client.end();
 
   process.env.TEST_NAME = testName;
