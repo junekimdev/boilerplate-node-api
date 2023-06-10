@@ -5,6 +5,16 @@ import supertest from 'supertest';
 import hash from '../../src/utils/hash';
 import initTest, { testObj } from '../initTest';
 
+const getToken = async (app: Express, who: string) => {
+  const data = { device: testObj.device };
+  const token = await supertest(app)
+    .post('/api/v1/auth/token')
+    .auth(who, testObj.password, { type: 'basic' })
+    .set('Accept', 'application/json')
+    .send(data);
+  return token.body.access_token;
+};
+
 describe('Test /api/v1/auth', () => {
   let app: Express;
   let server: Server;
@@ -22,7 +32,7 @@ describe('Test /api/v1/auth', () => {
     server.close();
   });
 
-  describe('/api/v1/auth/user', () => {
+  describe('POST /api/v1/auth/user', () => {
     const endPoint = '/api/v1/auth/user';
     const sqlUser = `SELECT id FROM userpool WHERE email=$1::VARCHAR(50)`;
 
@@ -57,7 +67,71 @@ describe('Test /api/v1/auth', () => {
     });
   });
 
-  describe('/api/v1/auth/token', () => {
+  describe('DELETE /api/v1/auth/user', () => {
+    const endPoint = '/api/v1/auth/user';
+    const sqlUser = `SELECT id FROM userpool WHERE email=$1::VARCHAR(50)`;
+
+    it('should fail to delete a user when invalid token is presented', async () => {
+      const accessToken = 'invalidToken';
+
+      // delete the user
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(401);
+    });
+
+    it('should delete a user successfully when valid token is presented', async () => {
+      const testUser = 'delete@user.test';
+      const cred = { email: testUser, password: testObj.password };
+      // create a user
+      const user = await supertest(app)
+        .post('/api/v1/auth/user')
+        .set('Accept', 'application/json')
+        .send(cred);
+      expect(user.status).toBe(201);
+
+      // get a token
+      const accessToken = await getToken(app, testUser);
+
+      // delete the user
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(200);
+    });
+
+    it('should fail to delete a user when no user can be found in DB', async () => {
+      const testUser = 'delete@user.test';
+      const cred = { email: testUser, password: testObj.password };
+      // create a user
+      const user = await supertest(app)
+        .post('/api/v1/auth/user')
+        .set('Accept', 'application/json')
+        .send(cred);
+      expect(user.status).toBe(201);
+
+      // get a token
+      const accessToken = await getToken(app, testUser);
+
+      // delete the user
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(200);
+
+      const resAgain = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(resAgain.status).toBe(404);
+    });
+  });
+
+  describe('POST /api/v1/auth/token', () => {
     const endPoint = '/api/v1/auth/token';
     const sqlToken = `SELECT token FROM refresh_token
     WHERE user_id=(SELECT id FROM userpool WHERE email=$1::VARCHAR(50))
@@ -189,7 +263,7 @@ describe('Test /api/v1/auth', () => {
     });
   });
 
-  describe('/api/v1/auth/refresh', () => {
+  describe('POST /api/v1/auth/refresh', () => {
     const endPoint = '/api/v1/auth/refresh';
     const sqlToken = `SELECT token FROM refresh_token
     WHERE user_id=(SELECT id FROM userpool WHERE email=$1::VARCHAR(50))

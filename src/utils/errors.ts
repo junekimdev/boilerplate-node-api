@@ -111,6 +111,13 @@ export const errDef: errDefType = {
       error_in: 'Auth',
     },
   },
+  '404': {
+    UserNotFound: {
+      status: 404,
+      message: 'E404-UserNotFound',
+      error_in: 'Req',
+    },
+  },
   '409': {
     UserAlreadyExists: {
       status: 409,
