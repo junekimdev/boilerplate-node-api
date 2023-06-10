@@ -3,7 +3,7 @@ import { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { AppError, errDef } from '../utils/errors';
 import jwt from '../utils/jwt';
 
-export interface IResLocals {
+export interface IBearerAuthResLocals {
   accessRegex?: RegExp;
   decodedToken?: JwtPayload;
 }
@@ -19,12 +19,12 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (!accessToken) throw new AppError(errDef[401].AccessTokenNotFound);
 
     // Get regex from access control
-    const { accessRegex } = res.locals as IResLocals;
+    const { accessRegex } = res.locals as IBearerAuthResLocals;
     if (!accessRegex) throw new AppError(errDef[403].AccessUndefined);
 
     // Verify token
     try {
-      (res.locals as IResLocals).decodedToken = jwt.verify(accessToken, accessRegex);
+      (res.locals as IBearerAuthResLocals).decodedToken = jwt.verify(accessToken, accessRegex);
     } catch (error) {
       // Caused by expired token
       if (error instanceof TokenExpiredError) {

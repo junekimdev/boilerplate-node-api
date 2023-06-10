@@ -4,7 +4,7 @@ jest.mock('../../../src/utils/jwt', () => ({
 
 import { NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import auth, { IResLocals } from '../../../src/auth/bearerAuth';
+import auth, { IBearerAuthResLocals } from '../../../src/auth/bearerAuth';
 import { AppError, errDef } from '../../../src/utils/errors';
 import jwt from '../../../src/utils/jwt';
 
@@ -55,7 +55,7 @@ describe('Test /src/auth/bearerAuth', () => {
   it('should call next with AccessUndefined error when the accessRegex is not defined', async () => {
     const accessToken = 'valid-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
-    res.locals = {} as IResLocals;
+    res.locals = {} as IBearerAuthResLocals;
 
     await auth(req, res, next);
 
@@ -67,7 +67,7 @@ describe('Test /src/auth/bearerAuth', () => {
   it('should call jwt.verify with the correct arguments and put the result in res.local and call next when the token is valid', async () => {
     const accessToken = 'valid-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
-    res.locals = { accessRegex: /.*/ } as IResLocals;
+    res.locals = { accessRegex: /.*/ } as IBearerAuthResLocals;
     const expectedPayload = { payload: 'payload' };
 
     mockedJwtVerify.mockImplementationOnce(() => expectedPayload);
@@ -85,7 +85,7 @@ describe('Test /src/auth/bearerAuth', () => {
   it('should call next with TokenExpired error when the token is expired', async () => {
     const accessToken = 'expired-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
-    res.locals = { accessRegex: /.*/ } as IResLocals;
+    res.locals = { accessRegex: /.*/ } as IBearerAuthResLocals;
     const tokenExpiredError = new TokenExpiredError('Token expired', new Date());
 
     mockedJwtVerify.mockImplementationOnce(() => {
@@ -105,7 +105,7 @@ describe('Test /src/auth/bearerAuth', () => {
   it('should call next with AccessDenied error when the token has denied access', async () => {
     const accessToken = 'denied-access-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
-    res.locals = { accessRegex: /.*/ } as IResLocals;
+    res.locals = { accessRegex: /.*/ } as IBearerAuthResLocals;
     const deniedAccessError = new JsonWebTokenError('jwt audience invalid');
 
     mockedJwtVerify.mockImplementationOnce(() => {
@@ -125,7 +125,7 @@ describe('Test /src/auth/bearerAuth', () => {
   it('should call next with InvalidToken error when the token is invalid', async () => {
     const accessToken = 'invalid-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
-    res.locals = { accessRegex: /.*/ } as IResLocals;
+    res.locals = { accessRegex: /.*/ } as IBearerAuthResLocals;
     const invalidTokenError = new JsonWebTokenError('Invalid token');
 
     mockedJwtVerify.mockImplementationOnce(() => {
@@ -145,7 +145,7 @@ describe('Test /src/auth/bearerAuth', () => {
   it('should call next with the error when an unknown error occurs', async () => {
     const accessToken = 'unknown-error-token';
     req.headers = { authorization: `Bearer ${accessToken}` };
-    res.locals = { accessRegex: /.*/ } as IResLocals;
+    res.locals = { accessRegex: /.*/ } as IBearerAuthResLocals;
     const unknownError = new Error('Unknown error');
 
     mockedJwtVerify.mockImplementationOnce(() => {
