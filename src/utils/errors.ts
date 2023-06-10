@@ -21,6 +21,11 @@ export class AppError extends Error implements IError {
 
 export const errDef: errDefType = {
   '400': {
+    invalidRoleName: {
+      status: 400,
+      message: 'E400-invalidRoleName',
+      error_in: 'ReqParams',
+    },
     InvalidEmailFormat: {
       status: 400,
       message: 'E400-InvalidEmailFormat',

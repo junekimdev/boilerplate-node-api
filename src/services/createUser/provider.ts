@@ -8,13 +8,11 @@ $1::VARCHAR(50), $2::CHAR(44), $3::CHAR(16),
 ON CONFLICT (email) DO NOTHING
 RETURNING id;`;
 
-export const ROLE_NAME = 'user1';
-
-const provider = async (email: string, password: string) => {
+const provider = async (email: string, password: string, role: string) => {
   const salt = hash.createSalt();
   const hashed = await hash.sha256(password + salt);
 
-  const result = await db.query(SQL_INSERT_USER, [email, hashed, salt, ROLE_NAME]);
+  const result = await db.query(SQL_INSERT_USER, [email, hashed, salt, role]);
   return result.rows[0].id as number;
 };
 

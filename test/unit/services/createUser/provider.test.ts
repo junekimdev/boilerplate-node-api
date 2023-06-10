@@ -10,7 +10,7 @@ jest.mock('../../../../src/utils/hash', () => ({
   sha256: jest.fn(async (pw) => mockHash),
 }));
 
-import provider, { ROLE_NAME } from '../../../../src/services/createUser/provider';
+import provider from '../../../../src/services/createUser/provider';
 import db from '../../../../src/utils/db';
 import hash from '../../../../src/utils/hash';
 
@@ -18,18 +18,14 @@ describe('Test /src/service/createUser/provider', () => {
   it('should insert a user and return the user ID', async () => {
     const email = 'test@example.com ';
     const password = 'password';
+    const role = 'user1';
 
-    const result = await provider(email, password);
+    const result = await provider(email, password, role);
 
     expect(result).toBe(mockResult.rows[0].id);
     expect(hash.createSalt).toHaveBeenCalled();
     expect(hash.sha256).toHaveBeenCalledWith(password + mockSalt);
 
-    expect(db.query).toHaveBeenCalledWith(expect.any(String), [
-      email,
-      mockHash,
-      mockSalt,
-      ROLE_NAME,
-    ]);
+    expect(db.query).toHaveBeenCalledWith(expect.any(String), [email, mockHash, mockSalt, role]);
   });
 });

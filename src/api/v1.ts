@@ -17,7 +17,7 @@ import resUserpoolUser from '../auth/resUserpoolUser';
 
 const APIv1 = router();
 
-APIv1.post('/auth/user', createUser);
+APIv1.post('/auth/user/:role', createUser);
 APIv1.delete('/auth/user', resUserpoolUser, bearerAuth, deleteUser);
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);

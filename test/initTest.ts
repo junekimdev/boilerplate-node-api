@@ -6,6 +6,7 @@ import hash from '../src/utils/hash';
 export const testObj = {
   admin: `${hash.createUUID()}@test.io`,
   user: `${hash.createUUID()}@test.io`,
+  role: { admin: 'admin1', user: 'user1' },
   password: hash.createUUID(),
   device: hash.createUUID(),
   pushTopic: 'test-topic',
@@ -49,8 +50,8 @@ const init = async (testName: string, port: string) => {
   await client.connect();
   await client.query(sqlInit);
   await client.query(sqlPop);
-  await createUser(client, testObj.admin, 'admin1');
-  await createUser(client, testObj.user, 'user1');
+  await createUser(client, testObj.admin, testObj.role.admin);
+  await createUser(client, testObj.user, testObj.role.user);
   await client.end();
 
   process.env.TEST_NAME = testName;

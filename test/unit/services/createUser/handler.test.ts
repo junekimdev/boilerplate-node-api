@@ -1,22 +1,7 @@
 // Mocks
-jest.mock('../../../../src/utils/db', () => ({
-  query: jest.fn(),
-}));
-jest.mock('../../../../src/utils/email', () => ({
-  isEmailValid: jest.fn(),
-}));
-
 jest.mock('../../../../src/services/createUser/provider', () => jest.fn());
-
-const mockedRequest = (body: any = {}): Request => ({ body } as Request);
-const mockedResponse = (): Response => {
-  const res: Partial<Response> = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn(),
-  };
-  return res as Response;
-};
-const mockedNext = () => jest.fn() as NextFunction;
+jest.mock('../../../../src/utils/db', () => ({ query: jest.fn() }));
+jest.mock('../../../../src/utils/email', () => ({ isEmailValid: jest.fn() }));
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
@@ -32,93 +17,106 @@ const mockedQuery = db.query as jest.Mock;
 
 // Tests
 describe('Test /src/services/createUser/apiHandler', () => {
-  afterEach(() => {
+  let req: Request;
+  let res: Response;
+  let next: NextFunction;
+  const email = 'test@example.com';
+  const password = 'password';
+  const role = 'user1';
+  const userId = 123;
+
+  beforeEach(() => {
+    req = { body: {}, params: {} } as Request;
+    res = {
+      locals: {},
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      sendStatus: jest.fn(),
+    } as unknown as Response;
+    next = jest.fn();
     jest.clearAllMocks();
   });
 
-  it('should provide user and return 201 status with user_id in the response', async () => {
-    const email = 'test@example.com';
-    const password = 'password';
-    const req = mockedRequest({ email, password });
-    const res = mockedResponse();
-    const next = mockedNext();
-    const userId = 123;
+  it('should call next with invalidRoleName error if role is invalid', async () => {
+    const invalidRole = 'invalidRole';
+    const expectedError = new AppError(errDef[400].invalidRoleName);
 
-    mockedEmailValidator.mockReturnValue(true);
-    mockedQuery.mockReturnValue({ rowCount: 0 });
-    mockedProvider.mockResolvedValue(userId);
+    req.params = { role: invalidRole };
+    req.body = { email, password };
 
     await handler(req, res, next);
 
-    expect(isEmailValid).toHaveBeenCalledWith(email);
-    expect(db.query).toHaveBeenCalledWith(expect.any(String), [email]);
-    expect(provider).toHaveBeenCalledWith(email, password);
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({ user_id: userId });
-    expect(next).not.toHaveBeenCalled();
+    expect(db.query).not.toBeCalled();
+    expect(provider).not.toBeCalled();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should throw AppError with 400 status if email is invalid', async () => {
-    const email = 'invalid_email';
-    const password = 'password';
-    const req = mockedRequest({ email, password });
-    const res = mockedResponse();
-    const next = mockedNext();
+  it('should call next with InvalidEmailFormat error if email is invalid', async () => {
+    const invalidEmail = 'invalid_email';
     const expectedError = new AppError(errDef[400].InvalidEmailFormat);
 
+    req.params = { role };
+    req.body = { email: invalidEmail, password };
     mockedEmailValidator.mockReturnValue(false);
-    mockedQuery.mockReturnValue({ rowCount: 0 });
 
     await handler(req, res, next);
 
-    expect(isEmailValid).toHaveBeenCalledWith(email);
-    expect(db.query).not.toHaveBeenCalled();
-    expect(provider).not.toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
-    expect(res.json).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expectedError);
+    expect(isEmailValid).toBeCalledWith(invalidEmail);
+    expect(db.query).not.toBeCalled();
+    expect(provider).not.toBeCalled();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should throw AppError with 409 status if email already exists', async () => {
-    const email = 'invalid_email';
-    const password = 'password';
-    const req = mockedRequest({ email, password });
-    const res = mockedResponse();
-    const next = mockedNext();
+  it('should call next with UserAlreadyExists error if email already exists', async () => {
     const expectedError = new AppError(errDef[409].UserAlreadyExists);
 
+    req.params = { role };
+    req.body = { email, password };
     mockedEmailValidator.mockReturnValue(true);
     mockedQuery.mockReturnValue({ rowCount: 1 });
 
     await handler(req, res, next);
 
-    expect(isEmailValid).toHaveBeenCalledWith(email);
-    expect(db.query).toHaveBeenCalledWith(expect.any(String), [email]);
-    expect(provider).not.toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
-    expect(res.json).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expectedError);
+    expect(db.query).toBeCalledWith(expect.any(String), [email]);
+    expect(provider).not.toBeCalled();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should pass error to the next middleware if an error occurs', async () => {
-    const email = 'test@example.com';
-    const password = 'password';
-    const req = mockedRequest({ email, password });
-    const res = mockedResponse();
-    const next = mockedNext();
-    const expectedError = new Error('Database connection error');
+  it('should call next with the error if an unknown error occurs', async () => {
+    const expectedError = new Error('unknown error');
 
+    req.params = { role };
+    req.body = { email, password };
     mockedEmailValidator.mockReturnValue(true);
     mockedQuery.mockReturnValue({ rowCount: 0 });
     mockedProvider.mockRejectedValue(expectedError);
 
     await handler(req, res, next);
 
-    expect(isEmailValid).toHaveBeenCalledWith(email);
-    expect(db.query).toHaveBeenCalledWith(expect.any(String), [email]);
-    expect(provider).toHaveBeenCalledWith(email, password);
-    expect(res.status).not.toHaveBeenCalled();
-    expect(res.json).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expectedError);
+    expect(provider).toBeCalledWith(email, password, role);
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
+
+  it('should create a user and return user_id when valid [email, password, role] is in req', async () => {
+    req.params = { role };
+    req.body = { email, password };
+    mockedEmailValidator.mockReturnValue(true);
+    mockedQuery.mockReturnValue({ rowCount: 0 });
+    mockedProvider.mockResolvedValue(userId);
+
+    await handler(req, res, next);
+
+    expect(provider).toBeCalledWith(email, password, role);
+    expect(res.status).toBeCalledWith(201);
+    expect(res.json).toBeCalledWith({ user_id: userId });
+    expect(next).not.toBeCalled();
   });
 });
