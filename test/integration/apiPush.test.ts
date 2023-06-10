@@ -37,7 +37,7 @@ describe('Test /api/v1/push', () => {
     server.close();
   });
 
-  describe('/api/v1/push/key', () => {
+  describe('GET /api/v1/push/key', () => {
     const endPoint = '/api/v1/push/key';
 
     it('should read the vapid public key and return 200 with it', async () => {
@@ -53,7 +53,7 @@ describe('Test /api/v1/push', () => {
     });
   });
 
-  describe('/api/v1/push/register', () => {
+  describe('POST /api/v1/push/register', () => {
     const endPoint = '/api/v1/push/register';
     const sqlPushSub = `SELECT id FROM subscription WHERE sub=$1::TEXT;`;
 
@@ -121,7 +121,7 @@ describe('Test /api/v1/push', () => {
     });
   });
 
-  describe('/api/v1/push/send', () => {
+  describe('POST /api/v1/push/send', () => {
     const endPoint = '/api/v1/push/send';
 
     it('should failed to send subscriptions and return 403 when non-admin user tries to send', async () => {
