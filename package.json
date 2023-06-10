@@ -13,7 +13,7 @@
     "test": "jest",
     "test-cover": "jest --coverage",
     "test-unit": "jest --verbose --coverage --testPathPattern=/test/unit",
-    "test-unit-live": "jest --verbose --coverage --watchAll --testPathPattern=/test/unit",
+    "test-unit-live": "jest --verbose --coverage --watch --testPathPattern=/test/unit",
     "test-integ": "jest --no-cache --testPathPattern=/test/integration"
   },
   "dependencies": {
