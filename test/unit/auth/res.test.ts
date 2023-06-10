@@ -8,6 +8,8 @@ import { IBearerAuthResLocals } from '../../../src/auth/bearerAuth';
 import resNone from '../../../src/auth/resNone';
 import resPushAdmin from '../../../src/auth/resPushAdmin';
 import resPushUser from '../../../src/auth/resPushUser';
+import resUserpoolAdmin from '../../../src/auth/resUserpoolAdmin';
+import resUserpoolUser from '../../../src/auth/resUserpoolUser';
 import { getRow, requestAccess } from '../../../src/utils/access';
 
 const mockedGetRow = getRow as jest.Mock;
@@ -15,6 +17,8 @@ const mockedRequestAccess = requestAccess as jest.Mock;
 const controllers = [
   { name: 'resPushAdmin', conroller: resPushAdmin },
   { name: 'resPushUser', conroller: resPushUser },
+  { name: 'resUserpoolAdmin', conroller: resUserpoolAdmin },
+  { name: 'resUserpoolUser', conroller: resUserpoolUser },
 ];
 
 describe('Test /src/auth/res', () => {
