@@ -6,9 +6,10 @@ import path from 'path';
 
 const mockedDotenvConf = dotenv.config as jest.Mock;
 const mockedPathResolve = path.resolve as jest.Mock;
-const testName = 'testName';
 
 describe('Test /src/utils/config', () => {
+  const testName = 'testName';
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -18,6 +19,7 @@ describe('Test /src/utils/config', () => {
     process.env.TEST_NAME = testName;
     const module = require('../../../src/utils/config');
     const testPath = 'testPath';
+
     mockedPathResolve.mockReturnValue(testPath);
 
     module.config();
@@ -25,8 +27,8 @@ describe('Test /src/utils/config', () => {
     const { PGUSER, PGPASSWORD, PGDATABASE } = process.env;
 
     expect(NODE_ENV).toBe('test');
-    expect(mockedPathResolve).toHaveBeenCalled();
-    expect(mockedDotenvConf).toBeCalledWith({ path: testPath });
+    expect(path.resolve).toBeCalled();
+    expect(dotenv.config).toBeCalledWith({ path: testPath });
     expect(PGUSER).toBe(testName);
     expect(PGPASSWORD).toBe(testName);
     expect(PGDATABASE).toBe(testName);
@@ -38,8 +40,8 @@ describe('Test /src/utils/config', () => {
 
     module.config();
 
-    expect(mockedDotenvConf).toHaveBeenCalled();
-    expect(mockedPathResolve).not.toHaveBeenCalled();
+    expect(dotenv.config).toBeCalled();
+    expect(path.resolve).not.toBeCalled();
   });
 
   it('should set environmental variables in production mode', () => {
@@ -48,7 +50,7 @@ describe('Test /src/utils/config', () => {
 
     module.config();
 
-    expect(mockedDotenvConf).toHaveBeenCalled();
-    expect(mockedPathResolve).not.toHaveBeenCalled();
+    expect(dotenv.config).toBeCalled();
+    expect(path.resolve).not.toBeCalled();
   });
 });

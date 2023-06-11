@@ -20,8 +20,8 @@ describe('Test /src/services/sendNoti/provider', () => {
 
     await provider(topic, payload);
 
-    expect(webpush.sendNotiByTopic).toHaveBeenCalledTimes(1);
-    expect(webpush.sendNotiByTopic).toHaveBeenCalledWith(topic, payloadStr, {
+    expect(webpush.sendNotiByTopic).toBeCalledTimes(1);
+    expect(webpush.sendNotiByTopic).toBeCalledWith(topic, payloadStr, {
       contentEncoding: 'aes128gcm',
     });
   });

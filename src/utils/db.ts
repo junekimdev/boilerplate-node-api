@@ -28,15 +28,15 @@ export const transaction = async <T = QueryResult<QueryResultRow>>(
     await client.query('BEGIN');
     const result = await queryFunc(client);
     await client.query('COMMIT');
+    client.release();
     return result;
   } catch (err) {
     // If client is in error state, pg.Pool is resposible for removing it.
     // So, we don't need to worry about the client here
     await client.query('ROLLBACK');
+    client.release(err as Error);
     logger.warn(`[DB ROLLBACK] ${(err as Error).message}`);
     throw err;
-  } finally {
-    client.release();
   }
 };
 

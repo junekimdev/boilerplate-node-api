@@ -36,68 +36,91 @@ describe('Test /src/services/saveSubscription/apiHandler', () => {
     it('should call next with InvalidPushSubscription error if the subscription is invalid', async () => {
       const subscription = { endpoint: '', keys: { auth: '', p256dh: '' } };
       const topic = 'valid-topic';
+      const expectedError = new AppError(errDef[400].InvalidPushSubscription);
+
       req.body = { topic, subscription };
       mockedSubValidator.mockReturnValue(false);
-      const expectedError = new AppError(errDef[400].InvalidPushSubscription);
 
       await handler(req, res, next);
 
       expect(isValidSub).toBeCalledWith(subscription);
-      expect(provider).not.toHaveBeenCalled();
-      expect(res.sendStatus).not.toHaveBeenCalled();
-      expect(next).toHaveBeenCalledWith(expectedError);
+      expect(provider).not.toBeCalled();
+      expect(res.sendStatus).not.toBeCalled();
+      expect(next).toBeCalledWith(expectedError);
     });
 
     it('should call next with InvalidPushTopic error if the topic is invalid', async () => {
       const subscription = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
       const topic = 'a'.repeat(51);
+      const expectedError = new AppError(errDef[400].InvalidPushTopic);
+
       req.body = { topic, subscription };
       mockedSubValidator.mockReturnValue(true);
       mockedTopicValidator.mockReturnValue(false);
-      const expectedError = new AppError(errDef[400].InvalidPushTopic);
 
       await handler(req, res, next);
 
       expect(isValidTopic).toBeCalledWith(topic);
-      expect(provider).not.toHaveBeenCalled();
-      expect(res.sendStatus).not.toHaveBeenCalled();
-      expect(next).toHaveBeenCalledWith(expectedError);
+      expect(provider).not.toBeCalled();
+      expect(res.sendStatus).not.toBeCalled();
+      expect(next).toBeCalledWith(expectedError);
     });
 
     it('should call next with InvalidPushTopic error if topic does not exist in DB', async () => {
       const subscription = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
       const topic = 'valid-topic';
+      const expectedError = new AppError(errDef[400].InvalidPushTopic);
+
       req.body = { topic, subscription };
       mockedSubValidator.mockReturnValue(true);
       mockedTopicValidator.mockReturnValue(true);
       mockedQuery.mockReturnValue({ rowCount: 0 });
-      const expectedError = new AppError(errDef[400].InvalidPushTopic);
 
       await handler(req, res, next);
 
       expect(db.query).toBeCalledWith(expect.any(String), [topic]);
-      expect(provider).not.toHaveBeenCalled();
-      expect(res.sendStatus).not.toHaveBeenCalled();
-      expect(next).toHaveBeenCalledWith(expectedError);
+      expect(provider).not.toBeCalled();
+      expect(res.sendStatus).not.toBeCalled();
+      expect(next).toBeCalledWith(expectedError);
+    });
+
+    it('should call next with PushSubscriptionAlreadyExists error if sub already exists in DB', async () => {
+      const subscription = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
+      const topic = 'valid-topic';
+      const expectedError = new AppError(errDef[409].PushSubscriptionAlreadyExists);
+
+      req.body = { topic, subscription };
+      mockedSubValidator.mockReturnValue(true);
+      mockedTopicValidator.mockReturnValue(true);
+      mockedQuery.mockReturnValue({ rowCount: 1 });
+      mockedProvider.mockResolvedValue(0);
+
+      await handler(req, res, next);
+
+      expect(db.query).toBeCalledWith(expect.any(String), [topic]);
+      expect(provider).toBeCalledWith(subscription, topic);
+      expect(res.sendStatus).not.toBeCalled();
+      expect(next).toBeCalledWith(expectedError);
     });
 
     it('should call provider and send status 200 if the subscription and topic are valid', async () => {
       const subscription = { endpoint: 'endpoint', keys: { auth: 'auth', p256dh: 'p256dh' } };
       const topic = 'valid-topic';
+
       req.body = { topic, subscription };
       mockedSubValidator.mockReturnValue(true);
       mockedTopicValidator.mockReturnValue(true);
       mockedQuery.mockReturnValue({ rowCount: 1 });
-      mockedProvider.mockResolvedValue(true);
+      mockedProvider.mockResolvedValue(1);
 
       await handler(req, res, next);
 
       expect(isValidSub).toBeCalledWith(subscription);
       expect(isValidTopic).toBeCalledWith(topic);
       expect(db.query).toBeCalledWith(expect.any(String), [topic]);
-      expect(provider).toHaveBeenCalledWith(subscription, topic);
-      expect(res.sendStatus).toHaveBeenCalledWith(200);
-      expect(next).not.toHaveBeenCalled();
+      expect(provider).toBeCalledWith(subscription, topic);
+      expect(res.sendStatus).toBeCalledWith(200);
+      expect(next).not.toBeCalled();
     });
   });
 });

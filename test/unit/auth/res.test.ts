@@ -12,13 +12,11 @@ import resUserpoolAdmin from '../../../src/auth/resUserpoolAdmin';
 import resUserpoolUser from '../../../src/auth/resUserpoolUser';
 import { getRow, requestAccess } from '../../../src/utils/access';
 
-const mockedGetRow = getRow as jest.Mock;
-const mockedRequestAccess = requestAccess as jest.Mock;
 const controllers = [
-  { name: 'resPushAdmin', conroller: resPushAdmin },
-  { name: 'resPushUser', conroller: resPushUser },
-  { name: 'resUserpoolAdmin', conroller: resUserpoolAdmin },
-  { name: 'resUserpoolUser', conroller: resUserpoolUser },
+  { name: 'resPushAdmin', controller: resPushAdmin },
+  { name: 'resPushUser', controller: resPushUser },
+  { name: 'resUserpoolAdmin', controller: resUserpoolAdmin },
+  { name: 'resUserpoolUser', controller: resUserpoolUser },
 ];
 
 describe('Test /src/auth/res', () => {
@@ -35,12 +33,10 @@ describe('Test /src/auth/res', () => {
 
   describe('according to roles', () => {
     it('resNone should set the accessRegex in res.locals and call next', async () => {
-      mockedRequestAccess.mockReturnValue(/.*/);
-
       await resNone(req, res, next);
 
-      expect(mockedRequestAccess).toBeCalledTimes(1);
-      expect(mockedRequestAccess).toBeCalledWith(expect.any(Array));
+      expect(requestAccess).toBeCalledTimes(1);
+      expect(requestAccess).toBeCalledWith();
       expect(res.locals.accessRegex).toBeDefined();
       expect(next).toBeCalledTimes(1);
       expect(next).toBeCalledWith();
@@ -48,17 +44,13 @@ describe('Test /src/auth/res', () => {
 
     it.each(controllers)(
       '$name should set the accessRegex in res.locals and call next',
-      async ({ name, conroller }) => {
-        await conroller(req, res, next);
+      async ({ name, controller }) => {
+        await controller(req, res, next);
 
-        expect(mockedGetRow).toBeCalled();
-        expect(mockedGetRow).toBeCalledWith(
-          expect.any(String),
-          expect.any(Boolean),
-          expect.any(Boolean),
-        );
-        expect(mockedRequestAccess).toBeCalledTimes(1);
-        expect(mockedRequestAccess).toBeCalledWith(expect.any(Array));
+        expect(getRow).toBeCalled();
+        expect(getRow).toBeCalledWith(expect.any(String), expect.any(Boolean), expect.any(Boolean));
+        expect(requestAccess).toBeCalledTimes(1);
+        expect(requestAccess).toBeCalledWith(expect.any(Array));
         expect(res.locals.accessRegex).toBeDefined();
         expect(next).toBeCalledTimes(1);
         expect(next).toBeCalledWith();

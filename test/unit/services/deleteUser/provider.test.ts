@@ -9,11 +9,11 @@ const mockedDbQuery = db.query as jest.Mock;
 
 // Tests
 describe('Test /src/services/deleteUser/provider', () => {
+  const userId = 123;
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
-  const userId = 123;
 
   describe('provider', () => {
     it('should fail to delete user and return 0 if the user does not exist in DB', async () => {
@@ -28,6 +28,7 @@ describe('Test /src/services/deleteUser/provider', () => {
 
     it('should delete user and return userId if successful', async () => {
       const queryResult = { rowCount: 1, rows: [{ id: 1 }] };
+
       mockedDbQuery.mockResolvedValue(queryResult);
 
       const result = await provider(userId);

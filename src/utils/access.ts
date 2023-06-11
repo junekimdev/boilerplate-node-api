@@ -19,7 +19,7 @@ export const getRow = (name: string, readable = false, writable = false): Access
   return { name, readable, writable };
 };
 
-export const requestAccess = (reqs: AccessControlRow[]) => {
+export const requestAccess = (reqs: AccessControlRow[] = []) => {
   // Sort by name in ASC order
   reqs.sort((a, b) => {
     if (a.name < b.name) return -1;

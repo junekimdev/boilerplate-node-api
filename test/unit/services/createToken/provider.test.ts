@@ -25,13 +25,12 @@ describe('Test /src/services/createToken/provider', () => {
   const email = 'test@example.com';
   const device = 'device_uuid';
 
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should query the database and generate a JWT token and save refresh token', async () => {
-    //@ts-ignore
-    const queryResult: any = {
+    const queryResult = {
       rows: [
         { name: 'resource1', readable: true, writable: false },
         { name: 'resource2', readable: true, writable: false },
@@ -51,16 +50,16 @@ describe('Test /src/services/createToken/provider', () => {
 
     const result = await provider(userId, email, device);
 
-    expect(db.query).toHaveBeenCalledTimes(2);
-    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [userId]);
-    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
-    expect(convertToString).toHaveBeenCalledTimes(2);
-    expect(convertToString).toHaveBeenCalledWith(queryResult.rows[0]);
-    expect(convertToString).toHaveBeenCalledWith(queryResult.rows[1]);
-    expect(jwt.sign).toHaveBeenCalledTimes(2);
-    expect(jwt.sign).toHaveBeenNthCalledWith(1, ...expectedSignArgs[0]);
-    expect(jwt.sign).toHaveBeenNthCalledWith(2, ...expectedSignArgs[1]);
-    expect(hash.sha256).toHaveBeenCalledTimes(1);
+    expect(db.query).toBeCalledTimes(2);
+    expect(db.query).nthCalledWith(1, expect.any(String), [userId]);
+    expect(db.query).nthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
+    expect(convertToString).toBeCalledTimes(2);
+    expect(convertToString).nthCalledWith(1, queryResult.rows[0]);
+    expect(convertToString).nthCalledWith(2, queryResult.rows[1]);
+    expect(jwt.sign).toBeCalledTimes(2);
+    expect(jwt.sign).nthCalledWith(1, ...expectedSignArgs[0]);
+    expect(jwt.sign).nthCalledWith(2, ...expectedSignArgs[1]);
+    expect(hash.sha256).toBeCalledTimes(1);
     expect(result).toEqual(expectedResult);
   });
 
@@ -78,14 +77,14 @@ describe('Test /src/services/createToken/provider', () => {
 
     const result = await provider(userId, email, device);
 
-    expect(db.query).toHaveBeenCalledTimes(2);
-    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [userId]);
-    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
-    expect(convertToString).not.toHaveBeenCalled();
-    expect(jwt.sign).toHaveBeenCalledTimes(2);
-    expect(jwt.sign).toHaveBeenNthCalledWith(1, ...expectedSignArgs[0]);
-    expect(jwt.sign).toHaveBeenNthCalledWith(2, ...expectedSignArgs[1]);
-    expect(hash.sha256).toHaveBeenCalledTimes(1);
+    expect(db.query).toBeCalledTimes(2);
+    expect(db.query).nthCalledWith(1, expect.any(String), [userId]);
+    expect(db.query).nthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
+    expect(convertToString).not.toBeCalled();
+    expect(jwt.sign).toBeCalledTimes(2);
+    expect(jwt.sign).nthCalledWith(1, ...expectedSignArgs[0]);
+    expect(jwt.sign).nthCalledWith(2, ...expectedSignArgs[1]);
+    expect(hash.sha256).toBeCalledTimes(1);
     expect(result).toEqual(expectedResult);
   });
 });

@@ -20,6 +20,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
+
   const email = 'test@example.com';
   const password = 'password';
   const role = 'user1';

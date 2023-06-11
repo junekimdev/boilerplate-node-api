@@ -120,7 +120,7 @@ export const errDef: errDefType = {
     UserNotFound: {
       status: 404,
       message: 'E404-UserNotFound',
-      error_in: 'Req',
+      error_in: 'Auth',
     },
   },
   '409': {
@@ -128,6 +128,11 @@ export const errDef: errDefType = {
       status: 409,
       message: 'E409-UserAlreadyExists',
       error_in: 'Auth',
+    },
+    PushSubscriptionAlreadyExists: {
+      status: 409,
+      message: 'E409-UserAlreadyExists',
+      error_in: 'Push',
     },
   },
   '500': {

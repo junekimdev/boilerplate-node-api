@@ -15,11 +15,12 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     if (!isValidSub(subscription)) throw new AppError(errDef[400].InvalidPushSubscription);
     if (!isValidTopic(topic)) throw new AppError(errDef[400].InvalidPushTopic);
 
-    const result = await db.query(SQL_CHECK_TOPIC, [topic]);
-    if (!result.rowCount) throw new AppError(errDef[400].InvalidPushTopic); // Topic doesn't exist
+    const queryTopic = await db.query(SQL_CHECK_TOPIC, [topic]);
+    if (!queryTopic.rowCount) throw new AppError(errDef[400].InvalidPushTopic); // Topic doesn't exist
 
     // Provide
-    await provider(subscription, topic);
+    const result = await provider(subscription, topic);
+    if (!result) throw new AppError(errDef[409].PushSubscriptionAlreadyExists);
     res.sendStatus(200);
   } catch (error) {
     next(error);

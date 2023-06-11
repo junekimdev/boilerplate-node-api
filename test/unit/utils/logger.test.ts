@@ -1,6 +1,16 @@
+import { IncomingMessage, ServerResponse } from 'http';
 import { logger, pinoExpOpt } from '../../../src/utils/logger';
 
 describe('Test /src/util/logger', () => {
+  let req: IncomingMessage;
+  let res: ServerResponse;
+
+  beforeEach(() => {
+    req = { method: 'method' } as unknown as IncomingMessage;
+    res = { url: 'test_url', statusCode: 200 } as unknown as ServerResponse;
+    jest.clearAllMocks();
+  });
+
   describe('logger', () => {
     it('should have methods: [error, info]', () => {
       expect(logger).toMatchObject({ error: expect.any(Function), info: expect.any(Function) });
@@ -22,11 +32,7 @@ describe('Test /src/util/logger', () => {
 
   describe('pinoExpOpt.customReceivedMessage()', () => {
     it('should return a string', () => {
-      const req = jest.fn(() => ({ method: 'method' }));
-      const res = jest.fn(() => ({ url: 'test_url' }));
-
-      //@ts-ignore
-      const str = pinoExpOpt.customReceivedMessage(req, res);
+      const str = pinoExpOpt.customReceivedMessage?.(req, res);
 
       expect(str).toEqual(expect.any(String));
     });
@@ -34,10 +40,7 @@ describe('Test /src/util/logger', () => {
 
   describe('pinoExpOpt.customSuccessMessage()', () => {
     it('should return a string', () => {
-      const res = jest.fn(() => ({ statusCode: 200 }));
-
-      //@ts-ignore
-      const str = pinoExpOpt.customSuccessMessage(res);
+      const str = pinoExpOpt.customSuccessMessage?.(res);
 
       expect(str).toEqual(expect.any(String));
     });

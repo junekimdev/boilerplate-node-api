@@ -37,11 +37,11 @@ describe('Test /src/auth/basicAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedDbQuery).not.toHaveBeenCalled();
-    expect(mockedHashSha256).not.toHaveBeenCalled();
-    expect(mockedIsEmailValid).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].AuthorizationNotFound));
+    expect(db.query).not.toBeCalled();
+    expect(hash.sha256).not.toBeCalled();
+    expect(isEmailValid).not.toBeCalled();
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(new AppError(errDef[401].AuthorizationNotFound));
   });
 
   it('should call next with InvalidAuthScheme error when the authorization scheme is invalid', async () => {
@@ -49,11 +49,11 @@ describe('Test /src/auth/basicAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedDbQuery).not.toHaveBeenCalled();
-    expect(mockedHashSha256).not.toHaveBeenCalled();
-    expect(mockedIsEmailValid).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].InvalidAuthScheme));
+    expect(db.query).not.toBeCalled();
+    expect(hash.sha256).not.toBeCalled();
+    expect(isEmailValid).not.toBeCalled();
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(new AppError(errDef[401].InvalidAuthScheme));
   });
 
   it('should call next with UserCredentialNotFound error when user credential is not found', async () => {
@@ -61,66 +61,67 @@ describe('Test /src/auth/basicAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedDbQuery).not.toHaveBeenCalled();
-    expect(mockedHashSha256).not.toHaveBeenCalled();
-    expect(mockedIsEmailValid).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].UserCredentialNotFound));
+    expect(db.query).not.toBeCalled();
+    expect(hash.sha256).not.toBeCalled();
+    expect(isEmailValid).not.toBeCalled();
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(new AppError(errDef[401].UserCredentialNotFound));
   });
 
   it('should call next with UserCredentialNotFound error when the password is not found in user credential', async () => {
     const credWithoutPassword = Buffer.from('test@example.com').toString('base64');
+
     req.headers = { authorization: `Basic ${credWithoutPassword}` };
 
     await auth(req, res, next);
 
-    expect(mockedDbQuery).not.toHaveBeenCalled();
-    expect(mockedHashSha256).not.toHaveBeenCalled();
-    expect(mockedIsEmailValid).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].UserCredentialNotFound));
+    expect(db.query).not.toBeCalled();
+    expect(hash.sha256).not.toBeCalled();
+    expect(isEmailValid).not.toBeCalled();
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(new AppError(errDef[401].UserCredentialNotFound));
   });
 
   it('should call next with InvalidEmailFormatAuth error when the email format is invalid', async () => {
     const email = 'test_example.com';
     const password = 'password';
     const cred = Buffer.from(`${email}:${password}`).toString('base64');
-    req.headers = { authorization: `Basic ${cred}` };
 
+    req.headers = { authorization: `Basic ${cred}` };
     await auth(req, res, next);
 
-    expect(mockedDbQuery).not.toHaveBeenCalled();
-    expect(mockedHashSha256).not.toHaveBeenCalled();
-    expect(mockedIsEmailValid).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[400].InvalidEmailFormatAuth));
+    expect(db.query).not.toBeCalled();
+    expect(hash.sha256).not.toBeCalled();
+    expect(isEmailValid).toBeCalledTimes(1);
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(new AppError(errDef[400].InvalidEmailFormatAuth));
   });
 
   it('should call next with InvalidCredential error when the email is not found in the database', async () => {
     const email = 'test@example.com';
     const password = 'password';
     const validCred = Buffer.from(`${email}:${password}`).toString('base64');
-    req.headers = { authorization: `Basic ${validCred}` };
 
+    req.headers = { authorization: `Basic ${validCred}` };
     mockedIsEmailValid.mockReturnValue(true);
     mockedDbQuery.mockResolvedValue({ rowCount: 0 } as QueryResult);
 
     await auth(req, res, next);
 
-    expect(mockedDbQuery).toHaveBeenCalledTimes(1);
-    expect(mockedDbQuery).toHaveBeenCalledWith(expect.any(String), [email]);
-    expect(mockedHashSha256).not.toHaveBeenCalled();
-    expect(mockedIsEmailValid).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].InvalidCredential));
+    expect(db.query).toBeCalledTimes(1);
+    expect(db.query).toBeCalledWith(expect.any(String), [email]);
+    expect(hash.sha256).not.toBeCalled();
+    expect(isEmailValid).toBeCalledTimes(1);
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(new AppError(errDef[401].InvalidCredential));
   });
 
   it('should call next with InvalidCredential error when the password is incorrect', async () => {
     const email = 'test@example.com';
     const password = 'password';
     const validCred = Buffer.from(`${email}:${password}`).toString('base64');
-    req.headers = { authorization: `Basic ${validCred}` };
 
+    req.headers = { authorization: `Basic ${validCred}` };
     mockedIsEmailValid.mockReturnValue(true);
     mockedDbQuery.mockResolvedValue({
       rowCount: 1,
@@ -130,13 +131,13 @@ describe('Test /src/auth/basicAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedDbQuery).toHaveBeenCalledTimes(1);
-    expect(mockedDbQuery).toHaveBeenCalledWith(expect.any(String), [email]);
-    expect(mockedHashSha256).toHaveBeenCalledTimes(1);
-    expect(mockedHashSha256).toHaveBeenCalledWith(password + 'salt');
-    expect(mockedIsEmailValid).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith(new AppError(errDef[401].InvalidCredential));
+    expect(db.query).toBeCalledTimes(1);
+    expect(db.query).toBeCalledWith(expect.any(String), [email]);
+    expect(hash.sha256).toBeCalledTimes(1);
+    expect(hash.sha256).toBeCalledWith(password + 'salt');
+    expect(isEmailValid).toBeCalledTimes(1);
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith(new AppError(errDef[401].InvalidCredential));
   });
 
   it('should set res.locals with userId and email, and call next when the credentials are valid', async () => {
@@ -144,8 +145,8 @@ describe('Test /src/auth/basicAuth', () => {
     const password = 'password';
     const userId = 123;
     const validCred = Buffer.from(`${email}:${password}`).toString('base64');
-    req.headers = { authorization: `Basic ${validCred}` };
 
+    req.headers = { authorization: `Basic ${validCred}` };
     mockedIsEmailValid.mockReturnValue(true);
     mockedDbQuery.mockResolvedValue({
       rowCount: 1,
@@ -155,15 +156,15 @@ describe('Test /src/auth/basicAuth', () => {
 
     await auth(req, res, next);
 
-    expect(mockedDbQuery).toHaveBeenCalledTimes(2);
-    expect(mockedDbQuery).toHaveBeenNthCalledWith(1, expect.any(String), [email]);
-    expect(mockedDbQuery).toHaveBeenNthCalledWith(2, expect.any(String), [userId]);
-    expect(mockedHashSha256).toHaveBeenCalledTimes(1);
-    expect(mockedHashSha256).toHaveBeenCalledWith(password + 'salt');
-    expect(mockedIsEmailValid).toHaveBeenCalledTimes(1);
+    expect(db.query).toBeCalledTimes(2);
+    expect(db.query).nthCalledWith(1, expect.any(String), [email]);
+    expect(db.query).nthCalledWith(2, expect.any(String), [userId]);
+    expect(hash.sha256).toBeCalledTimes(1);
+    expect(hash.sha256).toBeCalledWith(password + 'salt');
+    expect(isEmailValid).toBeCalledTimes(1);
     expect(res.locals.userId).toEqual(userId);
     expect(res.locals.email).toEqual(email);
-    expect(next).toHaveBeenCalledTimes(1);
-    expect(next).toHaveBeenCalledWith();
+    expect(next).toBeCalledTimes(1);
+    expect(next).toBeCalledWith();
   });
 });

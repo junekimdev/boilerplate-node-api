@@ -1,31 +1,34 @@
-const mockSalt = 'mockingSalt';
-const mockHash = 'hashedPassword';
-const mockResult = { rows: [{ id: 123 }] };
-
-jest.mock('../../../../src/utils/db', () => ({
-  query: jest.fn(async (query, values) => Promise.resolve(mockResult)),
-}));
-jest.mock('../../../../src/utils/hash', () => ({
-  createSalt: jest.fn(() => mockSalt),
-  sha256: jest.fn(async (pw) => mockHash),
-}));
+jest.mock('../../../../src/utils/db', () => ({ query: jest.fn() }));
+jest.mock('../../../../src/utils/hash', () => ({ createSalt: jest.fn(), sha256: jest.fn() }));
 
 import provider from '../../../../src/services/createUser/provider';
 import db from '../../../../src/utils/db';
 import hash from '../../../../src/utils/hash';
 
+const mockedQuery = db.query as jest.Mock;
+const mockedSha256 = hash.sha256 as jest.Mock;
+const mockedCreateSalt = hash.createSalt as jest.Mock;
+
 describe('Test /src/service/createUser/provider', () => {
   it('should insert a user and return the user ID', async () => {
+    const userId = 123;
     const email = 'test@example.com ';
     const password = 'password';
     const role = 'user1';
+    const salt = 'mockingSalt';
+    const hashed = 'hashedPassword';
+    const queryResult = { rows: [{ id: userId }] };
+
+    mockedQuery.mockResolvedValue(queryResult);
+    mockedSha256.mockResolvedValue(hashed);
+    mockedCreateSalt.mockReturnValue(salt);
 
     const result = await provider(email, password, role);
 
-    expect(result).toBe(mockResult.rows[0].id);
-    expect(hash.createSalt).toHaveBeenCalled();
-    expect(hash.sha256).toHaveBeenCalledWith(password + mockSalt);
+    expect(result).toBe(userId);
+    expect(hash.createSalt).toBeCalled();
+    expect(hash.sha256).toBeCalledWith(password + salt);
 
-    expect(db.query).toHaveBeenCalledWith(expect.any(String), [email, mockHash, mockSalt, role]);
+    expect(db.query).toBeCalledWith(expect.any(String), [email, hashed, salt, role]);
   });
 });

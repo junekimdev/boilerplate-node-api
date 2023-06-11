@@ -15,6 +15,7 @@ describe('Test /src/utils/access', () => {
       };
 
       const result = convertToString(row);
+
       expect(result).toBeUndefined();
     });
 
@@ -26,6 +27,7 @@ describe('Test /src/utils/access', () => {
       };
 
       const result = convertToString(row);
+
       expect(result).toBe('resource:read');
     });
 
@@ -49,6 +51,7 @@ describe('Test /src/utils/access', () => {
       };
 
       const result = convertToString(row);
+
       expect(result).toBe('resource:read resource:write');
     });
   });
@@ -78,27 +81,27 @@ describe('Test /src/utils/access', () => {
       expect(result).toBeInstanceOf(RegExp);
 
       // Single aud in access token
-      expect(result.test('res1:read')).toBe(false);
-      expect(result.test('res1:write')).toBe(false);
-      expect(result.test('res2:read')).toBe(false);
-      expect(result.test('res2:write')).toBe(false);
-      expect(result.test('res3:read')).toBe(false);
-      expect(result.test('res3:write')).toBe(false);
-      expect(result.test('res4:read')).toBe(false);
-      expect(result.test('res4:write')).toBe(false);
+      expect(result.test('res1:read')).toBeFalsy();
+      expect(result.test('res1:write')).toBeFalsy();
+      expect(result.test('res2:read')).toBeFalsy();
+      expect(result.test('res2:write')).toBeFalsy();
+      expect(result.test('res3:read')).toBeFalsy();
+      expect(result.test('res3:write')).toBeFalsy();
+      expect(result.test('res4:read')).toBeFalsy();
+      expect(result.test('res4:write')).toBeFalsy();
 
       // Combined aud in access token
-      expect(result.test('res1:read res1:write')).toBe(false);
-      expect(result.test('res2:read res2:write')).toBe(false);
-      expect(result.test('res3:read res3:write')).toBe(false);
-      expect(result.test('res4:read res4:write')).toBe(false);
-      expect(result.test('res1:read res2:read')).toBe(false);
-      expect(result.test('res1:read res2:write')).toBe(true);
-      expect(result.test('res1:read res4:read')).toBe(false);
-      expect(result.test('res1:read res2:read res3:read')).toBe(false);
-      expect(result.test('res1:read res2:write res3:read')).toBe(true);
-      expect(result.test('res1:read res2:read res3:read res3:write')).toBe(false);
-      expect(result.test('res1:read res2:write res3:read res3:write')).toBe(true);
+      expect(result.test('res1:read res1:write')).toBeFalsy();
+      expect(result.test('res2:read res2:write')).toBeFalsy();
+      expect(result.test('res3:read res3:write')).toBeFalsy();
+      expect(result.test('res4:read res4:write')).toBeFalsy();
+      expect(result.test('res1:read res2:read')).toBeFalsy();
+      expect(result.test('res1:read res2:write')).toBeTruthy();
+      expect(result.test('res1:read res4:read')).toBeFalsy();
+      expect(result.test('res1:read res2:read res3:read')).toBeFalsy();
+      expect(result.test('res1:read res2:write res3:read')).toBeTruthy();
+      expect(result.test('res1:read res2:read res3:read res3:write')).toBeFalsy();
+      expect(result.test('res1:read res2:write res3:read res3:write')).toBeTruthy();
     });
 
     it('should sort rows by name and return a regular expression that matches the expected access patterns', () => {
@@ -110,11 +113,10 @@ describe('Test /src/utils/access', () => {
       const result = requestAccess(reqs);
 
       expect(result).toBeInstanceOf(RegExp);
-
-      expect(result.test('res1:read res2:read res3:read')).toBe(false);
-      expect(result.test('res1:read res2:write res3:read')).toBe(true);
-      expect(result.test('res1:read res2:read res3:read res3:write')).toBe(false);
-      expect(result.test('res1:read res2:write res3:read res3:write')).toBe(true);
+      expect(result.test('res1:read res2:read res3:read')).toBeFalsy();
+      expect(result.test('res1:read res2:write res3:read')).toBeTruthy();
+      expect(result.test('res1:read res2:read res3:read res3:write')).toBeFalsy();
+      expect(result.test('res1:read res2:write res3:read res3:write')).toBeTruthy();
     });
 
     it('should return a regular expression that matches all if no readable or writable rows are provided', () => {
@@ -123,11 +125,11 @@ describe('Test /src/utils/access', () => {
       const result = requestAccess(reqs);
 
       expect(result).toBeInstanceOf(RegExp);
-      expect(result.test('')).toBe(true);
-      expect(result.test('res1:read')).toBe(true);
-      expect(result.test('res1:write')).toBe(true);
-      expect(result.test('res2:read')).toBe(true);
-      expect(result.test('res2:write')).toBe(true);
+      expect(result.test('')).toBeTruthy();
+      expect(result.test('res1:read')).toBeTruthy();
+      expect(result.test('res1:write')).toBeTruthy();
+      expect(result.test('res2:read')).toBeTruthy();
+      expect(result.test('res2:write')).toBeTruthy();
     });
 
     it('should throw an error if duplicated resource name in access request are detected', () => {

@@ -34,15 +34,10 @@ export const createVerifyOpt = (aud: string | RegExp): VerifyOptions => {
   };
 };
 
-export const sign = (
-  payload: object,
-  sub: string,
-  aud: string,
-  exp: string = '1d',
-  key: jsonwebtoken.Secret = priFile,
-) => jsonwebtoken.sign(payload, key, createSignOpt(sub, aud, exp));
+export const sign = (payload: object, sub: string, aud: string, exp: string = '1d') =>
+  jsonwebtoken.sign(payload, priFile, createSignOpt(sub, aud, exp));
 
-export const verify = (token: string, aud: string | RegExp, key: jsonwebtoken.Secret = pubFile) =>
-  jsonwebtoken.verify(token, key, createVerifyOpt(aud)) as jsonwebtoken.JwtPayload;
+export const verify = (token: string, aud: string | RegExp) =>
+  jsonwebtoken.verify(token, pubFile, createVerifyOpt(aud)) as jsonwebtoken.JwtPayload;
 
 export default { sign, verify };

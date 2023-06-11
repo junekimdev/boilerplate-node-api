@@ -31,58 +31,62 @@ describe('handler', () => {
   it('should call next with InvalidPushTopic error when the topic is invalid', async () => {
     const topic = 'invalid-topic';
     const payload = { message: 'Hello, world!' };
+    const expectedError = new AppError(errDef[400].InvalidPushTopic);
+
     req.body = { topic, payload };
     mockedTopicValidator.mockReturnValue(false);
-    const expectedError = new AppError(errDef[400].InvalidPushTopic);
 
     await handler(req, res, next);
 
     expect(isValidTopic).toBeCalledWith(topic);
-    expect(provider).not.toHaveBeenCalled();
-    expect(res.sendStatus).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expectedError);
+    expect(provider).not.toBeCalled();
+    expect(res.sendStatus).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
   });
 
   it('should call next with InvalidPayload error when the payload is missing', async () => {
     const topic = 'test-topic';
+    const expectedError = new AppError(errDef[400].InvalidPayload);
+
     req.body = { topic };
     mockedTopicValidator.mockReturnValue(true);
-    const expectedError = new AppError(errDef[400].InvalidPayload);
 
     await handler(req, res, next);
 
-    expect(provider).not.toHaveBeenCalled();
-    expect(res.sendStatus).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expectedError);
+    expect(provider).not.toBeCalled();
+    expect(res.sendStatus).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
   });
 
   it('should call next with InvalidPushTopic error if topic does not exist in DB', async () => {
     const topic = 'invalid-topic';
     const payload = { message: 'Hello, world!' };
+    const expectedError = new AppError(errDef[400].InvalidPushTopic);
+
     req.body = { topic, payload };
     mockedTopicValidator.mockReturnValue(true);
     mockedQuery.mockReturnValue({ rowCount: 0 });
-    const expectedError = new AppError(errDef[400].InvalidPushTopic);
 
     await handler(req, res, next);
 
     expect(db.query).toBeCalledWith(expect.any(String), [topic]);
-    expect(provider).not.toHaveBeenCalled();
-    expect(res.sendStatus).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expectedError);
+    expect(provider).not.toBeCalled();
+    expect(res.sendStatus).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
   });
 
   it('should call provider and sendStatus with 200 when the request is valid', async () => {
     const topic = 'test-topic';
     const payload = { message: 'Hello, world!' };
+
     req.body = { topic, payload };
     mockedTopicValidator.mockReturnValue(true);
     mockedQuery.mockReturnValue({ rowCount: 1 });
 
     await handler(req, res, next);
 
-    expect(provider).toHaveBeenCalledWith(topic, payload);
-    expect(res.sendStatus).toHaveBeenCalledWith(200);
-    expect(next).not.toHaveBeenCalled();
+    expect(provider).toBeCalledWith(topic, payload);
+    expect(res.sendStatus).toBeCalledWith(200);
+    expect(next).not.toBeCalled();
   });
 });

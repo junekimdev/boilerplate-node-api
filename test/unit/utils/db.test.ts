@@ -1,28 +1,28 @@
 // In typescript testing, mockings should come before imports
 import { EventEmitter } from 'events';
-const mockedQueryResult = 'mockedQueryResult';
-const mockedClient = {
-  query: jest.fn(async (query: string, values?: any[]) => mockedQueryResult),
+const queryResult = 'mockedQueryResult';
+const client = {
+  query: jest.fn(() => queryResult),
   release: jest.fn(() => {}),
 };
-class MockedPool extends EventEmitter {
-  query = jest.fn(async (query: string, values?: any[]) => mockedQueryResult);
-  connect = jest.fn(async () => mockedClient);
+class Pool extends EventEmitter {
+  query = jest.fn(() => queryResult);
+  connect = jest.fn(() => client);
 }
 jest.mock('pg', () => {
-  const pool = new MockedPool();
-  jest.spyOn(MockedPool.prototype, 'on');
-  return { Pool: jest.fn((config) => pool), PoolClient: mockedClient };
+  const pool = new Pool();
+  jest.spyOn(Pool.prototype, 'on');
+  return { Pool: jest.fn(() => pool) };
 });
 
-const mockedlogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() };
-jest.mock('../../../src/utils/logger', () => {
-  return { logger: mockedlogger };
-});
+jest.mock('../../../src/utils/logger', () => ({
+  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
+}));
 
 // Imports
 import { PoolClient } from 'pg';
 import db, { pool } from '../../../src/utils/db';
+import { logger } from '../../../src/utils/logger';
 
 // Tests
 describe('Test /src/util/db', () => {
@@ -32,7 +32,7 @@ describe('Test /src/util/db', () => {
     });
 
     it('should have been created', () => {
-      expect(pool).toBeInstanceOf(MockedPool);
+      expect(pool).toBeInstanceOf(Pool);
     });
 
     it('should start listening "connect" event to log', () => {
@@ -41,7 +41,7 @@ describe('Test /src/util/db', () => {
       emitter.emit(event);
 
       expect(pool.on).toBeCalledWith(event, expect.any(Function));
-      expect(mockedlogger.info).toBeCalledWith(expect.any(String));
+      expect(logger.info).toBeCalledWith(expect.any(String));
     });
 
     it('should start listening "error" event to log', () => {
@@ -50,7 +50,7 @@ describe('Test /src/util/db', () => {
       emitter.emit(event, new Error('err'));
 
       expect(pool.on).toBeCalledWith(event, expect.any(Function));
-      expect(mockedlogger.error).toBeCalledWith(expect.any(String));
+      expect(logger.error).toBeCalledWith(expect.any(String));
     });
   });
 
@@ -61,13 +61,13 @@ describe('Test /src/util/db', () => {
 
     it('should execute a query with parameters', async () => {
       const queryString = 'SELECT * FROM users';
-      const mockedParam = ['param1', 'param2'];
+      const params = ['param1', 'param2'];
 
-      const result = await db.query(queryString, mockedParam);
+      const result = await db.query(queryString, params);
 
-      expect(pool.query).toHaveBeenCalledTimes(1);
-      expect(pool.query).toBeCalledWith(queryString, mockedParam);
-      expect(result).toBe(mockedQueryResult);
+      expect(pool.query).toBeCalledTimes(1);
+      expect(pool.query).toBeCalledWith(queryString, params);
+      expect(result).toBe(queryResult);
     });
 
     it('should execute a query without parameters', async () => {
@@ -75,9 +75,9 @@ describe('Test /src/util/db', () => {
 
       const result = await db.query(queryString);
 
-      expect(pool.query).toHaveBeenCalledTimes(1);
+      expect(pool.query).toBeCalledTimes(1);
       expect(pool.query).toBeCalledWith(queryString, undefined);
-      expect(result).toBe(mockedQueryResult);
+      expect(result).toBe(queryResult);
     });
   });
 
@@ -94,29 +94,30 @@ describe('Test /src/util/db', () => {
 
       const result = await db.transaction(queryFunc);
 
-      expect(mockedClient.query).toHaveBeenNthCalledWith(1, 'BEGIN');
-      expect(queryFunc).toHaveBeenCalled();
-      expect(mockedClient.query).toHaveBeenNthCalledWith(4, 'COMMIT');
-      expect(mockedClient.query).not.toHaveBeenCalledWith('ROLLBACK');
-      expect(mockedlogger.warn).not.toHaveBeenCalled();
-      expect(mockedClient.release).toHaveBeenCalled();
-      expect(result).toBe(mockedQueryResult);
+      expect(client.query).nthCalledWith(1, 'BEGIN');
+      expect(queryFunc).toBeCalled();
+      expect(client.query).nthCalledWith(4, 'COMMIT');
+      expect(client.query).not.toBeCalledWith('ROLLBACK');
+      expect(logger.warn).not.toBeCalled();
+      expect(client.release).toBeCalled();
+      expect(result).toBe(queryResult);
     });
 
     it('should rollback the transaction on error', async () => {
+      const expectError = new Error('Something went wrong');
       const queryFunc = jest.fn(async (client: PoolClient) => {
         await client.query('INSERT INTO users (name) VALUES ($1)', ['John']);
-        throw new Error('Something went wrong');
+        throw expectError;
       });
 
       await expect(db.transaction(queryFunc)).rejects.toThrow('Something went wrong');
 
-      expect(mockedClient.query).toHaveBeenNthCalledWith(1, 'BEGIN');
-      expect(queryFunc).toHaveBeenCalled();
-      expect(mockedClient.query).toHaveBeenNthCalledWith(3, 'ROLLBACK');
-      expect(mockedlogger.warn).toHaveBeenCalled();
-      expect(mockedClient.query).not.toHaveBeenCalledWith('COMMIT');
-      expect(mockedClient.release).toHaveBeenCalled();
+      expect(client.query).nthCalledWith(1, 'BEGIN');
+      expect(queryFunc).toBeCalled();
+      expect(client.query).nthCalledWith(3, 'ROLLBACK');
+      expect(logger.warn).toBeCalled();
+      expect(client.query).not.toBeCalledWith('COMMIT');
+      expect(client.release).toBeCalledWith(expectError);
     });
   });
 });

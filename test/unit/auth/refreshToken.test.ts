@@ -1,13 +1,7 @@
 // Mocks
-jest.mock('../../../src/utils/db', () => ({
-  query: jest.fn(),
-}));
-jest.mock('../../../src/utils/hash', () => ({
-  sha256: jest.fn(),
-}));
-jest.mock('../../../src/utils/jwt', () => ({
-  verify: jest.fn(),
-}));
+jest.mock('../../../src/utils/db', () => ({ query: jest.fn() }));
+jest.mock('../../../src/utils/hash', () => ({ sha256: jest.fn() }));
+jest.mock('../../../src/utils/jwt', () => ({ verify: jest.fn() }));
 
 import { NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
@@ -42,6 +36,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
   it('should call next with RefreshTokenNotFound error when no refresh token found in req body', async () => {
     const expectedError = new AppError(errDef[401].RefreshTokenNotFound);
+
     req.body = {};
 
     await auth(req, res, next);
@@ -52,6 +47,7 @@ describe('Test /src/auth/bearerAuth', () => {
   it('should call next with InvalidToken error when refresh token is not string', async () => {
     const invalidToken = 1;
     const expectedError = new AppError(errDef[401].InvalidToken);
+
     req.body = { refresh_token: invalidToken };
 
     await auth(req, res, next);
@@ -70,6 +66,7 @@ describe('Test /src/auth/bearerAuth', () => {
     const expectedError = new AppError(errDef[401].TokenExpired, {
       cause: tokenExpiredError.message,
     });
+
     mockedJwtVerify.mockRejectedValue(tokenExpiredError);
 
     await auth(req, res, next);
@@ -82,6 +79,7 @@ describe('Test /src/auth/bearerAuth', () => {
     const expectedError = new AppError(errDef[401].InvalidToken, {
       cause: invalidTokenError.message,
     });
+
     mockedJwtVerify.mockRejectedValue(invalidTokenError);
 
     await auth(req, res, next);
@@ -91,6 +89,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
   it('should call next with InvalidToken error when user_id in payload is not a number', async () => {
     const expectedError = new AppError(errDef[401].InvalidToken);
+
     mockedJwtVerify.mockResolvedValue({ user_id: '123', device, sub });
 
     await auth(req, res, next);
@@ -100,6 +99,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
   it('should call next with InvalidToken error when device in payload is not a string', async () => {
     const expectedError = new AppError(errDef[401].InvalidToken);
+
     mockedJwtVerify.mockResolvedValue({ user_id, device: 123, sub });
 
     await auth(req, res, next);
@@ -109,6 +109,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
   it('should call next with InvalidToken error when sub in payload is not a string', async () => {
     const expectedError = new AppError(errDef[401].InvalidToken);
+
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub: 123 });
 
     await auth(req, res, next);
@@ -138,6 +139,7 @@ describe('Test /src/auth/bearerAuth', () => {
 
   it('should call next with InvalidToken error when no token found in DB with given IDs', async () => {
     const expectedError = new AppError(errDef[401].InvalidToken);
+
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub });
     mockedHashSha256.mockResolvedValue(tokenRow.token);
     mockedDbQuery.mockResolvedValue({ rowCount: 0 });
@@ -145,13 +147,14 @@ describe('Test /src/auth/bearerAuth', () => {
     await auth(req, res, next);
 
     expect(db.query).toBeCalledTimes(1);
-    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [user_id, device]);
+    expect(db.query).nthCalledWith(1, expect.any(String), [user_id, device]);
     expect(next).toBeCalledWith(expectedError);
   });
 
   it('should delete token in DB and return null if two refreshTokens are not the same', async () => {
     const hashed = 'differentToken';
     const expectedError = new AppError(errDef[401].InvalidToken);
+
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub });
     mockedHashSha256.mockResolvedValue(hashed);
     mockedDbQuery.mockResolvedValue({ rowCount: 1, rows: [tokenRow] });
@@ -159,8 +162,8 @@ describe('Test /src/auth/bearerAuth', () => {
     await auth(req, res, next);
 
     expect(db.query).toBeCalledTimes(2);
-    expect(db.query).toHaveBeenNthCalledWith(1, expect.any(String), [user_id, device]);
-    expect(db.query).toHaveBeenNthCalledWith(2, expect.any(String), [user_id, device]);
+    expect(db.query).nthCalledWith(1, expect.any(String), [user_id, device]);
+    expect(db.query).nthCalledWith(2, expect.any(String), [user_id, device]);
     expect(next).toBeCalledWith(expectedError);
   });
 
