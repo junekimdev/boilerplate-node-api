@@ -3,6 +3,7 @@ import router from 'express-promise-router';
 import createToken from '../services/createToken';
 import createUser from '../services/createUser';
 import deleteUser from '../services/deleteUser';
+import readUser from '../services/readUser';
 import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
@@ -18,6 +19,7 @@ import resUserpoolUser from '../auth/resUserpoolUser';
 const APIv1 = router();
 
 APIv1.post('/auth/user/:role', createUser);
+APIv1.get('/auth/user', resUserpoolUser, bearerAuth, readUser);
 APIv1.delete('/auth/user', resUserpoolUser, bearerAuth, deleteUser);
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);
