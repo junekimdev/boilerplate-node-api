@@ -39,13 +39,13 @@ CREATE TABLE access_control (
 CREATE TABLE userpool (
   id SERIAL PRIMARY KEY,
   email VARCHAR(50) NOT NULL UNIQUE,
-  pw CHAR(44), --SHA256 in base64 encoding
-  salt CHAR(16), --nodejs crypto.randomBytes(12) in base64 encoding
   role_id INT NOT NULL REFERENCES user_role ON DELETE RESTRICT,
   surname TEXT,
   given_name TEXT,
   last_login TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  pw CHAR(44), --SHA256 in base64 encoding
+  salt CHAR(16) --nodejs crypto.randomBytes(12) in base64 encoding
 );
 
 CREATE TABLE refresh_token (
