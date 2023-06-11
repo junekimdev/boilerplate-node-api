@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { Client } from 'pg';
+import { SQL_INSERT_USER } from '../src/services/createUser/provider';
 import hash from '../src/utils/hash';
 
 export const testObj = {
@@ -9,21 +10,23 @@ export const testObj = {
   role: { admin: 'admin1', user: 'user1' },
   password: hash.createUUID(),
   device: hash.createUUID(),
+  surname: 'test-surname',
+  givenName: 'test-given-name',
   pushTopic: 'test-topic',
 };
 
-const SQL_INSERT_USER = `INSERT INTO userpool(email, pw, salt, role_id)
-SELECT
-$1::VARCHAR(50), $2::CHAR(44), $3::CHAR(16),
-(SELECT id FROM user_role WHERE name=$4::VARCHAR(50))
-ON CONFLICT (email) DO NOTHING;`;
-
 const SQL_INSERT_TOPIC = `INSERT INTO topic(name) VALUES ($1::TEXT);`;
 
-const createUser = async (client: Client, username: string, rolename: string) => {
+const createUser = async (
+  client: Client,
+  username: string,
+  rolename: string,
+  surname: string,
+  givenName: string,
+) => {
   const salt = hash.createSalt();
   const hashedPW = await hash.sha256(testObj.password + salt);
-  await client.query(SQL_INSERT_USER, [username, hashedPW, salt, rolename]);
+  await client.query(SQL_INSERT_USER, [username, hashedPW, salt, rolename, surname, givenName]);
 };
 
 const init = async (testName: string, port: string) => {
@@ -50,8 +53,8 @@ const init = async (testName: string, port: string) => {
   });
   await client.connect();
   await client.query(sqlInit);
-  await createUser(client, testObj.admin, testObj.role.admin);
-  await createUser(client, testObj.user, testObj.role.user);
+  await createUser(client, testObj.admin, testObj.role.admin, testObj.surname, testObj.givenName);
+  await createUser(client, testObj.user, testObj.role.user, testObj.surname, testObj.givenName);
   await client.query(SQL_INSERT_TOPIC, [testObj.pushTopic]);
   await client.end();
 

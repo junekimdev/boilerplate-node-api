@@ -10,7 +10,7 @@ const SQL_CHECK_EMAIL = `SELECT id FROM userpool WHERE email=$1::VARCHAR(50)`;
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body as IReqBody;
+    const { email, password, surname, given_name } = req.body as IReqBody;
     const { role } = req.params;
 
     // Check validity
@@ -26,7 +26,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     if (result.rowCount) throw new AppError(errDef[409].UserAlreadyExists);
 
     // Provide
-    const id = await provider(validEmail, password, role);
+    const id = await provider(validEmail, password, role, surname, given_name);
     const resBody: IResBody = { user_id: id };
     res.status(201).json(resBody);
   } catch (error) {

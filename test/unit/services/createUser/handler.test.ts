@@ -21,10 +21,12 @@ describe('Test /src/services/createUser/apiHandler', () => {
   let res: Response;
   let next: NextFunction;
 
+  const userId = 123;
   const email = 'test@example.com';
   const password = 'password';
   const role = 'user1';
-  const userId = 123;
+  const surname = 'surname';
+  const given_name = 'givenName';
 
   beforeEach(() => {
     req = { body: {}, params: {} } as Request;
@@ -100,7 +102,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, role);
+    expect(provider).toBeCalledWith(email, password, role, undefined, undefined);
     expect(res.status).not.toBeCalled();
     expect(res.json).not.toBeCalled();
     expect(next).toBeCalledWith(expectedError);
@@ -115,7 +117,22 @@ describe('Test /src/services/createUser/apiHandler', () => {
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, role);
+    expect(provider).toBeCalledWith(email, password, role, undefined, undefined);
+    expect(res.status).toBeCalledWith(201);
+    expect(res.json).toBeCalledWith({ user_id: userId });
+    expect(next).not.toBeCalled();
+  });
+
+  it('should create a user and return user_id when valid [email, password, role] is in req', async () => {
+    req.params = { role };
+    req.body = { email, password, surname, given_name };
+    mockedEmailValidator.mockReturnValue(true);
+    mockedQuery.mockReturnValue({ rowCount: 0 });
+    mockedProvider.mockResolvedValue(userId);
+
+    await handler(req, res, next);
+
+    expect(provider).toBeCalledWith(email, password, role, surname, given_name);
     expect(res.status).toBeCalledWith(201);
     expect(res.json).toBeCalledWith({ user_id: userId });
     expect(next).not.toBeCalled();
