@@ -45,6 +45,27 @@ paths:
           $ref: '#/components/responses/409'
         500:
           $ref: '#/components/responses/500'
+    get:
+      tags:
+        - AuthAPI
+      summary: Get info of a user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
     delete:
       tags:
         - AuthAPI
@@ -218,6 +239,12 @@ components:
           type: string
           minimum: 1
           example: pa$$w@rd
+        surname:
+          type: string
+          example: 'Smith'
+        given_name:
+          type: string
+          example: 'James'
     DeviceIdentity:
       type: object
       required:
@@ -226,6 +253,33 @@ components:
         device:
           type: string
           example: device_uuid
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: number
+          minimum: 1
+          example: 1
+        email:
+          type: string
+          example: 'my-email@mycompany.com'
+        surname:
+          type: string
+          example: 'Smith'
+        given_name:
+          type: string
+          example: 'James'
+        role_name:
+          type: string
+          example: 'user1'
+        last_login:
+          type: string
+          format: date
+          example: '2023-01-01T11:11:11.111Z'
+        created_at:
+          type: string
+          format: date
+          example: '2023-01-01T11:11:11.111Z'
     Tokens:
       type: object
       required:
