@@ -5,10 +5,12 @@ import supertest from 'supertest';
 import hash from '../../src/utils/hash';
 import initTest, { testObj } from '../initTest';
 
+const apiPrefix = '/api/v1';
+
 const getToken = async (app: Express, who: string) => {
   const data = { device: testObj.device };
   const token = await supertest(app)
-    .post('/api/v1/auth/token')
+    .post(apiPrefix + '/auth/token')
     .auth(who, testObj.password, { type: 'basic' })
     .set('Accept', 'application/json')
     .send(data);
@@ -20,7 +22,7 @@ const getSubscription = () => ({
   keys: { auth: hash.createUUID(), p256dh: 'p256dh' },
 });
 
-describe('Test /api/v1/push', () => {
+describe('Test /push', () => {
   let app: Express;
   let server: Server;
   let db: any;
@@ -37,8 +39,8 @@ describe('Test /api/v1/push', () => {
     server.close();
   });
 
-  describe('GET /api/v1/push/key', () => {
-    const endPoint = '/api/v1/push/key';
+  describe('GET /push/key', () => {
+    const endPoint = apiPrefix + '/push/key';
 
     it('should read the vapid public key and return 200 with it', async () => {
       const accessToken = await getToken(app, testObj.user);
@@ -53,8 +55,8 @@ describe('Test /api/v1/push', () => {
     });
   });
 
-  describe('POST /api/v1/push/register', () => {
-    const endPoint = '/api/v1/push/register';
+  describe('POST /push/register', () => {
+    const endPoint = apiPrefix + '/push/register';
     const sqlPushSub = `SELECT id FROM subscription WHERE sub=$1::TEXT;`;
 
     it('should fail to register subscription and return 400 when invalid subscription is sent', async () => {
@@ -121,8 +123,8 @@ describe('Test /api/v1/push', () => {
     });
   });
 
-  describe('POST /api/v1/push/send', () => {
-    const endPoint = '/api/v1/push/send';
+  describe('POST /push/send', () => {
+    const endPoint = apiPrefix + '/push/send';
 
     it('should failed to send subscriptions and return 403 when non-admin user tries to send', async () => {
       const accessToken = await getToken(app, testObj.user);
@@ -180,7 +182,7 @@ describe('Test /api/v1/push', () => {
 
       // Register subscription
       const registration = await supertest(app)
-        .post('/api/v1/push/register')
+        .post(apiPrefix + '/push/register')
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
         .send(regiData);
