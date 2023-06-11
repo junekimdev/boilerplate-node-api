@@ -37,6 +37,8 @@ USER {
   CHAR(44) pw
   CHAR(16) salt
   INT role_id FK "NOT NULL"
+  TEXT surname
+  TEXT given_name
   TIMESTAMPTZ last_login
   TIMESTAMPTZ created_at "Auto"
 }
