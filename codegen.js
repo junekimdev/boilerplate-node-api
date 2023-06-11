@@ -9,7 +9,7 @@ const TYPES_TXT = `//export interface IReqBody {}
 export interface IResBody {}
 `;
 
-const PROVIDER_TXT = `//import {} from '../../utils';
+const PROVIDER_TXT = `//import db from '../../utils/db';
 //import {} from './types';
 
 const provider = async () => {
