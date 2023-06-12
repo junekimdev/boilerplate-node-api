@@ -5,7 +5,7 @@ import { IResLocals } from './types';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { userId } = res.locals;
+    const { userId } = res.locals as IResLocals;
 
     const result = await provider(userId);
     if (!result) throw new AppError(errDef[404].UserNotFound);

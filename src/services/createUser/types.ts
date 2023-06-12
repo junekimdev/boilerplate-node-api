@@ -4,6 +4,10 @@ export interface IReqBody {
   surname?: string;
   given_name?: string;
 }
+export interface IResLocals {
+  userId: number;
+}
+
 export interface IResBody {
   user_id: number;
 }

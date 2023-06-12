@@ -4,22 +4,22 @@ jest.mock('../../../src/utils/access', () => ({
 }));
 
 import { NextFunction, Request, Response } from 'express';
+import allowAll from '../../../src/auth/allowAll';
+import allowPushAdmin from '../../../src/auth/allowPushAdmin';
+import allowPushUser from '../../../src/auth/allowPushUser';
+import allowUserpoolAdmin from '../../../src/auth/allowUserpoolAdmin';
+import allowUserpoolUser from '../../../src/auth/allowUserpoolUser';
 import { IBearerAuthResLocals } from '../../../src/auth/bearerAuth';
-import resNone from '../../../src/auth/resNone';
-import resPushAdmin from '../../../src/auth/resPushAdmin';
-import resPushUser from '../../../src/auth/resPushUser';
-import resUserpoolAdmin from '../../../src/auth/resUserpoolAdmin';
-import resUserpoolUser from '../../../src/auth/resUserpoolUser';
 import { getRow, requestAccess } from '../../../src/utils/access';
 
 const controllers = [
-  { name: 'resPushAdmin', controller: resPushAdmin },
-  { name: 'resPushUser', controller: resPushUser },
-  { name: 'resUserpoolAdmin', controller: resUserpoolAdmin },
-  { name: 'resUserpoolUser', controller: resUserpoolUser },
+  { name: 'allowPushAdmin', controller: allowPushAdmin },
+  { name: 'allowPushUser', controller: allowPushUser },
+  { name: 'allowUserpoolAdmin', controller: allowUserpoolAdmin },
+  { name: 'allowUserpoolUser', controller: allowUserpoolUser },
 ];
 
-describe('Test /src/auth/res', () => {
+describe('Test /src/auth/allow', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
@@ -32,8 +32,8 @@ describe('Test /src/auth/res', () => {
   });
 
   describe('according to roles', () => {
-    it('resNone should set the accessRegex in res.locals and call next', async () => {
-      await resNone(req, res, next);
+    it('allowAll should set the accessRegex in res.locals and call next', async () => {
+      await allowAll(req, res, next);
 
       expect(requestAccess).toBeCalledTimes(1);
       expect(requestAccess).toBeCalledWith();

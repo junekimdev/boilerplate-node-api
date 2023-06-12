@@ -3,14 +3,14 @@ jest.mock('../../../src/utils/db', () => ({ query: jest.fn() }));
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
-import paramUserId from '../../../src/auth/paramUserId';
+import validateUserId from '../../../src/middleware/validateUserId';
 import db from '../../../src/utils/db';
 import { AppError, errDef } from '../../../src/utils/errors';
 
 const mockedDbQuery = db.query as jest.Mock;
 
 // Tests
-describe('Test /src/auth/paramUserId', () => {
+describe('Test /src/auth/validateUserId', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
@@ -25,7 +25,7 @@ describe('Test /src/auth/paramUserId', () => {
   it('should put userId in res.locals and call next when user_id in req.body is a number', async () => {
     req.body = { user_id: 123 };
 
-    await paramUserId(req, res, next);
+    await validateUserId(req, res, next);
 
     expect(res.locals).toHaveProperty('userId');
     expect(next).toBeCalledWith();
@@ -36,7 +36,7 @@ describe('Test /src/auth/paramUserId', () => {
 
     req.body = { user_id: '123' };
 
-    await paramUserId(req, res, next);
+    await validateUserId(req, res, next);
 
     expect(next).toBeCalledWith(expectedError);
   });
@@ -46,7 +46,7 @@ describe('Test /src/auth/paramUserId', () => {
 
     res.locals = {};
 
-    await paramUserId(req, res, next);
+    await validateUserId(req, res, next);
 
     expect(next).toBeCalledWith(expectedError);
   });
@@ -56,7 +56,7 @@ describe('Test /src/auth/paramUserId', () => {
 
     res.locals = { decodedToken: { user_id: '123' } };
 
-    await paramUserId(req, res, next);
+    await validateUserId(req, res, next);
 
     expect(next).toBeCalledWith(expectedError);
   });
@@ -64,7 +64,7 @@ describe('Test /src/auth/paramUserId', () => {
   it('should put id of the token owner in req.locals and call next when user_id is not in req.body', async () => {
     res.locals = { decodedToken: { user_id: 123 } };
 
-    await paramUserId(req, res, next);
+    await validateUserId(req, res, next);
 
     expect(res.locals).toHaveProperty('userId');
     expect(next).toBeCalledWith();

@@ -6,7 +6,7 @@ import { IReqBody, IResLocals, IUserInfo } from './types';
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { surname, given_name } = req.body as IReqBody;
-    const { userId } = res.locals;
+    const { userId } = res.locals as IResLocals;
 
     const info: IUserInfo = {
       id: userId,

@@ -3,12 +3,12 @@ import db from '../../utils/db';
 import { isEmailValid } from '../../utils/email';
 import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
-import { IReqBody, IResBody } from './types';
+import { IReqBody, IResBody, IResLocals } from './types';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, surname, given_name } = req.body as IReqBody;
-    const { roleName } = res.locals;
+    const { roleName } = res.locals as IResLocals;
 
     // Check validity
     // Check if email is valid

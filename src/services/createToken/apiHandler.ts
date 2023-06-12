@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { IBasicAuthResLocals } from '../../auth/basicAuth';
+import { IBasicAuthResLocals } from '../../middleware/basicAuth';
 import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
 import { IReqBody, IResBody } from './types';

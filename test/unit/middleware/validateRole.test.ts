@@ -3,14 +3,14 @@ jest.mock('../../../src/utils/db', () => ({ query: jest.fn() }));
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
-import paramRole from '../../../src/auth/paramRole';
-import db from './../../../src/utils/db';
-import { AppError, errDef } from './../../../src/utils/errors';
+import validateRole from '../../../src/auth/validateRole';
+import db from '../../../src/utils/db';
+import { AppError, errDef } from '../../../src/utils/errors';
 
 const mockedDbQuery = db.query as jest.Mock;
 
 // Tests
-describe('Test /src/auth/paramRole', () => {
+describe('Test /src/auth/validateRole', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
@@ -29,7 +29,7 @@ describe('Test /src/auth/paramRole', () => {
 
     req.body = { role_name: 123 };
 
-    await paramRole(req, res, next);
+    await validateRole(req, res, next);
 
     expect(db.query).not.toBeCalled();
     expect(next).toBeCalledWith(expectedError);
@@ -40,7 +40,7 @@ describe('Test /src/auth/paramRole', () => {
 
     mockedDbQuery.mockResolvedValue({ rowCount: 0 });
 
-    await paramRole(req, res, next);
+    await validateRole(req, res, next);
 
     expect(db.query).toBeCalledTimes(1);
     expect(db.query).toBeCalledWith(expect.any(String), [role_name]);
@@ -50,7 +50,7 @@ describe('Test /src/auth/paramRole', () => {
   it('should put roleName in res.locals and call next when role_name in req.body found in DB', async () => {
     mockedDbQuery.mockResolvedValue({ rowCount: 1 });
 
-    await paramRole(req, res, next);
+    await validateRole(req, res, next);
 
     expect(db.query).toBeCalledTimes(1);
     expect(db.query).toBeCalledWith(expect.any(String), [role_name]);
