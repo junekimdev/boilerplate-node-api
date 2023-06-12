@@ -26,19 +26,16 @@ describe('Test /auth', () => {
     server.close();
   });
 
-  describe('POST /auth/user/:role', () => {
-    const endPoint = apiPrefix + '/auth/user/';
+  describe('POST /auth/user', () => {
+    const endPoint = apiPrefix + '/auth/user';
     const sqlUser = `SELECT id FROM userpool WHERE email=$1::VARCHAR(50)`;
 
     it('should fail to create a user and return 400 when invalid role detected', async () => {
       const invalidRole = '123';
       const testUser = 'test@mycompany.com';
-      const data = { email: testUser, password: testObj.password };
+      const data = { email: testUser, password: testObj.password, role_name: invalidRole };
 
-      const res = await supertest(app)
-        .post(endPoint + invalidRole)
-        .set('Accept', 'application/json')
-        .send(data);
+      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
       expect(res.status).toBe(400);
 
       const check: QueryResult = await db.query(sqlUser, [testUser]);
@@ -47,12 +44,13 @@ describe('Test /auth', () => {
 
     it('should fail to create a user and return 400 when invalid email detected', async () => {
       const invalidEmail = 'test_mycompany.com';
-      const data = { email: invalidEmail, password: testObj.password };
+      const data = {
+        email: invalidEmail,
+        password: testObj.password,
+        role_name: testObj.role.user,
+      };
 
-      const res = await supertest(app)
-        .post(endPoint + testObj.role.user)
-        .set('Accept', 'application/json')
-        .send(data);
+      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
       expect(res.status).toBe(400);
 
       const check: QueryResult = await db.query(sqlUser, [invalidEmail]);
@@ -61,12 +59,9 @@ describe('Test /auth', () => {
 
     it('should fail to create a user return 409 when email already exists', async () => {
       const testUser = await createRandomUser(db, testObj.role.user);
-      const data = { email: testUser, password: testObj.password };
+      const data = { email: testUser, password: testObj.password, role_name: testObj.role.user };
 
-      const res = await supertest(app)
-        .post(endPoint + testObj.role.user)
-        .set('Accept', 'application/json')
-        .send(data);
+      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
       expect(res.status).toBe(409);
 
       const check: QueryResult = await db.query(sqlUser, [testUser]);
@@ -75,12 +70,9 @@ describe('Test /auth', () => {
 
     it('should create a user and return 201 with user_id', async () => {
       const testUser = `${hash.createUUID()}@test.io`;
-      const data = { email: testUser, password: testObj.password };
+      const data = { email: testUser, password: testObj.password, role_name: testObj.role.user };
 
-      const res = await supertest(app)
-        .post(endPoint + testObj.role.user)
-        .set('Accept', 'application/json')
-        .send(data);
+      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty('user_id');
 
@@ -93,14 +85,12 @@ describe('Test /auth', () => {
       const data = {
         email: testUser,
         password: testObj.password,
+        role_name: testObj.role.user,
         surname: testObj.surname,
         given_name: testObj.givenName,
       };
 
-      const res = await supertest(app)
-        .post(endPoint + testObj.role.user)
-        .set('Accept', 'application/json')
-        .send(data);
+      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty('user_id');
 
@@ -110,12 +100,9 @@ describe('Test /auth', () => {
 
     it('should create an admin and return 201 with user_id', async () => {
       const testUser = `${hash.createUUID()}@test.io`;
-      const data = { email: testUser, password: testObj.password };
+      const data = { email: testUser, password: testObj.password, role_name: testObj.role.admin };
 
-      const res = await supertest(app)
-        .post(endPoint + testObj.role.admin)
-        .set('Accept', 'application/json')
-        .send(data);
+      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty('user_id');
 

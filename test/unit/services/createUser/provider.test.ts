@@ -15,43 +15,54 @@ describe('Test /src/service/createUser/provider', () => {
   const password = 'password';
   const surname = 'surname';
   const givenName = 'givenName';
-  const role = 'user1';
+  const roleName = 'user1';
   const salt = 'mockingSalt';
   const hashed = 'hashedPassword';
-  const queryResult = { rows: [{ id: userId }] };
+  const queryResult = { rowCount: 1, rows: [{ id: userId }] };
 
-  it('should insert a user and return the user ID', async () => {
-    mockedQuery.mockResolvedValue(queryResult);
-    mockedSha256.mockResolvedValue(hashed);
+  it('should return 0 if user already exists', async () => {
     mockedCreateSalt.mockReturnValue(salt);
+    mockedSha256.mockResolvedValue(hashed);
+    mockedQuery.mockResolvedValue({ rowCount: 0 });
 
-    const result = await provider(email, password, role, undefined, undefined);
+    const result = await provider(email, password, roleName, undefined, undefined);
 
-    expect(result).toBe(userId);
     expect(hash.createSalt).toBeCalled();
     expect(hash.sha256).toBeCalledWith(password + salt);
+    expect(db.query).toBeCalledWith(expect.any(String), [email, hashed, salt, roleName, '', '']);
+    expect(result).toBe(0);
+  });
 
-    expect(db.query).toBeCalledWith(expect.any(String), [email, hashed, salt, role, '', '']);
+  it('should insert a user and return the user ID', async () => {
+    mockedCreateSalt.mockReturnValue(salt);
+    mockedSha256.mockResolvedValue(hashed);
+    mockedQuery.mockResolvedValue(queryResult);
+
+    const result = await provider(email, password, roleName, undefined, undefined);
+
+    expect(hash.createSalt).toBeCalled();
+    expect(hash.sha256).toBeCalledWith(password + salt);
+    expect(db.query).toBeCalledWith(expect.any(String), [email, hashed, salt, roleName, '', '']);
+    expect(result).toBe(userId);
   });
 
   it('should insert a user and return the user ID with additional info', async () => {
-    mockedQuery.mockResolvedValue(queryResult);
-    mockedSha256.mockResolvedValue(hashed);
     mockedCreateSalt.mockReturnValue(salt);
+    mockedSha256.mockResolvedValue(hashed);
+    mockedQuery.mockResolvedValue(queryResult);
 
-    const result = await provider(email, password, role, surname, givenName);
+    const result = await provider(email, password, roleName, surname, givenName);
 
-    expect(result).toBe(userId);
     expect(hash.createSalt).toBeCalled();
     expect(hash.sha256).toBeCalledWith(password + salt);
-
     expect(db.query).toBeCalledWith(expect.any(String), [
       email,
       hashed,
       salt,
-      role,
+      roleName,
       surname,
       givenName,
     ]);
+    expect(result).toBe(userId);
   });
 });

@@ -20,7 +20,7 @@ import resUserpoolUser from '../auth/resUserpoolUser';
 
 const APIv1 = router();
 
-APIv1.post('/auth/user/:role', paramRole, createUser);
+APIv1.post('/auth/user', paramRole, createUser);
 APIv1.get('/auth/user', resUserpoolUser, bearerAuth, readUser);
 APIv1.put('/auth/user', resUserpoolUser, bearerAuth, updateUser);
 APIv1.delete('/auth/user', resUserpoolUser, bearerAuth, deleteUser);

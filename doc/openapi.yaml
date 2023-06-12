@@ -18,19 +18,11 @@ tags:
   - name: PushAPI
     description: Push Notification API
 paths:
-  /auth/user/{role}:
+  /auth/user:
     post:
       tags:
         - AuthAPI
       summary: Create a user
-      parameters:
-        - in: path
-          name: role
-          description: name of the role
-          required: true
-          schema:
-            type: string
-            example: user1
       requestBody:
         required: true
         content:
@@ -53,7 +45,6 @@ paths:
           $ref: '#/components/responses/409'
         500:
           $ref: '#/components/responses/500'
-  /auth/user:
     get:
       tags:
         - AuthAPI
@@ -260,6 +251,7 @@ components:
       required:
         - email
         - password
+        - role_name
       properties:
         email:
           type: string
@@ -270,12 +262,15 @@ components:
           type: string
           minimum: 1
           example: pa$$w@rd
+        role_name:
+          type: string
+          example: user1
         surname:
           type: string
-          example: 'Smith'
+          example: Smith
         given_name:
           type: string
-          example: 'James'
+          example: James
     DeviceIdentity:
       type: object
       required:

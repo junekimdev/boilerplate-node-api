@@ -1,19 +1,16 @@
 // Mocks
 jest.mock('../../../../src/services/createUser/provider', () => jest.fn());
-jest.mock('../../../../src/utils/db', () => ({ query: jest.fn() }));
 jest.mock('../../../../src/utils/email', () => ({ isEmailValid: jest.fn() }));
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
 import handler from '../../../../src/services/createUser/apiHandler';
 import provider from '../../../../src/services/createUser/provider';
-import db from '../../../../src/utils/db';
 import { isEmailValid } from '../../../../src/utils/email';
 import { AppError, errDef } from '../../../../src/utils/errors';
 
 const mockedProvider = provider as jest.Mock;
 const mockedEmailValidator = isEmailValid as jest.Mock;
-const mockedQuery = db.query as jest.Mock;
 
 // Tests
 describe('Test /src/services/createUser/apiHandler', () => {
@@ -24,12 +21,12 @@ describe('Test /src/services/createUser/apiHandler', () => {
   const userId = 123;
   const email = 'test@example.com';
   const password = 'password';
-  const role = 'user1';
+  const roleName = 'user1';
   const surname = 'surname';
   const given_name = 'givenName';
 
   beforeEach(() => {
-    req = { body: {}, params: {} } as Request;
+    req = { body: {} } as Request;
     res = {
       locals: {},
       status: jest.fn().mockReturnThis(),
@@ -40,51 +37,17 @@ describe('Test /src/services/createUser/apiHandler', () => {
     jest.clearAllMocks();
   });
 
-  it('should call next with invalidRoleName error if role is invalid', async () => {
-    const invalidRole = 'invalidRole';
-    const expectedError = new AppError(errDef[400].invalidRoleName);
-
-    req.params = { role: invalidRole };
-    req.body = { email, password };
-
-    await handler(req, res, next);
-
-    expect(db.query).not.toBeCalled();
-    expect(provider).not.toBeCalled();
-    expect(res.status).not.toBeCalled();
-    expect(res.json).not.toBeCalled();
-    expect(next).toBeCalledWith(expectedError);
-  });
-
   it('should call next with InvalidEmailFormat error if email is invalid', async () => {
     const invalidEmail = 'invalid_email';
     const expectedError = new AppError(errDef[400].InvalidEmailFormat);
 
-    req.params = { role };
     req.body = { email: invalidEmail, password };
+    res.locals = { roleName };
     mockedEmailValidator.mockReturnValue(false);
 
     await handler(req, res, next);
 
     expect(isEmailValid).toBeCalledWith(invalidEmail);
-    expect(db.query).not.toBeCalled();
-    expect(provider).not.toBeCalled();
-    expect(res.status).not.toBeCalled();
-    expect(res.json).not.toBeCalled();
-    expect(next).toBeCalledWith(expectedError);
-  });
-
-  it('should call next with UserAlreadyExists error if email already exists', async () => {
-    const expectedError = new AppError(errDef[409].UserAlreadyExists);
-
-    req.params = { role };
-    req.body = { email, password };
-    mockedEmailValidator.mockReturnValue(true);
-    mockedQuery.mockReturnValue({ rowCount: 1 });
-
-    await handler(req, res, next);
-
-    expect(db.query).toBeCalledWith(expect.any(String), [email]);
     expect(provider).not.toBeCalled();
     expect(res.status).not.toBeCalled();
     expect(res.json).not.toBeCalled();
@@ -94,45 +57,58 @@ describe('Test /src/services/createUser/apiHandler', () => {
   it('should call next with the error if an unknown error occurs', async () => {
     const expectedError = new Error('unknown error');
 
-    req.params = { role };
     req.body = { email, password };
+    res.locals = { roleName };
     mockedEmailValidator.mockReturnValue(true);
-    mockedQuery.mockReturnValue({ rowCount: 0 });
     mockedProvider.mockRejectedValue(expectedError);
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, role, undefined, undefined);
+    expect(provider).toBeCalledWith(email, password, roleName, undefined, undefined);
     expect(res.status).not.toBeCalled();
     expect(res.json).not.toBeCalled();
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should create a user and return user_id when valid [email, password, role] is in req', async () => {
-    req.params = { role };
+  it('should call next with UserAlreadyExists error if email already exists', async () => {
+    const expectedError = new AppError(errDef[409].UserAlreadyExists);
+
     req.body = { email, password };
+    res.locals = { roleName };
     mockedEmailValidator.mockReturnValue(true);
-    mockedQuery.mockReturnValue({ rowCount: 0 });
+    mockedProvider.mockResolvedValue(0);
+
+    await handler(req, res, next);
+
+    expect(provider).toBeCalledWith(email, password, roleName, undefined, undefined);
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
+
+  it('should create a user and return user_id when valid data is in req', async () => {
+    req.body = { email, password };
+    res.locals = { roleName };
+    mockedEmailValidator.mockReturnValue(true);
     mockedProvider.mockResolvedValue(userId);
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, role, undefined, undefined);
+    expect(provider).toBeCalledWith(email, password, roleName, undefined, undefined);
     expect(res.status).toBeCalledWith(201);
     expect(res.json).toBeCalledWith({ user_id: userId });
     expect(next).not.toBeCalled();
   });
 
-  it('should create a user and return user_id when valid [email, password, role] is in req', async () => {
-    req.params = { role };
+  it('should create a user and return user_id when valid data with additional info is in req', async () => {
     req.body = { email, password, surname, given_name };
+    res.locals = { roleName };
     mockedEmailValidator.mockReturnValue(true);
-    mockedQuery.mockReturnValue({ rowCount: 0 });
     mockedProvider.mockResolvedValue(userId);
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, role, surname, given_name);
+    expect(provider).toBeCalledWith(email, password, roleName, surname, given_name);
     expect(res.status).toBeCalledWith(201);
     expect(res.json).toBeCalledWith({ user_id: userId });
     expect(next).not.toBeCalled();

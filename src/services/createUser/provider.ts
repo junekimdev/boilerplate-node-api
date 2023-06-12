@@ -12,15 +12,22 @@ RETURNING id;`;
 const provider = async (
   email: string,
   password: string,
-  role: string,
+  roleName: string,
   surname: string = '',
   givenName: string = '',
 ) => {
   const salt = hash.createSalt();
   const hashed = await hash.sha256(password + salt);
 
-  const result = await db.query(SQL_INSERT_USER, [email, hashed, salt, role, surname, givenName]);
-  return result.rows[0].id as number;
+  const result = await db.query(SQL_INSERT_USER, [
+    email,
+    hashed,
+    salt,
+    roleName,
+    surname,
+    givenName,
+  ]);
+  return result.rowCount ? (result.rows[0].id as number) : 0;
 };
 
 export default provider;
