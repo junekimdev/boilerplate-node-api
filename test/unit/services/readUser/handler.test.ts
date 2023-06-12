@@ -17,9 +17,9 @@ describe('Test /src/services/readUser/apiHandler', () => {
   const userId = 123;
 
   beforeEach(() => {
-    req = { body: {} } as Request;
+    req = { body: {} } as unknown as Request;
     res = {
-      locals: { decodedToken: {} },
+      locals: {},
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       sendStatus: jest.fn(),
@@ -29,21 +29,10 @@ describe('Test /src/services/readUser/apiHandler', () => {
   });
 
   describe('handler', () => {
-    it('should call next with InvalidToken error when userId cannot be found in token', async () => {
-      const expectedError = new AppError(errDef[401].InvalidToken);
-
-      await handler(req, res, next);
-
-      expect(provider).not.toBeCalled();
-      expect(res.status).not.toBeCalled();
-      expect(res.json).not.toBeCalled();
-      expect(next).toBeCalledWith(expectedError);
-    });
-
     it('should call next with UserNotFound error when user is not in DB', async () => {
       const expectedError = new AppError(errDef[404].UserNotFound);
 
-      res.locals.decodedToken = { user_id: userId };
+      res.locals = { userId };
       mockedProvider.mockResolvedValue(null);
 
       await handler(req, res, next);
@@ -57,7 +46,7 @@ describe('Test /src/services/readUser/apiHandler', () => {
     it('should return user info', async () => {
       const userInfo = { id: userId };
 
-      res.locals.decodedToken = { user_id: userId };
+      res.locals = { userId };
       mockedProvider.mockResolvedValue(userInfo);
 
       await handler(req, res, next);

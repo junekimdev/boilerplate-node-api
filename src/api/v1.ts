@@ -24,9 +24,9 @@ import userUser from '../auth/resUserpoolUser';
 const APIv1 = router();
 
 APIv1.post('/auth/user', role, createUser);
-APIv1.get('/auth/user', userUser, bearerAuth, readUser);
-APIv1.put('/auth/user', userUser, bearerAuth, updateUser);
-APIv1.delete('/auth/user', userUser, bearerAuth, deleteUser);
+APIv1.get('/auth/user', userUser, bearerAuth, userId, readUser);
+APIv1.put('/auth/user', userUser, bearerAuth, userId, updateUser);
+APIv1.delete('/auth/user', userUser, bearerAuth, userId, deleteUser);
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);
 

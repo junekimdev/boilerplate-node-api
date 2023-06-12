@@ -17,7 +17,7 @@ describe('Test /src/services/deleteUser/apiHandler', () => {
   const userId = 123;
 
   beforeEach(() => {
-    req = { body: {} } as Request;
+    req = { body: {} } as unknown as Request;
     res = {
       locals: {},
       status: jest.fn().mockReturnThis(),
@@ -29,24 +29,11 @@ describe('Test /src/services/deleteUser/apiHandler', () => {
   });
 
   describe('handler', () => {
-    it('should return InvalidToken error when userId is not a number in token', async () => {
-      const expecteError = new AppError(errDef[401].InvalidToken);
-
-      res.locals = { decodedToken: { user_id: `${userId}` } };
-
-      await handler(req, res, next);
-
-      expect(provider).not.toBeCalled();
-      expect(res.status).not.toBeCalled();
-      expect(res.json).not.toBeCalled();
-      expect(next).toBeCalledWith(expecteError);
-    });
-
     it('should return UserNotFound error when user is not in DB to delete', async () => {
       const expecteError = new AppError(errDef[404].UserNotFound);
 
       mockedProvider.mockResolvedValue(0);
-      res.locals = { decodedToken: { user_id: userId } };
+      res.locals = { userId };
 
       await handler(req, res, next);
 
@@ -58,7 +45,7 @@ describe('Test /src/services/deleteUser/apiHandler', () => {
 
     it('should call provider with userId and return 200 when succussful', async () => {
       mockedProvider.mockResolvedValue(userId);
-      res.locals = { decodedToken: { user_id: userId } };
+      res.locals = { userId };
 
       await handler(req, res, next);
 

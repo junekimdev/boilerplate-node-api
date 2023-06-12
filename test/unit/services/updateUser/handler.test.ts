@@ -21,7 +21,7 @@ describe('Test /src/services/updateUser/apiHandler', () => {
   beforeEach(() => {
     req = { body: {} } as unknown as Request;
     res = {
-      locals: { decodedToken: {} },
+      locals: {},
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       sendStatus: jest.fn(),
@@ -30,20 +30,10 @@ describe('Test /src/services/updateUser/apiHandler', () => {
     jest.clearAllMocks();
   });
 
-  it('should call next with InvalidToken error when userId cannot be found in token', async () => {
-    const expectedError = new AppError(errDef[401].InvalidToken);
-
-    await handler(req, res, next);
-
-    expect(provider).not.toBeCalled();
-    expect(res.sendStatus).not.toBeCalled();
-    expect(next).toBeCalledWith(expectedError);
-  });
-
   it('should call next with UserNotFound error when provider returns 0', async () => {
     const expectedError = new AppError(errDef[404].UserNotFound);
 
-    res.locals.decodedToken = { user_id: userId };
+    res.locals = { userId };
     mockedProvider.mockResolvedValue(0);
 
     await handler(req, res, next);
@@ -54,7 +44,7 @@ describe('Test /src/services/updateUser/apiHandler', () => {
   });
 
   it('should return 200 when provider returns 1', async () => {
-    res.locals.decodedToken = { user_id: userId };
+    res.locals = { userId };
     mockedProvider.mockResolvedValue(1);
 
     await handler(req, res, next);
