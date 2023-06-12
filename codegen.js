@@ -66,20 +66,17 @@ describe('Test /src/services/${name}/apiHandler', () => {
     jest.clearAllMocks();
   });
 
-  describe('handler', () => {
-    it('should call provider', async () => {
-      const mockedResult = {};
-      const expected = {};
+  it('should call next with an error when', async () => {
+    // const expectedError = new AppError(errDef[409].UserAlreadyExists);
 
-      // mockedProvider.mockResolvedValue(mockedResult);
+    // mockedProvider.mockResolvedValue();
 
-      // await handler(req, res, next);
+    // await handler(req, res, next);
 
-      // expect(provider).toBeCalledWith();
-      // expect(res.status).toBeCalledWith(200);
-      // expect(res.json).toBeCalledWith(expected);
-      // expect(next).not.toBeCalled();
-    });
+    // expect(provider).toBeCalledWith();
+    // expect(res.status).toBeCalledWith(200);
+    // expect(res.json).toBeCalledWith(expected);
+    // expect(next).not.toBeCalled();
   });
 });
 `;
@@ -99,18 +96,14 @@ describe('Test /src/services/${name}/provider', () => {
     jest.clearAllMocks();
   });
 
-  describe('provider', () => {
-    it('should return something', async () => {
-      const arg1 = 'arg1';
-      const arg2 = 'arg2';
-      const expected = {};
+  it('should return 0', async () => {
+    // const expected = {};
 
-      // const result = await provider();
+    // const result = await provider();
 
-      // expect(db.query).toBeCalledTimes(1);
-      // expect(db.query).toBeCalledWith(expect.any(String), [arg1, arg2]);
-      // expect(result).toEqual(expected);
-    });
+    // expect(db.query).toBeCalledTimes(1);
+    // expect(db.query).toBeCalledWith(expect.any(String), [arg1]);
+    // expect(result).toEqual(expected);
   });
 });
 `;
