@@ -3,19 +3,11 @@ import { Server } from 'http';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../src/utils/hash';
-import initTest, { testObj } from '../initTest';
+import initTest from '../initTest';
+import { apiPrefix, getToken, testObj } from '../testUtil';
 
-const apiPrefix = '/api/v1';
-
-const getToken = async (app: Express, who: string) => {
-  const data = { device: testObj.device };
-  const token = await supertest(app)
-    .post(apiPrefix + '/auth/token')
-    .auth(who, testObj.password, { type: 'basic' })
-    .set('Accept', 'application/json')
-    .send(data);
-  return token.body.access_token;
-};
+const testName = 'test_push';
+const testPort = '3002';
 
 const getSubscription = () => ({
   endpoint: 'endpoint',
@@ -28,7 +20,7 @@ describe('Test /push', () => {
   let db: any;
 
   beforeAll(async () => {
-    await initTest('test_push', '3002');
+    await initTest(testName, testPort);
     const mod: any = require('../../src/server');
     app = mod.default;
     server = mod.server;
