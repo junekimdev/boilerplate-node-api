@@ -55,7 +55,7 @@ describe('Test /src/services/${name}/apiHandler', () => {
   let next: NextFunction;
 
   beforeEach(() => {
-    req = { body: {} } as Request;
+    req = { body: {} } as unknown as Request;
     res = {
       locals: {},
       status: jest.fn().mockReturnThis(),
@@ -151,8 +151,9 @@ const main = async () => {
       if (ans !== 'y' && ans !== 'Y') process.exit(1);
     } catch (error) {
       // Not existing, create it
-      console.log(`Creating ${dirPath} & ${dirPathTest}`);
+      console.log(`Creating ${dirPath}`);
       fs.mkdirSync(dirPath);
+      console.log(`Creating ${dirPathTest}`);
       fs.mkdirSync(dirPathTest);
     }
 
