@@ -3,17 +3,7 @@ import path from 'path';
 import { Client } from 'pg';
 import { SQL_INSERT_USER } from '../src/services/createUser/provider';
 import hash from '../src/utils/hash';
-
-export const testObj = {
-  admin: `${hash.createUUID()}@test.io`,
-  user: `${hash.createUUID()}@test.io`,
-  role: { admin: 'admin1', user: 'user1' },
-  password: hash.createUUID(),
-  device: hash.createUUID(),
-  surname: 'test-surname',
-  givenName: 'test-given-name',
-  pushTopic: 'test-topic',
-};
+import { testObj } from './testUtil';
 
 const SQL_INSERT_TOPIC = `INSERT INTO topic(name) VALUES ($1::TEXT);`;
 
