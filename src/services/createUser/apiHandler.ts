@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import roles from '../../auth/roles';
 import db from '../../utils/db';
 import { isEmailValid } from '../../utils/email';
 import { AppError, errDef } from '../../utils/errors';
@@ -14,9 +13,6 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     const { role } = req.params;
 
     // Check validity
-    // Check if role is valid
-    if (!roles.includes(role)) throw new AppError(errDef[400].invalidRoleName);
-
     // Check if email is valid
     if (!isEmailValid(email)) throw new AppError(errDef[400].InvalidEmailFormat);
     const validEmail = email.toLowerCase().trim();

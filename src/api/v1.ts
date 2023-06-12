@@ -10,6 +10,7 @@ import sendNoti from '../services/sendNoti';
 
 import basicAuth from '../auth/basicAuth';
 import bearerAuth from '../auth/bearerAuth';
+import paramRole from '../auth/paramRole';
 import refreshToken from '../auth/refreshToken';
 
 import resPushAdmin from '../auth/resPushAdmin';
@@ -18,7 +19,7 @@ import resUserpoolUser from '../auth/resUserpoolUser';
 
 const APIv1 = router();
 
-APIv1.post('/auth/user/:role', createUser);
+APIv1.post('/auth/user/:role', paramRole, createUser);
 APIv1.get('/auth/user', resUserpoolUser, bearerAuth, readUser);
 APIv1.delete('/auth/user', resUserpoolUser, bearerAuth, deleteUser);
 APIv1.post('/auth/token', basicAuth, createToken);
