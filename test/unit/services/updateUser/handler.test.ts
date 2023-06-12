@@ -30,39 +30,37 @@ describe('Test /src/services/updateUser/apiHandler', () => {
     jest.clearAllMocks();
   });
 
-  describe('handler', () => {
-    it('should call next with InvalidToken error when userId cannot be found in token', async () => {
-      const expectedError = new AppError(errDef[401].InvalidToken);
+  it('should call next with InvalidToken error when userId cannot be found in token', async () => {
+    const expectedError = new AppError(errDef[401].InvalidToken);
 
-      await handler(req, res, next);
+    await handler(req, res, next);
 
-      expect(provider).not.toBeCalled();
-      expect(res.sendStatus).not.toBeCalled();
-      expect(next).toBeCalledWith(expectedError);
-    });
+    expect(provider).not.toBeCalled();
+    expect(res.sendStatus).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
 
-    it('should call next with UserNotFound error when provider returns 0', async () => {
-      const expectedError = new AppError(errDef[404].UserNotFound);
+  it('should call next with UserNotFound error when provider returns 0', async () => {
+    const expectedError = new AppError(errDef[404].UserNotFound);
 
-      res.locals.decodedToken = { user_id: userId };
-      mockedProvider.mockResolvedValue(0);
+    res.locals.decodedToken = { user_id: userId };
+    mockedProvider.mockResolvedValue(0);
 
-      await handler(req, res, next);
+    await handler(req, res, next);
 
-      expect(provider).toBeCalledWith(userInfo);
-      expect(res.sendStatus).not.toBeCalled();
-      expect(next).toBeCalledWith(expectedError);
-    });
+    expect(provider).toBeCalledWith(userInfo);
+    expect(res.sendStatus).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
 
-    it('should return 200 when provider returns 1', async () => {
-      res.locals.decodedToken = { user_id: userId };
-      mockedProvider.mockResolvedValue(1);
+  it('should return 200 when provider returns 1', async () => {
+    res.locals.decodedToken = { user_id: userId };
+    mockedProvider.mockResolvedValue(1);
 
-      await handler(req, res, next);
+    await handler(req, res, next);
 
-      expect(provider).toBeCalledWith(userInfo);
-      expect(res.sendStatus).toBeCalledWith(200);
-      expect(next).not.toBeCalled();
-    });
+    expect(provider).toBeCalledWith(userInfo);
+    expect(res.sendStatus).toBeCalledWith(200);
+    expect(next).not.toBeCalled();
   });
 });
