@@ -7,6 +7,7 @@ import readUser from '../services/readUser';
 import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
+import updateUser from '../services/updateUser';
 
 import basicAuth from '../auth/basicAuth';
 import bearerAuth from '../auth/bearerAuth';
@@ -21,6 +22,7 @@ const APIv1 = router();
 
 APIv1.post('/auth/user/:role', paramRole, createUser);
 APIv1.get('/auth/user', resUserpoolUser, bearerAuth, readUser);
+APIv1.put('/auth/user', resUserpoolUser, bearerAuth, updateUser);
 APIv1.delete('/auth/user', resUserpoolUser, bearerAuth, deleteUser);
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);

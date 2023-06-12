@@ -18,11 +18,19 @@ tags:
   - name: PushAPI
     description: Push Notification API
 paths:
-  /auth/user:
+  /auth/user/{role}:
     post:
       tags:
         - AuthAPI
       summary: Create a user
+      parameters:
+        - in: path
+          name: role
+          description: name of the role
+          required: true
+          schema:
+            type: string
+            example: user1
       requestBody:
         required: true
         content:
@@ -45,10 +53,11 @@ paths:
           $ref: '#/components/responses/409'
         500:
           $ref: '#/components/responses/500'
+  /auth/user:
     get:
       tags:
         - AuthAPI
-      summary: Get info of a user
+      summary: Get user info
       security:
         - bearerAuth: []
       responses:
@@ -57,7 +66,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInfo'
+                $ref: '#/components/schemas/UserInfoRes'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - AuthAPI
+      summary: Update user info
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfoReq'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -253,7 +284,7 @@ components:
         device:
           type: string
           example: device_uuid
-    UserInfo:
+    UserInfoRes:
       type: object
       properties:
         id:
@@ -280,6 +311,15 @@ components:
           type: string
           format: date
           example: '2023-01-01T11:11:11.111Z'
+    UserInfoReq:
+      type: object
+      properties:
+        surname:
+          type: string
+          example: 'Smith'
+        given_name:
+          type: string
+          example: 'James'
     Tokens:
       type: object
       required:
