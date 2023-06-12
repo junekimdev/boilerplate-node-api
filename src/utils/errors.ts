@@ -26,6 +26,11 @@ export const errDef: errDefType = {
       message: 'E400-invalidRoleName',
       error_in: 'ReqParams',
     },
+    invalidUserId: {
+      status: 400,
+      message: 'E400-invalidUserId',
+      error_in: 'ReqParams',
+    },
     InvalidEmailFormat: {
       status: 400,
       message: 'E400-InvalidEmailFormat',
