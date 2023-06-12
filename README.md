@@ -168,9 +168,10 @@ root/
 │   ├── api/
 │   │   ├── index.ts
 │   │   └── v1.ts
-│   ├── auth/
+│   ├── middleware/
 │   │   ├── basicAuth.ts
 │   │   ├── bearerAuth.ts
+│   │   ├── data_validator_files
 │   │   └── access_control_files
 │   ├── services/
 │   │   └── eachService/
@@ -208,9 +209,9 @@ root/
 1. `/src/api/index.ts` selects API version and provides root router
 1. `/src/api/v1.ts` provides routing logic in the said version
    - This connects API paths to services
-1. `/src/auth/basicAuth.ts`is the basic authorization middleware
+1. `/src/middleware/basicAuth.ts`is the basic authorization middleware
    - This sets `userId` and `email` in `req.locals`
-1. `/src/auth/bearerAuth.ts`is the bearer authorization middleware
+1. `/src/middleware/bearerAuth.ts`is the bearer authorization middleware
    - This sets decoded `accessToken` in `req.locals`
 1. `/services` holds services, which processes business logic
 1. `/services/eachService` should have descriptive names that clearly says what it does
