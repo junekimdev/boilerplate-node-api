@@ -8,27 +8,32 @@ import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
 import updateUser from '../services/updateUser';
+import updateUserRole from '../services/updateUserRole';
 
 import basicAuth from '../auth/basicAuth';
 import bearerAuth from '../auth/bearerAuth';
-import paramRole from '../auth/paramRole';
+import role from '../auth/paramRole';
+import userId from '../auth/paramUserId';
 import refreshToken from '../auth/refreshToken';
 
-import resPushAdmin from '../auth/resPushAdmin';
-import resPushUser from '../auth/resPushUser';
-import resUserpoolUser from '../auth/resUserpoolUser';
+import pushAdmin from '../auth/resPushAdmin';
+import pushUser from '../auth/resPushUser';
+import userAdmin from '../auth/resUserpoolAdmin';
+import userUser from '../auth/resUserpoolUser';
 
 const APIv1 = router();
 
-APIv1.post('/auth/user', paramRole, createUser);
-APIv1.get('/auth/user', resUserpoolUser, bearerAuth, readUser);
-APIv1.put('/auth/user', resUserpoolUser, bearerAuth, updateUser);
-APIv1.delete('/auth/user', resUserpoolUser, bearerAuth, deleteUser);
+APIv1.post('/auth/user', role, createUser);
+APIv1.get('/auth/user', userUser, bearerAuth, readUser);
+APIv1.put('/auth/user', userUser, bearerAuth, updateUser);
+APIv1.delete('/auth/user', userUser, bearerAuth, deleteUser);
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);
 
-APIv1.get('/push/key', resPushUser, bearerAuth, readVapidPubKey);
-APIv1.post('/push/register', resPushUser, bearerAuth, saveSubscription);
-APIv1.post('/push/send', resPushAdmin, bearerAuth, sendNoti);
+APIv1.put('/admin/auth/user/role', userAdmin, bearerAuth, userId, role, updateUserRole);
+
+APIv1.get('/push/key', pushUser, bearerAuth, readVapidPubKey);
+APIv1.post('/push/register', pushUser, bearerAuth, saveSubscription);
+APIv1.post('/push/send', pushAdmin, bearerAuth, sendNoti);
 
 export default APIv1;

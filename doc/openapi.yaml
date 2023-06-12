@@ -112,6 +112,30 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
+  /admin/auth/user/role:
+    put:
+      tags:
+        - AuthAPI
+      summary: Update role of a user
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRole'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
   /auth/token:
     post:
       tags:
@@ -315,6 +339,18 @@ components:
         given_name:
           type: string
           example: 'James'
+    UserRole:
+      type: object
+      required:
+        - role_name
+      properties:
+        user_id:
+          description: if obmitted, token owner's id is applied
+          type: number
+          example: 1
+        role_name:
+          type: string
+          example: admin1
     Tokens:
       type: object
       required:

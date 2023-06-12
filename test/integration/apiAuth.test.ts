@@ -32,7 +32,7 @@ describe('Test /auth', () => {
 
     it('should fail to create a user and return 400 when invalid role detected', async () => {
       const invalidRole = '123';
-      const testUser = 'test@mycompany.com';
+      const testUser = `${hash.createUUID()}@test.io`;
       const data = { email: testUser, password: testObj.password, role_name: invalidRole };
 
       const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
@@ -255,6 +255,108 @@ describe('Test /auth', () => {
     });
   });
 
+  describe('PUT /admin/auth/user/role', () => {
+    const endPoint = apiPrefix + '/admin/auth/user/role';
+    const sqlRoleByEmail = `SELECT t2.name
+    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
+    WHERE email=$1::VARCHAR(50)`;
+    const sqlRoleById = `SELECT t2.name
+    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
+    WHERE t1.id=$1::INT`;
+
+    it('should fail to change role of a user when invalid token is presented', async () => {
+      const accessToken = 'invalidToken';
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(401);
+    });
+
+    it('should fail to change role of a user when a user requests', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(403);
+    });
+
+    it('should fail to change role of a user when role_name is not presented', async () => {
+      const testUser = await createRandomUser(db, testObj.role.admin);
+      const accessToken = await getToken(app, testUser);
+      const data = { user_id: 1 };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(400);
+    });
+
+    it('should fail to change role of a user when role_name is invalid', async () => {
+      const testUser = await createRandomUser(db, testObj.role.admin);
+      const accessToken = await getToken(app, testUser);
+      const data = { user_id: 1, role_name: 'invalid' };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(400);
+    });
+
+    it('should fail to change role of a user when user_id is invalid', async () => {
+      const testUser = await createRandomUser(db, testObj.role.admin);
+      const accessToken = await getToken(app, testUser);
+      const data = { user_id: '123', role_name: testObj.role.admin };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(400);
+    });
+
+    it('should change role of self when user_id is not presented', async () => {
+      const testUser = await createRandomUser(db, testObj.role.admin);
+      const accessToken = await getToken(app, testUser);
+      const data = { role_name: testObj.role.user };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check: QueryResult = await db.query(sqlRoleByEmail, [testUser]);
+      expect(check.rows[0].name).toBe(testObj.role.user);
+    });
+
+    it('should change role of the said user in req', async () => {
+      const testUser = await createRandomUser(db, testObj.role.admin);
+      const accessToken = await getToken(app, testUser);
+      const targetUserId = 2;
+      const data = { user_id: targetUserId, role_name: testObj.role.admin };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check: QueryResult = await db.query(sqlRoleById, [targetUserId]);
+      expect(check.rows[0].name).toBe(testObj.role.admin);
+    });
+  });
   describe('POST /auth/token', () => {
     const endPoint = apiPrefix + '/auth/token';
     const sqlToken = `SELECT token FROM refresh_token
