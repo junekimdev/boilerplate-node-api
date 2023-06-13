@@ -1,16 +1,10 @@
-// Mocks
-jest.mock('../../../src/utils/db', () => ({ query: jest.fn() }));
-
 // Imports
 import { NextFunction, Request, Response } from 'express';
-import validateUserId from '../../../src/middleware/validateUserId';
-import db from '../../../src/utils/db';
+import validateUserIdAdmin from '../../../src/middleware/validateUserIdAdmin';
 import { AppError, errDef } from '../../../src/utils/errors';
 
-const mockedDbQuery = db.query as jest.Mock;
-
 // Tests
-describe('Test /src/middleware/validateUserId', () => {
+describe('Test /src/middleware/validateUserIdAdmin', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
@@ -25,7 +19,7 @@ describe('Test /src/middleware/validateUserId', () => {
   it('should put userId in res.locals and call next when user_id in req.body is a number', async () => {
     req.body = { user_id: 123 };
 
-    await validateUserId(req, res, next);
+    await validateUserIdAdmin(req, res, next);
 
     expect(res.locals).toHaveProperty('userId');
     expect(next).toBeCalledWith();
@@ -36,7 +30,7 @@ describe('Test /src/middleware/validateUserId', () => {
 
     req.body = { user_id: '123' };
 
-    await validateUserId(req, res, next);
+    await validateUserIdAdmin(req, res, next);
 
     expect(next).toBeCalledWith(expectedError);
   });
@@ -46,7 +40,7 @@ describe('Test /src/middleware/validateUserId', () => {
 
     res.locals = {};
 
-    await validateUserId(req, res, next);
+    await validateUserIdAdmin(req, res, next);
 
     expect(next).toBeCalledWith(expectedError);
   });
@@ -56,15 +50,15 @@ describe('Test /src/middleware/validateUserId', () => {
 
     res.locals = { decodedToken: { user_id: '123' } };
 
-    await validateUserId(req, res, next);
+    await validateUserIdAdmin(req, res, next);
 
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should put id of the token owner in req.locals and call next when user_id is not in req.body', async () => {
+  it('should set userId in res.locals from decodedToken if user_id is not in req.body', async () => {
     res.locals = { decodedToken: { user_id: 123 } };
 
-    await validateUserId(req, res, next);
+    await validateUserIdAdmin(req, res, next);
 
     expect(res.locals).toHaveProperty('userId');
     expect(next).toBeCalledWith();
