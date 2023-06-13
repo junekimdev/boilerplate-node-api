@@ -19,16 +19,16 @@ export const getRow = (name: string, readable = false, writable = false): Access
   return { name, readable, writable };
 };
 
-export const requestAccess = (reqs: AccessControlRow[] = []) => {
+export const requestAccess = (rows: AccessControlRow[] = []) => {
   // Sort by name in ASC order
-  reqs.sort((a, b) => {
+  rows.sort((a, b) => {
     if (a.name < b.name) return -1;
     if (a.name > b.name) return 1;
     throw new Error('duplicated resource name detected in access request'); // names should be unique
   });
 
   let access: string[] = [];
-  reqs.forEach((req) => {
+  rows.forEach((req) => {
     if (req.readable) access.push(`${req.name}:read`);
     if (req.writable) access.push(`${req.name}:write`);
   });

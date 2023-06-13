@@ -71,12 +71,12 @@ describe('Test /src/utils/access', () => {
 
   describe('requestAccess()', () => {
     it('should return a regular expression that matches the expected access patterns', () => {
-      const reqs: AccessControlRow[] = [
+      const rows: AccessControlRow[] = [
         { name: 'res1', readable: true, writable: false },
         { name: 'res2', readable: false, writable: true },
       ];
 
-      const result = requestAccess(reqs);
+      const result = requestAccess(rows);
 
       expect(result).toBeInstanceOf(RegExp);
 
@@ -105,12 +105,12 @@ describe('Test /src/utils/access', () => {
     });
 
     it('should sort rows by name and return a regular expression that matches the expected access patterns', () => {
-      const reqs: AccessControlRow[] = [
+      const rows: AccessControlRow[] = [
         { name: 'res2', readable: false, writable: true },
         { name: 'res1', readable: true, writable: false },
       ];
 
-      const result = requestAccess(reqs);
+      const result = requestAccess(rows);
 
       expect(result).toBeInstanceOf(RegExp);
       expect(result.test('res1:read res2:read res3:read')).toBeFalsy();
@@ -120,9 +120,9 @@ describe('Test /src/utils/access', () => {
     });
 
     it('should return a regular expression that matches all if no readable or writable rows are provided', () => {
-      const reqs: AccessControlRow[] = [];
+      const rows: AccessControlRow[] = [];
 
-      const result = requestAccess(reqs);
+      const result = requestAccess(rows);
 
       expect(result).toBeInstanceOf(RegExp);
       expect(result.test('')).toBeTruthy();
@@ -133,12 +133,12 @@ describe('Test /src/utils/access', () => {
     });
 
     it('should throw an error if duplicated resource name in access request are detected', () => {
-      const reqs: AccessControlRow[] = [
+      const rows: AccessControlRow[] = [
         { name: 'res1', readable: true, writable: false },
         { name: 'res1', readable: true, writable: false },
       ];
 
-      expect(() => requestAccess(reqs)).toThrow();
+      expect(() => requestAccess(rows)).toThrow();
     });
   });
 });
