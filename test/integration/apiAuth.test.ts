@@ -357,6 +357,81 @@ describe('Test /auth', () => {
       expect(check.rows[0].name).toBe(testObj.role.admin);
     });
   });
+
+  describe('PUT /auth/user/pass', () => {
+    const endPoint = apiPrefix + '/auth/user/pass';
+    const sqlPwdByEmail = `SELECT pw, salt FROM userpool WHERE email=$1::VARCHAR(50)`;
+    const sqlPwdById = `SELECT pw, salt FROM userpool WHERE id=$1::INT`;
+    const password = 'new-password';
+
+    it('should fail to update pwd when invalid token is presented', async () => {
+      const accessToken = 'invalidToken';
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(401);
+    });
+
+    it('should fail to update pwd when new password is invalid', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const data = { password: 123 };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(400);
+    });
+
+    it('should update pwd when valid new password is presented', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const data = { password };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check = await db.query(sqlPwdByEmail, [testUser]);
+      expect(check.rowCount).toBe(1);
+      const { pw, salt } = check.rows[0];
+      const hashed = await hash.passSalt(password, salt);
+      expect(pw).toBe(hashed);
+    });
+
+    it('should ignore user_id in req.body and update pwd of the user', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const userId = 2;
+      const data = { password, user_id: userId };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const checkOwn = await db.query(sqlPwdByEmail, [testUser]);
+      expect(checkOwn.rowCount).toBe(1);
+      const { pw, salt } = checkOwn.rows[0];
+      const hashed = await hash.passSalt(password, salt);
+      expect(pw).toBe(hashed);
+
+      const checkOthers = await db.query(sqlPwdById, [userId]);
+      expect(checkOthers.rowCount).toBe(1);
+      const pwOthers = checkOthers.rows[0].pw;
+      expect(pwOthers).not.toBe(hashed);
+    });
+  });
+
   describe('POST /auth/token', () => {
     const endPoint = apiPrefix + '/auth/token';
     const sqlToken = `SELECT token FROM refresh_token
@@ -445,7 +520,7 @@ describe('Test /auth', () => {
 
       const res = await supertest(app)
         .post(endPoint)
-        .auth(testObj.user, testObj.password, { type: 'basic' })
+        .auth(testUser, testObj.password, { type: 'basic' })
         .set('Accept', 'application/json')
         .send(noDevice);
       expect(res.status).toBe(400);
