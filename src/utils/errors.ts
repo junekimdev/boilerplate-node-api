@@ -46,11 +46,6 @@ export const errDef: errDefType = {
       message: 'E400-invalidPassword',
       error_in: 'ReqBody',
     },
-    DeviceIdNotFound: {
-      status: 400,
-      message: 'E400-DeviceIdNotFound',
-      error_in: 'ReqBody',
-    },
     InvalidDeviceId: {
       status: 400,
       message: 'E400-InvalidDeviceId',

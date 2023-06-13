@@ -8,9 +8,8 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId, email } = res.locals as IBasicAuthResLocals;
     const { device } = req.body as IReqBody;
-    if (!device) throw new AppError(errDef[400].DeviceIdNotFound);
     if (typeof device !== 'string') throw new AppError(errDef[400].InvalidDeviceId);
-    // Provide
+
     const resBody: IResBody = await provider(userId, email, device);
     res.status(201).json(resBody);
   } catch (error) {

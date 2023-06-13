@@ -46,7 +46,7 @@ describe('Test /src/services/createToken/apiHandler', () => {
   });
 
   it('should call next with DeviceIdNotFound error if there is no device id in request body', async () => {
-    const expectedError = new AppError(errDef[400].DeviceIdNotFound);
+    const expectedError = new AppError(errDef[400].InvalidDeviceId);
 
     await handler(req, res, next);
 
