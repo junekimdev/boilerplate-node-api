@@ -1,6 +1,10 @@
 // Mocks
+const client = { query: jest.fn() };
 jest.mock('../../../../src/utils/hash', () => ({ sha256: jest.fn() }));
-jest.mock('../../../../src/utils/db', () => ({ query: jest.fn() }));
+jest.mock('../../../../src/utils/db', () => ({
+  query: jest.fn(),
+  transaction: jest.fn((f) => f(client)),
+}));
 jest.mock('../../../../src/utils/jwt', () => ({ sign: jest.fn() }));
 jest.mock('../../../../src/utils/access', () => ({ convertToString: jest.fn() }));
 
@@ -42,6 +46,7 @@ describe('Test /src/services/createToken/provider', () => {
       [{ user_id: userId, device }, email, 'refresh', '30d'],
     ];
     const expectedResult = { access_token: token, refresh_token: token };
+    const expectedClientQuery = jest.fn();
 
     mockedDbQuery.mockResolvedValue(queryResult);
     mockedConvertToString.mockImplementation((row) => `${row.name}:read`);
@@ -50,9 +55,8 @@ describe('Test /src/services/createToken/provider', () => {
 
     const result = await provider(userId, email, device);
 
-    expect(db.query).toBeCalledTimes(2);
-    expect(db.query).nthCalledWith(1, expect.any(String), [userId]);
-    expect(db.query).nthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
+    expect(db.query).toBeCalledTimes(1);
+    expect(db.query).toBeCalledWith(expect.any(String), [userId]);
     expect(convertToString).toBeCalledTimes(2);
     expect(convertToString).nthCalledWith(1, queryResult.rows[0]);
     expect(convertToString).nthCalledWith(2, queryResult.rows[1]);
@@ -60,6 +64,10 @@ describe('Test /src/services/createToken/provider', () => {
     expect(jwt.sign).nthCalledWith(1, ...expectedSignArgs[0]);
     expect(jwt.sign).nthCalledWith(2, ...expectedSignArgs[1]);
     expect(hash.sha256).toBeCalledTimes(1);
+    expect(db.transaction).toBeCalled();
+    expect(client.query).toBeCalledTimes(2);
+    expect(client.query).nthCalledWith(1, expect.any(String), [userId, device, hashedToken]);
+    expect(client.query).nthCalledWith(2, expect.any(String), [userId]);
     expect(result).toEqual(expectedResult);
   });
 
@@ -77,14 +85,17 @@ describe('Test /src/services/createToken/provider', () => {
 
     const result = await provider(userId, email, device);
 
-    expect(db.query).toBeCalledTimes(2);
-    expect(db.query).nthCalledWith(1, expect.any(String), [userId]);
-    expect(db.query).nthCalledWith(2, expect.any(String), [userId, device, hashedToken]);
+    expect(db.query).toBeCalledTimes(1);
+    expect(db.query).toBeCalledWith(expect.any(String), [userId]);
     expect(convertToString).not.toBeCalled();
     expect(jwt.sign).toBeCalledTimes(2);
     expect(jwt.sign).nthCalledWith(1, ...expectedSignArgs[0]);
     expect(jwt.sign).nthCalledWith(2, ...expectedSignArgs[1]);
     expect(hash.sha256).toBeCalledTimes(1);
+    expect(db.transaction).toBeCalled();
+    expect(client.query).toBeCalledTimes(2);
+    expect(client.query).nthCalledWith(1, expect.any(String), [userId, device, hashedToken]);
+    expect(client.query).nthCalledWith(2, expect.any(String), [userId]);
     expect(result).toEqual(expectedResult);
   });
 });

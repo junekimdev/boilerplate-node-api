@@ -16,6 +16,8 @@ VALUES ($1::INT, $2::TEXT, $3::CHAR(44), NOW())
 ON CONFLICT (user_id, device) DO UPDATE
 SET token=EXCLUDED.token, created_at=NOW();`;
 
+const SQL_UPDATE_LOGIN_TIME = `UPDATE userpool SET last_login=NOW() WHERE id=$1::INT;`;
+
 const provider = async (userId: number, email: string, device: string) => {
   // Generate "aud" string from access control
   const accessResult = (await db.query(SQL_ACCESS, [userId])) as QueryResult<AccessControlRow>;
@@ -30,8 +32,13 @@ const provider = async (userId: number, email: string, device: string) => {
   const refresh_token = jwt.sign({ user_id: userId, device }, email, 'refresh', '30d');
   const hashed_token = await hash.sha256(refresh_token);
 
-  // Save refresh token for automatic reuse detection
-  await db.query(SQL_UPSERT_TOKEN, [userId, device, hashed_token]);
+  await db.transaction(async (client) => {
+    // Save refresh token for reuse detection
+    await client.query(SQL_UPSERT_TOKEN, [userId, device, hashed_token]);
+
+    // Consider the user logged in
+    await client.query(SQL_UPDATE_LOGIN_TIME, [userId]);
+  });
 
   return { access_token, refresh_token };
 };

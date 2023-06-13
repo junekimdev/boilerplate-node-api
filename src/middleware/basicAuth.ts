@@ -29,7 +29,6 @@ export const decodeCredential = (cred: string) => {
 };
 
 const SQL_GET_INFO = `SELECT id, pw, salt FROM userpool WHERE email=$1::VARCHAR(50);`;
-const SQL_UPDATE_LOGIN_TIME = `UPDATE userpool SET last_login=NOW() WHERE id=$1::INT;`;
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -60,7 +59,6 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 
     (res.locals as IBasicAuthResLocals).userId = id;
     (res.locals as IBasicAuthResLocals).email = validEmail;
-    await db.query(SQL_UPDATE_LOGIN_TIME, [id]); // consider the user logged in
     next(); // Verified
   } catch (error) {
     next(error);

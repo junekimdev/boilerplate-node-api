@@ -156,9 +156,8 @@ describe('Test /src/middleware/basicAuth', () => {
 
     await auth(req, res, next);
 
-    expect(db.query).toBeCalledTimes(2);
-    expect(db.query).nthCalledWith(1, expect.any(String), [email]);
-    expect(db.query).nthCalledWith(2, expect.any(String), [userId]);
+    expect(db.query).toBeCalledTimes(1);
+    expect(db.query).toBeCalledWith(expect.any(String), [email]);
     expect(hash.passSalt).toBeCalledTimes(1);
     expect(hash.passSalt).toBeCalledWith(password, 'salt');
     expect(isEmailValid).toBeCalledTimes(1);
