@@ -135,7 +135,7 @@ describe('Test /auth', () => {
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json');
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('id');
+      expect(res.body).toHaveProperty('user_id');
       expect(res.body).toHaveProperty('email');
       expect(res.body).toHaveProperty('surname');
       expect(res.body).toHaveProperty('given_name');
