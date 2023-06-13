@@ -6,8 +6,5 @@ export interface IReqBody {
 }
 export interface IResLocals {
   userId: number;
-}
-
-export interface IResBody {
-  user_id: number;
+  roleName: string;
 }

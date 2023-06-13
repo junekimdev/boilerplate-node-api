@@ -25,7 +25,7 @@ describe('Test /src/service/createUser/provider', () => {
     mockedSha256.mockResolvedValue(hashed);
     mockedQuery.mockResolvedValue({ rowCount: 0 });
 
-    const result = await provider(email, password, roleName, undefined, undefined);
+    const result = await provider(email, password, roleName, '', '');
 
     expect(hash.createSalt).toBeCalled();
     expect(hash.sha256).toBeCalledWith(password + salt);
@@ -38,7 +38,7 @@ describe('Test /src/service/createUser/provider', () => {
     mockedSha256.mockResolvedValue(hashed);
     mockedQuery.mockResolvedValue(queryResult);
 
-    const result = await provider(email, password, roleName, undefined, undefined);
+    const result = await provider(email, password, roleName, '', '');
 
     expect(hash.createSalt).toBeCalled();
     expect(hash.sha256).toBeCalledWith(password + salt);

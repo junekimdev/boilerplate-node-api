@@ -54,6 +54,51 @@ describe('Test /src/services/createUser/apiHandler', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
+  it('should call next with InvalidEmailFormat error when password is not found', async () => {
+    const expectedError = new AppError(errDef[400].invalidPassword);
+
+    req.body = { email };
+    res.locals = { roleName };
+    mockedEmailValidator.mockReturnValue(true);
+
+    await handler(req, res, next);
+
+    expect(provider).not.toBeCalled();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
+
+  it('should call next with InvalidEmailFormat error when password is not a string', async () => {
+    const expectedError = new AppError(errDef[400].invalidPassword);
+
+    req.body = { email, password: 123 };
+    res.locals = { roleName };
+    mockedEmailValidator.mockReturnValue(true);
+
+    await handler(req, res, next);
+
+    expect(provider).not.toBeCalled();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
+
+  it('should call next with InvalidEmailFormat error when password is an empty string', async () => {
+    const expectedError = new AppError(errDef[400].invalidPassword);
+
+    req.body = { email, password: '' };
+    res.locals = { roleName };
+    mockedEmailValidator.mockReturnValue(true);
+
+    await handler(req, res, next);
+
+    expect(provider).not.toBeCalled();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
+
   it('should call next with the error if an unknown error occurs', async () => {
     const expectedError = new Error('unknown error');
 
@@ -64,7 +109,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, roleName, undefined, undefined);
+    expect(provider).toBeCalledWith(email, password, roleName, '', '');
     expect(res.status).not.toBeCalled();
     expect(res.json).not.toBeCalled();
     expect(next).toBeCalledWith(expectedError);
@@ -80,7 +125,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, roleName, undefined, undefined);
+    expect(provider).toBeCalledWith(email, password, roleName, '', '');
     expect(res.status).not.toBeCalled();
     expect(res.json).not.toBeCalled();
     expect(next).toBeCalledWith(expectedError);
@@ -94,7 +139,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
 
     await handler(req, res, next);
 
-    expect(provider).toBeCalledWith(email, password, roleName, undefined, undefined);
+    expect(provider).toBeCalledWith(email, password, roleName, '', '');
     expect(res.status).toBeCalledWith(201);
     expect(res.json).toBeCalledWith({ user_id: userId });
     expect(next).not.toBeCalled();

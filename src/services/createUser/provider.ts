@@ -13,8 +13,8 @@ const provider = async (
   email: string,
   password: string,
   roleName: string,
-  surname: string = '',
-  givenName: string = '',
+  surname: string,
+  givenName: string,
 ) => {
   const salt = hash.createSalt();
   const hashed = await hash.sha256(password + salt);

@@ -41,6 +41,11 @@ export const errDef: errDefType = {
       message: 'E400-InvalidEmailFormatAuth',
       error_in: 'ReqHeaders',
     },
+    invalidPassword: {
+      status: 400,
+      message: 'E400-invalidPassword',
+      error_in: 'ReqBody',
+    },
     DeviceIdNotFound: {
       status: 400,
       message: 'E400-DeviceIdNotFound',
