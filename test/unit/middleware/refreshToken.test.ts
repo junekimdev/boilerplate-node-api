@@ -5,7 +5,7 @@ jest.mock('../../../src/utils/jwt', () => ({ verify: jest.fn() }));
 
 import { NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import auth, { TokenRow } from '../../../src/auth/refreshToken';
+import auth, { TokenRow } from '../../../src/middleware/refreshToken';
 import db from '../../../src/utils/db';
 import { AppError, errDef } from '../../../src/utils/errors';
 import hash from '../../../src/utils/hash';
@@ -15,7 +15,7 @@ const mockedDbQuery = db.query as jest.Mock;
 const mockedHashSha256 = hash.sha256 as jest.Mock;
 const mockedJwtVerify = jwt.verify as jest.Mock;
 
-describe('Test /src/auth/bearerAuth', () => {
+describe('Test /src/middleware/bearerAuth', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;

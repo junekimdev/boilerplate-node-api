@@ -10,7 +10,7 @@ import { AppError, errDef } from '../../../src/utils/errors';
 const mockedDbQuery = db.query as jest.Mock;
 
 // Tests
-describe('Test /src/auth/validateUserId', () => {
+describe('Test /src/middleware/validateUserId', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;

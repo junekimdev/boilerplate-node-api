@@ -4,13 +4,13 @@ jest.mock('../../../src/utils/jwt', () => ({
 
 import { NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import auth, { IBearerAuthResLocals } from '../../../src/auth/bearerAuth';
+import auth, { IBearerAuthResLocals } from '../../../src/middleware/bearerAuth';
 import { AppError, errDef } from '../../../src/utils/errors';
 import jwt from '../../../src/utils/jwt';
 
 const mockedJwtVerify = jwt.verify as jest.Mock;
 
-describe('Test /src/auth/bearerAuth', () => {
+describe('Test /src/middleware/bearerAuth', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;

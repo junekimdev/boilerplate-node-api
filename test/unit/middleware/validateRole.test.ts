@@ -3,14 +3,14 @@ jest.mock('../../../src/utils/db', () => ({ query: jest.fn() }));
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
-import validateRole from '../../../src/auth/validateRole';
+import validateRole from '../../../src/middleware/validateRole';
 import db from '../../../src/utils/db';
 import { AppError, errDef } from '../../../src/utils/errors';
 
 const mockedDbQuery = db.query as jest.Mock;
 
 // Tests
-describe('Test /src/auth/validateRole', () => {
+describe('Test /src/middleware/validateRole', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;

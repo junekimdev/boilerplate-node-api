@@ -4,12 +4,12 @@ jest.mock('../../../src/utils/access', () => ({
 }));
 
 import { NextFunction, Request, Response } from 'express';
-import allowAll from '../../../src/auth/allowAll';
-import allowPushAdmin from '../../../src/auth/allowPushAdmin';
-import allowPushUser from '../../../src/auth/allowPushUser';
-import allowUserpoolAdmin from '../../../src/auth/allowUserpoolAdmin';
-import allowUserpoolUser from '../../../src/auth/allowUserpoolUser';
-import { IBearerAuthResLocals } from '../../../src/auth/bearerAuth';
+import allowAll from '../../../src/middleware/allowAll';
+import allowPushAdmin from '../../../src/middleware/allowPushAdmin';
+import allowPushUser from '../../../src/middleware/allowPushUser';
+import allowUserpoolAdmin from '../../../src/middleware/allowUserpoolAdmin';
+import allowUserpoolUser from '../../../src/middleware/allowUserpoolUser';
+import { IBearerAuthResLocals } from '../../../src/middleware/bearerAuth';
 import { getRow, requestAccess } from '../../../src/utils/access';
 
 const controllers = [
@@ -19,7 +19,7 @@ const controllers = [
   { name: 'allowUserpoolUser', controller: allowUserpoolUser },
 ];
 
-describe('Test /src/auth/allow', () => {
+describe('Test /src/middleware/allow', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
