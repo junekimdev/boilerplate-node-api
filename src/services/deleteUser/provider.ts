@@ -1,5 +1,4 @@
 import db from '../../utils/db';
-//import {} from './types';
 
 const SQL_DELETE_USER = `DELETE FROM userpool WHERE id=$1::INT RETURNING id;`;
 

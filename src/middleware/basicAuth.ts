@@ -54,13 +54,13 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     const result = await db.query(SQL_GET_INFO, [validEmail]);
     if (!result.rowCount) throw new AppError(errDef[401].InvalidCredential); // No email found
 
-    const queryRes = result.rows[0] as IUserpoolRow;
-    const recvHash = await hash.sha256(password + queryRes.salt);
-    if (recvHash !== queryRes.pw) throw new AppError(errDef[401].InvalidCredential); // Wrong password
+    const { id, pw, salt } = result.rows[0] as IUserpoolRow;
+    const hashed = await hash.passSalt(password, salt);
+    if (hashed !== pw) throw new AppError(errDef[401].InvalidCredential); // Wrong password
 
-    (res.locals as IBasicAuthResLocals).userId = queryRes.id;
+    (res.locals as IBasicAuthResLocals).userId = id;
     (res.locals as IBasicAuthResLocals).email = validEmail;
-    await db.query(SQL_UPDATE_LOGIN_TIME, [queryRes.id]); // consider the user logged in
+    await db.query(SQL_UPDATE_LOGIN_TIME, [id]); // consider the user logged in
     next(); // Verified
   } catch (error) {
     next(error);

@@ -15,7 +15,7 @@ const createUser = async (
   givenName: string,
 ) => {
   const salt = hash.createSalt();
-  const hashedPW = await hash.sha256(testObj.password + salt);
+  const hashedPW = await hash.passSalt(testObj.password, salt);
   await client.query(SQL_INSERT_USER, [username, hashedPW, salt, rolename, surname, givenName]);
 };
 

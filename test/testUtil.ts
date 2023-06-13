@@ -19,7 +19,7 @@ export const testObj = {
 export const createRandomUser = async (db: any, role: string = testObj.role.user) => {
   const username = `${hash.createUUID()}@test.io`;
   const salt = hash.createSalt();
-  const hashedPW = await hash.sha256(testObj.password + salt);
+  const hashedPW = await hash.passSalt(testObj.password, salt);
   await db.query(SQL_INSERT_USER, [
     username,
     hashedPW,

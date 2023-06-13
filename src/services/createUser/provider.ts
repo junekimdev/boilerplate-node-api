@@ -17,7 +17,7 @@ const provider = async (
   givenName: string,
 ) => {
   const salt = hash.createSalt();
-  const hashed = await hash.sha256(password + salt);
+  const hashed = await hash.passSalt(password, salt);
 
   const result = await db.query(SQL_INSERT_USER, [
     email,

@@ -1,15 +1,23 @@
-import { createSalt, createUUID, sha256 } from '../../../src/utils/hash';
+import { createSalt, createUUID, passSalt, sha256 } from '../../../src/utils/hash';
 
 describe('Test /src/util/hash', () => {
   describe('sha256()', () => {
-    it('should have 44 characters', async () => {
+    it('should create a string with 44 characters', async () => {
       const payload = 'a';
       await expect(sha256(payload)).resolves.toHaveLength(44);
     });
   });
 
+  describe('passSalt()', () => {
+    it('should create a string with 44 characters', async () => {
+      const password = 'password';
+      const salt = 'salt';
+      await expect(passSalt(password, salt)).resolves.toHaveLength(44);
+    });
+  });
+
   describe('createSalt()', () => {
-    it('should have 16 characters', () => {
+    it('should create a string with 16 characters', () => {
       expect(createSalt()).toHaveLength(16);
     });
   });

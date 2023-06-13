@@ -5,7 +5,7 @@ jest.mock('../../../src/utils/email', () => ({
   isEmailValid: jest.fn(),
 }));
 jest.mock('../../../src/utils/hash', () => ({
-  sha256: jest.fn(),
+  passSalt: jest.fn(),
 }));
 
 import { NextFunction, Request, Response } from 'express';
@@ -17,7 +17,7 @@ import { AppError, errDef } from '../../../src/utils/errors';
 import hash from '../../../src/utils/hash';
 
 const mockedDbQuery = db.query as jest.Mock;
-const mockedHashSha256 = hash.sha256 as jest.Mock;
+const mockedHashPass = hash.passSalt as jest.Mock;
 const mockedIsEmailValid = isEmailValid as jest.Mock;
 
 describe('Test /src/middleware/basicAuth', () => {
@@ -38,7 +38,7 @@ describe('Test /src/middleware/basicAuth', () => {
     await auth(req, res, next);
 
     expect(db.query).not.toBeCalled();
-    expect(hash.sha256).not.toBeCalled();
+    expect(hash.passSalt).not.toBeCalled();
     expect(isEmailValid).not.toBeCalled();
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new AppError(errDef[401].AuthorizationNotFound));
@@ -50,7 +50,7 @@ describe('Test /src/middleware/basicAuth', () => {
     await auth(req, res, next);
 
     expect(db.query).not.toBeCalled();
-    expect(hash.sha256).not.toBeCalled();
+    expect(hash.passSalt).not.toBeCalled();
     expect(isEmailValid).not.toBeCalled();
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new AppError(errDef[401].InvalidAuthScheme));
@@ -62,7 +62,7 @@ describe('Test /src/middleware/basicAuth', () => {
     await auth(req, res, next);
 
     expect(db.query).not.toBeCalled();
-    expect(hash.sha256).not.toBeCalled();
+    expect(hash.passSalt).not.toBeCalled();
     expect(isEmailValid).not.toBeCalled();
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new AppError(errDef[401].UserCredentialNotFound));
@@ -76,7 +76,7 @@ describe('Test /src/middleware/basicAuth', () => {
     await auth(req, res, next);
 
     expect(db.query).not.toBeCalled();
-    expect(hash.sha256).not.toBeCalled();
+    expect(hash.passSalt).not.toBeCalled();
     expect(isEmailValid).not.toBeCalled();
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new AppError(errDef[401].UserCredentialNotFound));
@@ -91,7 +91,7 @@ describe('Test /src/middleware/basicAuth', () => {
     await auth(req, res, next);
 
     expect(db.query).not.toBeCalled();
-    expect(hash.sha256).not.toBeCalled();
+    expect(hash.passSalt).not.toBeCalled();
     expect(isEmailValid).toBeCalledTimes(1);
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new AppError(errDef[400].InvalidEmailFormatAuth));
@@ -110,7 +110,7 @@ describe('Test /src/middleware/basicAuth', () => {
 
     expect(db.query).toBeCalledTimes(1);
     expect(db.query).toBeCalledWith(expect.any(String), [email]);
-    expect(hash.sha256).not.toBeCalled();
+    expect(hash.passSalt).not.toBeCalled();
     expect(isEmailValid).toBeCalledTimes(1);
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new AppError(errDef[401].InvalidCredential));
@@ -127,14 +127,14 @@ describe('Test /src/middleware/basicAuth', () => {
       rowCount: 1,
       rows: [{ id: 1, pw: 'hashed-password', salt: 'salt' }],
     } as QueryResult);
-    mockedHashSha256.mockResolvedValue('wrong-password-hash');
+    mockedHashPass.mockResolvedValue('wrong-password-hash');
 
     await auth(req, res, next);
 
     expect(db.query).toBeCalledTimes(1);
     expect(db.query).toBeCalledWith(expect.any(String), [email]);
-    expect(hash.sha256).toBeCalledTimes(1);
-    expect(hash.sha256).toBeCalledWith(password + 'salt');
+    expect(hash.passSalt).toBeCalledTimes(1);
+    expect(hash.passSalt).toBeCalledWith(password, 'salt');
     expect(isEmailValid).toBeCalledTimes(1);
     expect(next).toBeCalledTimes(1);
     expect(next).toBeCalledWith(new AppError(errDef[401].InvalidCredential));
@@ -152,15 +152,15 @@ describe('Test /src/middleware/basicAuth', () => {
       rowCount: 1,
       rows: [{ id: userId, pw: 'hashed-password', salt: 'salt' }],
     } as QueryResult);
-    mockedHashSha256.mockResolvedValue('hashed-password');
+    mockedHashPass.mockResolvedValue('hashed-password');
 
     await auth(req, res, next);
 
     expect(db.query).toBeCalledTimes(2);
     expect(db.query).nthCalledWith(1, expect.any(String), [email]);
     expect(db.query).nthCalledWith(2, expect.any(String), [userId]);
-    expect(hash.sha256).toBeCalledTimes(1);
-    expect(hash.sha256).toBeCalledWith(password + 'salt');
+    expect(hash.passSalt).toBeCalledTimes(1);
+    expect(hash.passSalt).toBeCalledWith(password, 'salt');
     expect(isEmailValid).toBeCalledTimes(1);
     expect(res.locals.userId).toEqual(userId);
     expect(res.locals.email).toEqual(email);
