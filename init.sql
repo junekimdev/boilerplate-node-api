@@ -59,23 +59,6 @@ CREATE TABLE refresh_token (
 -- Create resources
 INSERT INTO resource(name, uri)
 VALUES ('userpool', 'jrn;;apiserver;auth;userpool');
-
--- Create roles
-INSERT INTO user_role(name)
-VALUES ('root'),('guest');
-
--- Give access according to roles
-INSERT INTO access_control(role_id, resource_id, readable, writable)
-SELECT UR.id, RS.id, true, true
-FROM user_role as UR CROSS JOIN resource as RS
-WHERE UR.name='root' -- set true for all resources
-ON CONFLICT DO NOTHING;
-
-INSERT INTO access_control(role_id, resource_id, readable, writable)
-SELECT UR.id, RS.id, true, false
-FROM user_role as UR CROSS JOIN resource as RS
-WHERE UR.name='guest' AND RS.name='userpool'
-ON CONFLICT DO NOTHING;
 ---- END: AUTH DB ----
 
 ------------------------------------------------------
@@ -100,6 +83,24 @@ VALUES
 ('topic', 'jrn;;apiserver;pushnoti;topic'),
 ('subscription', 'jrn;;apiserver;pushnoti;subscription');
 ---- END: Push Notification DB ----
+
+---- NOTE: SQLs below this line should come after resource creation ----
+-- Create roles
+INSERT INTO user_role(name)
+VALUES ('root'),('guest');
+
+-- Give access according to roles
+INSERT INTO access_control(role_id, resource_id, readable, writable)
+SELECT roleT.id, resT.id, true, true
+FROM user_role as roleT CROSS JOIN resource as resT
+WHERE roleT.name='root' -- set true for all resources
+ON CONFLICT DO NOTHING;
+
+INSERT INTO access_control(role_id, resource_id, readable, writable)
+SELECT roleT.id, resT.id, true, false
+FROM user_role as roleT CROSS JOIN resource as resT
+WHERE roleT.name='guest' AND resT.name='userpool'
+ON CONFLICT DO NOTHING;
 
 -----------------------END: REQUIRED-----------------------
 
@@ -148,12 +149,4 @@ SELECT
   (SELECT id FROM resource WHERE name='subscription'),
   false, true
 FROM roleT
-ON CONFLICT DO NOTHING;
-
-
--- Give full access to root
-INSERT INTO access_control(role_id, resource_id, readable, writable)
-SELECT UR.id, RS.id, true, true
-FROM user_role as UR CROSS JOIN resource as RS
-WHERE UR.name='root' -- set true for all resources
 ON CONFLICT DO NOTHING;
