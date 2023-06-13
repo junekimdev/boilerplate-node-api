@@ -7,6 +7,9 @@ const INDEX_TXT = `export { default } from './apiHandler';
 
 const TYPES_TXT = `//export interface IReqBody {}
 export interface IResBody {}
+export interface IResLocals {
+  userId: number;
+}
 `;
 
 const PROVIDER_TXT = `//import db from '../../utils/db';
@@ -22,12 +25,14 @@ export default provider;
 const API_HANDLER_TXT = `import { NextFunction, Request, Response } from 'express';
 import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
-import { IResBody } from './types';
+import { IResBody, IResLocals } from './types';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const resBody: IResBody = await provider();
+    const {} = res.locals as IResLocals;
+    const result = await provider();
 
+    const resBody: IResBody = {};
     res.status(200).json(resBody);
   } catch (error) {
     next(error);
@@ -66,10 +71,22 @@ describe('Test /src/services/${name}/apiHandler', () => {
     jest.clearAllMocks();
   });
 
-  it('should call next with an error when', async () => {
-    // const expectedError = new AppError(errDef[409].UserAlreadyExists);
+  it('should call next with UserNotFound error when provider returns 0', async () => {
+    const expectedError = new AppError(errDef[404].UserNotFound);
 
-    // mockedProvider.mockResolvedValue();
+    mockedProvider.mockResolvedValue(0);
+
+    // await handler(req, res, next);
+
+    // expect(provider).toBeCalledWith();
+    // expect(res.status).toBeCalledWith(200);
+    // expect(res.json).toBeCalledWith(expected);
+    // expect(next).not.toBeCalled();
+  });
+
+
+  it('should return 200 when provider returns 1', async () => {
+    mockedProvider.mockResolvedValue(1);
 
     // await handler(req, res, next);
 
