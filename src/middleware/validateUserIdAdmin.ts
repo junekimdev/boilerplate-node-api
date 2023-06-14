@@ -15,7 +15,7 @@ const param = async (req: Request, res: Response, next: NextFunction) => {
       if (typeof decodedToken.user_id !== 'number') throw new AppError(errDef[401].InvalidToken);
       userId = decodedToken.user_id;
     } else {
-      if (typeof user_id !== 'number') throw new AppError(errDef[400].invalidUserId);
+      if (typeof user_id !== 'number') throw new AppError(errDef[400].InvalidUserId);
       userId = user_id;
     }
 

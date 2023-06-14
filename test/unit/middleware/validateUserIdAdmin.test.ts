@@ -25,8 +25,8 @@ describe('Test /src/middleware/validateUserIdAdmin', () => {
     expect(next).toBeCalledWith();
   });
 
-  it('should call next with invalidUserId error when user_id in req.body is not a number', async () => {
-    const expectedError = new AppError(errDef[400].invalidUserId);
+  it('should call next with InvalidUserId error when user_id in req.body is not a number', async () => {
+    const expectedError = new AppError(errDef[400].InvalidUserId);
 
     req.body = { user_id: '123' };
 

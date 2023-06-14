@@ -21,14 +21,19 @@ export class AppError extends Error implements IError {
 
 export const errDef: errDefType = {
   '400': {
-    invalidRoleName: {
+    InvalidRoleName: {
       status: 400,
-      message: 'E400-invalidRoleName',
-      error_in: 'ReqParams',
+      message: 'E400-InvalidRoleName',
+      error_in: 'ReqBody',
     },
-    invalidUserId: {
+    InvalidRolePermission: {
       status: 400,
-      message: 'E400-invalidUserId',
+      message: 'E400-InvalidRolePermission',
+      error_in: 'ReqBody',
+    },
+    InvalidUserId: {
+      status: 400,
+      message: 'E400-InvalidUserId',
       error_in: 'ReqParams',
     },
     InvalidEmailFormat: {
@@ -129,6 +134,11 @@ export const errDef: errDefType = {
     },
   },
   '409': {
+    RoleAlreadyExists: {
+      status: 409,
+      message: 'E409-RoleAlreadyExists',
+      error_in: 'Auth',
+    },
     UserAlreadyExists: {
       status: 409,
       message: 'E409-UserAlreadyExists',
@@ -145,6 +155,11 @@ export const errDef: errDefType = {
       status: 500,
       message: 'E500-InternalError',
       error_in: 'Unknown',
+    },
+    FailedToInsert: {
+      status: 500,
+      message: 'E500-FailedToInsert',
+      error_in: 'database',
     },
   },
 };

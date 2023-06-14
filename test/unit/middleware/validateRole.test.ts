@@ -24,8 +24,8 @@ describe('Test /src/middleware/validateRole', () => {
     jest.clearAllMocks();
   });
 
-  it('should call next with invalidRoleName error when role_name in req.body is not a string', async () => {
-    const expectedError = new AppError(errDef[400].invalidRoleName);
+  it('should call next with InvalidRoleName error when role_name in req.body is not a string', async () => {
+    const expectedError = new AppError(errDef[400].InvalidRoleName);
 
     req.body = { role_name: 123 };
 
@@ -35,8 +35,8 @@ describe('Test /src/middleware/validateRole', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should call next with invalidRoleName error when role_name in req.body is not in DB', async () => {
-    const expectedError = new AppError(errDef[400].invalidRoleName);
+  it('should call next with InvalidRoleName error when role_name in req.body is not in DB', async () => {
+    const expectedError = new AppError(errDef[400].InvalidRoleName);
 
     mockedDbQuery.mockResolvedValue({ rowCount: 0 });
 
