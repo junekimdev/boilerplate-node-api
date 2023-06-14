@@ -18,8 +18,7 @@ ROLE {
 
 RESOURCE {
   INT id PK "Auto"
-  VARCHAR(20) name "NOT NULL"
-  TEXT uri UK "NOT NULL"
+  VARCHAR(50) name UK "NOT NULL"
   TIMESTAMPTZ created_at "Auto"
 }
 

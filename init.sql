@@ -21,8 +21,7 @@ CREATE TABLE user_role (
 
 CREATE TABLE resource (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(20) NOT NULL, --e.g. db tables, services
-  uri TEXT NOT NULL UNIQUE,
+  name VARCHAR(50) NOT NULL UNIQUE, --e.g. db-tables, services
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -9,7 +9,7 @@ RETURNING id;`;
 
 export const SQL_INSERT_PERMIT = `INSERT INTO access_control(role_id, resource_id, readable, writable)
 SELECT $1::INT, (
-  SELECT id FROM resource WHERE name=$2::VARCHAR(20)
+  SELECT id FROM resource WHERE name=$2::VARCHAR(50)
 ), $3::BOOLEAN, $4::BOOLEAN
 ON CONFLICT DO NOTHING
 RETURNING role_id;`;
