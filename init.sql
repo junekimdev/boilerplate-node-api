@@ -56,8 +56,8 @@ CREATE TABLE refresh_token (
 );
 
 -- Create resources
-INSERT INTO resource(name, uri)
-VALUES ('userpool', 'jrn;;apiserver;auth;userpool');
+INSERT INTO resource(name)
+VALUES ('userpool');
 ---- END: AUTH DB ----
 
 ------------------------------------------------------
@@ -77,10 +77,9 @@ CREATE TABLE subscription (
 );
 
 -- Create resources
-INSERT INTO resource(name, uri)
+INSERT INTO resource(name)
 VALUES
-('topic', 'jrn;;apiserver;pushnoti;topic'),
-('subscription', 'jrn;;apiserver;pushnoti;subscription');
+('topic'),('subscription');
 ---- END: Push Notification DB ----
 
 ---- NOTE: SQLs below this line should come after resource creation ----
