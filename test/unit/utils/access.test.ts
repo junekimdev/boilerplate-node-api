@@ -2,10 +2,33 @@ import {
   AccessControlRow,
   convertToString,
   getRow,
+  isValidPermit,
   requestAccess,
 } from '../../../src/utils/access';
 
 describe('Test /src/utils/access', () => {
+  describe('isValidPermit()', () => {
+    const invalidPermissions = [
+      { name: 'res1', readable: true, writable: false }, // wrong res_name
+      { res_name: 'res2', readable: 1, writable: false }, // wrong readable
+      { res_name: 'res3', readable: true, writable: 'false' }, // wrong writable
+    ];
+    const validPermissions = [
+      { res_name: 'res1', readable: true, writable: false },
+      { res_name: 'res2', readable: false, writable: false },
+      { res_name: 'res3', readable: true, writable: true },
+    ];
+
+    it.each(invalidPermissions)(
+      'Test #%# should return false for it is not in correct format',
+      (permit) => expect(isValidPermit(permit)).toBeFalsy(),
+    );
+
+    it.each(validPermissions)('Test #%# should return true', (permit) =>
+      expect(isValidPermit(permit)).toBeTruthy(),
+    );
+  });
+
   describe('convertToString()', () => {
     it('should return undefined if row is not readable and not writable', () => {
       const row: AccessControlRow = {

@@ -2,9 +2,21 @@ import { QueryResultRow } from 'pg';
 
 export interface AccessControlRow extends QueryResultRow {
   name: string;
-  writable: boolean;
   readable: boolean;
+  writable: boolean;
 }
+export interface IPermission {
+  res_name: string;
+  readable: boolean;
+  writable: boolean;
+}
+
+export const isValidPermit = (permit: any) => {
+  const { res_name, readable, writable } = permit;
+  return (
+    typeof res_name === 'string' && typeof readable === 'boolean' && typeof writable === 'boolean'
+  );
+};
 
 export const convertToString = (row: AccessControlRow) => {
   if (!row.readable && !row.writable) return;
@@ -36,4 +48,4 @@ export const requestAccess = (rows: AccessControlRow[] = []) => {
   return new RegExp(str);
 };
 
-export default { convertToString, getRow, requestAccess };
+export default { convertToString, getRow, requestAccess, isValidPermit };
