@@ -39,3 +39,30 @@ export const getToken = async (app: Express, username: string) => {
     .send({ device: testObj.device });
   return token.body.access_token;
 };
+
+export const getTester = (app: Express, method: string, url: string) => {
+  let tester: supertest.Test;
+
+  switch (method) {
+    case 'POST':
+      tester = supertest(app).post(url);
+      break;
+    case 'GET':
+      tester = supertest(app).get(url);
+      break;
+    case 'PUT':
+      tester = supertest(app).put(url);
+      break;
+    case 'PATCH':
+      tester = supertest(app).patch(url);
+      break;
+    case 'DELETE':
+      tester = supertest(app).delete(url);
+      break;
+    default:
+      throw new Error('invalid method');
+      break;
+  }
+
+  return tester;
+};
