@@ -132,6 +132,11 @@ export const errDef: errDefType = {
       message: 'E404-UserNotFound',
       error_in: 'Auth',
     },
+    DataNotFound: {
+      status: 404,
+      message: 'E404-DataNotFound',
+      error_in: 'ReqBody',
+    },
   },
   '409': {
     RoleAlreadyExists: {

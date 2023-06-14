@@ -202,6 +202,34 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
+    put:
+      tags:
+        - AuthAPI
+      summary: Update a role
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                role_name:
+                  type: string
+                  example: user1
+                update_data:
+                  $ref: '#/components/schemas/RoleIdentityReq'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
   /admin/auth/user/role:
     put:
       tags:

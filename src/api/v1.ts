@@ -9,6 +9,7 @@ import readUser from '../services/readUser';
 import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
+import updateRole from '../services/updateRole';
 import updateUser from '../services/updateUser';
 import updateUserPwd from '../services/updateUserPwd';
 import updateUserRole from '../services/updateUserRole';
@@ -43,6 +44,7 @@ APIv1.post('/auth/refresh', refreshToken, createToken);
 
 APIv1.post('/admin/auth/role', userpoolAdmin, createRole);
 APIv1.get('/admin/auth/role', userpoolAdmin, validRole, readRole);
+APIv1.put('/admin/auth/role', userpoolAdmin, validRole, updateRole);
 APIv1.put('/admin/auth/user/role', userpoolAdmin, validRole, updateUserRole);
 
 APIv1.get('/push/key', pushUser, readVapidPubKey);

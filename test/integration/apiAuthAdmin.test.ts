@@ -67,10 +67,10 @@ describe('Test /admin/auth', () => {
 
   describe('POST /admin/auth/role', () => {
     const endPoint = apiPrefix + '/admin/auth/role';
-    const sqlRole = `SELECT id FROM user_role WHERE name=$1::VARCHAR(50)`;
+    const sqlRole = `SELECT id FROM user_role WHERE name=$1::VARCHAR(50);`;
     const sqlAccess = `SELECT T2.name as res_name, readable, writable
     FROM access_control as T1 LEFT JOIN resource as T2 ON T1.resource_id=T2.id
-    WHERE T1.role_id=$1::INT`;
+    WHERE T1.role_id=$1::INT;`;
 
     const permissions = [
       { res_name: 'userpool', readable: true, writable: false },
@@ -116,8 +116,7 @@ describe('Test /admin/auth', () => {
     );
 
     it('should fail to create a role for role_name already exists', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
+      const accessToken = await getToken(app, testObj.admin);
       const data = { role_name: testObj.role.user, permissions };
 
       const res = await supertest(app)
@@ -155,11 +154,11 @@ describe('Test /admin/auth', () => {
 
   describe('GET /admin/auth/role', () => {
     const endPoint = apiPrefix + '/admin/auth/role';
-    const sqlAccess = `SELECT T3.name as res_name, readable, writable
+    const sqlAccessByName = `SELECT T3.name as res_name, readable, writable
     FROM access_control as T1
     LEFT JOIN user_role as T2 ON T1.role_id=T2.id
     LEFT JOIN resource as T3 ON T1.resource_id=T3.id
-    WHERE T2.name=$1::VARCHAR(50)`;
+    WHERE T2.name=$1::VARCHAR(50);`;
 
     const permissions = [
       { res_name: 'userpool', readable: true, writable: false },
@@ -187,11 +186,70 @@ describe('Test /admin/auth', () => {
         expect(res.body.permissions[i]).toEqual(permit);
       });
 
-      const checkAccess = await db.query(sqlAccess, [testRole]);
+      const checkAccess = await db.query(sqlAccessByName, [testRole]);
       expect(checkAccess.rowCount).toBe(testObj.permissions.length);
       testObj.permissions.forEach((permit, i) => {
         expect(checkAccess.rows[i]).toEqual(permit);
       });
+    });
+  });
+  describe('PUT /admin/auth/role', () => {
+    const endPoint = apiPrefix + '/admin/auth/role';
+    const sqlRoleByName = 'SELECT id FROM user_role WHERE name=$1::VARCHAR(50);';
+    const sqlAccessByName = `SELECT T3.name as res_name, readable, writable
+    FROM access_control as T1
+    LEFT JOIN user_role as T2 ON T1.role_id=T2.id
+    LEFT JOIN resource as T3 ON T1.resource_id=T3.id
+    WHERE T2.name=$1::VARCHAR(50);`;
+    const sqlTokenById = `SELECT token
+    FROM userpool as T1 LEFT JOIN refresh_token as T2 ON T1.id=T2.user_id
+    WHERE role_id=$1::INT;`;
+
+    const permissions = [
+      { res_name: 'userpool', readable: false, writable: true },
+      { res_name: 'topic', readable: false, writable: true },
+    ];
+
+    it('should fail to update a role when role_name already exists', async () => {
+      const testRole = await createRandomRole(db);
+      const newName = testObj.role.user;
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testRole, update_data: { role_name: newName, permissions } };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(409);
+    });
+
+    it('should update a role', async () => {
+      const testRole = await createRandomRole(db);
+      const newName = 'new-test-role';
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testRole, update_data: { role_name: newName, permissions } };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('role_id');
+      const roleId = res.body.role_id;
+
+      const checkRoleOld = await db.query(sqlRoleByName, [testRole]);
+      expect(checkRoleOld.rowCount).toBe(0);
+      const checkRoleNew = await db.query(sqlRoleByName, [newName]);
+      expect(checkRoleNew.rowCount).toBe(1);
+      const checkAccess = await db.query(sqlAccessByName, [newName]);
+      expect(checkAccess.rowCount).toBe(permissions.length);
+      permissions.forEach((permit, i) => {
+        expect(checkAccess.rows[i]).toEqual(permit);
+      });
+      const checkTokens = await db.query(sqlTokenById, [roleId]);
+      expect(checkTokens.rowCount).toBe(0);
     });
   });
 
@@ -199,10 +257,10 @@ describe('Test /admin/auth', () => {
     const endPoint = apiPrefix + '/admin/auth/user/role';
     const sqlRoleByEmail = `SELECT t2.name
     FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
-    WHERE email=$1::VARCHAR(50)`;
+    WHERE email=$1::VARCHAR(50);`;
     const sqlRoleById = `SELECT t2.name
     FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
-    WHERE t1.id=$1::INT`;
+    WHERE t1.id=$1::INT;`;
 
     it('should fail to change role of a user when role_name is not presented', async () => {
       const accessToken = await getToken(app, testObj.admin);
