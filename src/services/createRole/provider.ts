@@ -2,12 +2,12 @@ import { IPermission } from '../../utils/access';
 import db from '../../utils/db';
 import { AppError, errDef } from '../../utils/errors';
 
-const SQL_INSERT_ROLE = `INSERT INTO user_role(name)
+export const SQL_INSERT_ROLE = `INSERT INTO user_role(name)
 VALUES ($1::VARCHAR(50))
 ON CONFLICT DO NOTHING
 RETURNING id;`;
 
-const SQL_INSERT_PERMIT = `INSERT INTO access_control(role_id, resource_id, readable, writable)
+export const SQL_INSERT_PERMIT = `INSERT INTO access_control(role_id, resource_id, readable, writable)
 SELECT $1::INT, (
   SELECT id FROM resource WHERE name=$2::VARCHAR(20)
 ), $3::BOOLEAN, $4::BOOLEAN
