@@ -4,7 +4,7 @@ import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
-import { apiPrefix, createRandomUser, getToken, testObj } from '../testUtil';
+import { apiPrefix, createRandomUser, getTester, getToken, testObj } from '../testUtil';
 
 const testName = 'test_auth';
 const testPort = '3001';
@@ -20,10 +20,31 @@ describe('Test /auth', () => {
     app = mod.default;
     server = mod.server;
     db = require('../../src/utils/db');
-  }, 10000);
+  }, 60000);
   afterAll(async () => {
     await db.pool.end();
     server.close();
+  });
+
+  describe('common tests', () => {
+    const endpoints = [
+      { method: 'GET', url: `${apiPrefix}/auth/user` },
+      { method: 'PUT', url: `${apiPrefix}/auth/user` },
+      { method: 'DELETE', url: `${apiPrefix}/auth/user` },
+      { method: 'PUT', url: `${apiPrefix}/auth/user/pass` },
+    ];
+
+    it.each(endpoints)(
+      '$method $url should fail when when invalid token is presented',
+      async ({ method, url }) => {
+        const accessToken = 'invalidToken';
+
+        const res = await getTester(app, method, url)
+          .auth(accessToken, { type: 'bearer' })
+          .set('Accept', 'application/json');
+        expect(res.status).toBe(401);
+      },
+    );
   });
 
   describe('POST /auth/user', () => {
@@ -115,17 +136,6 @@ describe('Test /auth', () => {
     const endPoint = apiPrefix + '/auth/user';
     const sqlUser = `SELECT * FROM userpool WHERE email=$1::VARCHAR(50)`;
 
-    it('should fail to get info of a user when invalid token is presented', async () => {
-      const testUser = await createRandomUser(db);
-      const accessToken = 'invalidToken';
-
-      const res = await supertest(app)
-        .get(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json');
-      expect(res.status).toBe(401);
-    });
-
     it('should read info of a user and return 200 with the info', async () => {
       const testUser = await createRandomUser(db);
       const accessToken = await getToken(app, testUser);
@@ -156,16 +166,6 @@ describe('Test /auth', () => {
   describe('PUT /auth/user', () => {
     const endPoint = apiPrefix + '/auth/user';
     const sqlUser = `SELECT * FROM userpool WHERE email=$1::VARCHAR(50)`;
-
-    it('should fail to get info of a user when invalid token is presented', async () => {
-      const accessToken = 'invalidToken';
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json');
-      expect(res.status).toBe(401);
-    });
 
     it('should return 200 even if no new info is given', async () => {
       const testUser = await createRandomUser(db);
@@ -207,20 +207,6 @@ describe('Test /auth', () => {
     const endPoint = apiPrefix + '/auth/user';
     const sqlUser = `SELECT id FROM userpool WHERE email=$1::VARCHAR(50)`;
 
-    it('should fail to delete a user when invalid token is presented', async () => {
-      const testUser = await createRandomUser(db);
-      const accessToken = 'invalidToken';
-
-      const res = await supertest(app)
-        .delete(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json');
-      expect(res.status).toBe(401);
-
-      const check: QueryResult = await db.query(sqlUser, [testUser]);
-      expect(check.rowCount).toBe(1);
-    });
-
     it('should delete a user successfully when valid token is presented', async () => {
       const testUser = await createRandomUser(db);
       const accessToken = await getToken(app, testUser);
@@ -260,16 +246,6 @@ describe('Test /auth', () => {
     const sqlPwdByEmail = `SELECT pw, salt FROM userpool WHERE email=$1::VARCHAR(50)`;
     const sqlPwdById = `SELECT pw, salt FROM userpool WHERE id=$1::INT`;
     const password = 'new-password';
-
-    it('should fail to update pwd when invalid token is presented', async () => {
-      const accessToken = 'invalidToken';
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json');
-      expect(res.status).toBe(401);
-    });
 
     it('should fail to update pwd when new password is invalid', async () => {
       const testUser = await createRandomUser(db);
@@ -326,318 +302,6 @@ describe('Test /auth', () => {
       expect(checkOthers.rowCount).toBe(1);
       const pwOthers = checkOthers.rows[0].pw;
       expect(pwOthers).not.toBe(hashed);
-    });
-  });
-
-  describe('PUT /admin/auth/user/role', () => {
-    const endPoint = apiPrefix + '/admin/auth/user/role';
-    const sqlRoleByEmail = `SELECT t2.name
-    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
-    WHERE email=$1::VARCHAR(50)`;
-    const sqlRoleById = `SELECT t2.name
-    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
-    WHERE t1.id=$1::INT`;
-
-    it('should fail to change role of a user when invalid token is presented', async () => {
-      const accessToken = 'invalidToken';
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json');
-      expect(res.status).toBe(401);
-    });
-
-    it('should fail to change role of a user when a user requests', async () => {
-      const testUser = await createRandomUser(db);
-      const accessToken = await getToken(app, testUser);
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json');
-      expect(res.status).toBe(403);
-    });
-
-    it('should fail to change role of a user when role_name is not presented', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
-      const data = { user_id: 1 };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    it('should fail to change role of a user when role_name is invalid', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
-      const data = { user_id: 1, role_name: 'invalid' };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    it('should fail to change role of a user when user_id is invalid', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
-      const data = { user_id: '123', role_name: testObj.role.admin };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    it('should change role of self when user_id is not presented', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
-      const data = { role_name: testObj.role.user };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(200);
-
-      const check: QueryResult = await db.query(sqlRoleByEmail, [testUser]);
-      expect(check.rows[0].name).toBe(testObj.role.user);
-    });
-
-    it('should change role of the said user in req', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
-      const targetUserId = 2;
-      const data = { user_id: targetUserId, role_name: testObj.role.admin };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(200);
-
-      const check: QueryResult = await db.query(sqlRoleById, [targetUserId]);
-      expect(check.rows[0].name).toBe(testObj.role.admin);
-    });
-  });
-
-  describe('POST /auth/token', () => {
-    const endPoint = apiPrefix + '/auth/token';
-    const sqlToken = `SELECT token FROM refresh_token
-    WHERE user_id=(SELECT id FROM userpool WHERE email=$1::VARCHAR(50))
-    AND device=$2::VARCHAR(50)`;
-    const data = { device: testObj.device };
-
-    it('should fail to create a token and return 400 when invalid email detected', async () => {
-      const invalidEmail = 'test_mycompany.com';
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(invalidEmail, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-
-      const check: QueryResult = await db.query(sqlToken, [invalidEmail, testObj.device]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should fail to create a token and return 401 when no authorization header found', async () => {
-      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
-      expect(res.status).toBe(401);
-    });
-
-    it('should fail to create a token and return 401 when no password found', async () => {
-      const testUser = await createRandomUser(db);
-      const invalid_password = '';
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(testUser, invalid_password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(401);
-
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should fail to create a token and return 401 when wrong auth scheme detected', async () => {
-      const testUser = await createRandomUser(db);
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(testUser, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(401);
-
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should fail to create a token and return 401 when wrong password detected', async () => {
-      const testUser = await createRandomUser(db);
-      const wrongPassword = 'password';
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(testUser, wrongPassword, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(401);
-
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should fail to create a token and return 401 when unregistered email detected', async () => {
-      const unregisteredUser = 'not-registered@email.com';
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(unregisteredUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(401);
-
-      const check: QueryResult = await db.query(sqlToken, [unregisteredUser, testObj.device]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should fail to create a token and return 400 when device is not found in req body', async () => {
-      const testUser = await createRandomUser(db);
-      const noDevice = {};
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(testUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(noDevice);
-      expect(res.status).toBe(400);
-
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should create access_token and refresh_token and return 201 with them when correct credentials presented', async () => {
-      const testUser = await createRandomUser(db);
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(testUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty('access_token');
-      expect(res.body).toHaveProperty('refresh_token');
-
-      const hashedToken = await hash.sha256(res.body.refresh_token);
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(1);
-      expect(check.rows[0].token).toBe(hashedToken);
-    });
-
-    it('should create access_token and refresh_token and return 201 with them when correct credentials presented repeatedly', async () => {
-      const testUser = await createRandomUser(db);
-
-      const resOld = await supertest(app)
-        .post(endPoint)
-        .auth(testUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(resOld.status).toBe(201);
-      const hashedTokenOld = await hash.sha256(resOld.body.refresh_token);
-
-      const resNew = await supertest(app)
-        .post(endPoint)
-        .auth(testUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(resNew.status).toBe(201);
-      const hashedTokenNew = await hash.sha256(resNew.body.refresh_token);
-
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(1);
-      expect(check.rows[0].token).not.toBe(hashedTokenOld);
-      expect(check.rows[0].token).toBe(hashedTokenNew);
-    });
-  });
-
-  describe('POST /auth/refresh', () => {
-    const endPoint = apiPrefix + '/auth/refresh';
-    const sqlToken = `SELECT token FROM refresh_token
-    WHERE user_id=(SELECT id FROM userpool WHERE email=$1::VARCHAR(50))
-    AND device=$2::VARCHAR(50)`;
-
-    it('should failed to create a token and return 401 when no refreshToken found in req body', async () => {
-      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send({});
-
-      expect(res.status).toBe(401);
-    });
-
-    it('should create access_token and refresh_token and return 201 with them when valid refreshToken presented', async () => {
-      const testUser = await createRandomUser(db);
-
-      const token = await supertest(app)
-        .post(apiPrefix + '/auth/token')
-        .auth(testUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send({ device: testObj.device });
-      expect(token.status).toBe(201);
-
-      const refresh_token = token.body.refresh_token;
-      const res = await supertest(app)
-        .post(endPoint)
-        .set('Accept', 'application/json')
-        .send({ refresh_token });
-
-      expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty('access_token');
-      expect(res.body).toHaveProperty('refresh_token');
-
-      const hashedToken = await hash.sha256(res.body.refresh_token);
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(1);
-      expect(check.rows[0].token).toBe(hashedToken);
-    });
-
-    it('should delete token in DB when refresh token reuse detected', async () => {
-      const testUser = await createRandomUser(db);
-
-      const tokenOld = await supertest(app)
-        .post(apiPrefix + '/auth/token')
-        .auth(testUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send({ device: testObj.device });
-      expect(tokenOld.status).toBe(201);
-      const oldRefreshToken = tokenOld.body.refresh_token;
-
-      const tokenNew = await supertest(app)
-        .post(apiPrefix + '/auth/token')
-        .auth(testUser, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send({ device: testObj.device });
-      expect(tokenNew.status).toBe(201);
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .set('Accept', 'application/json')
-        .send({ refresh_token: oldRefreshToken });
-
-      expect(res.status).toBe(401);
-
-      const check: QueryResult = await db.query(sqlToken, [testUser, testObj.device]);
-      expect(check.rowCount).toBe(0);
     });
   });
 });

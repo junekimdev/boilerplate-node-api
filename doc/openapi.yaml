@@ -163,6 +163,30 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
+  /admin/auth/role:
+    post:
+      tags:
+        - AuthAPI
+      summary: Create a role
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRole'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
   /auth/token:
     post:
       tags:
@@ -297,6 +321,36 @@ components:
       scheme: bearer
       bearerFormat: 'Bearer JWT'
   schemas:
+    ResPermission:
+      type: object
+      required:
+        - res_name
+        - readble
+        - writable
+      properties:
+        res_name:
+          type: string
+          example: resource1
+        readble:
+          type: boolean
+          example: true
+        writable:
+          type: boolean
+          example: false
+    RoleIdentity:
+      type: object
+      required:
+        - role_name
+        - permissions
+      properties:
+        role_name:
+          type: string
+          example: user1
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResPermission'
+          uniqueItems: true
     UserIdentity:
       type: object
       required:

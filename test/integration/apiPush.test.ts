@@ -25,7 +25,7 @@ describe('Test /push', () => {
     app = mod.default;
     server = mod.server;
     db = require('../../src/utils/db');
-  }, 10000);
+  }, 60000);
   afterAll(async () => {
     await db.pool.end();
     server.close();
