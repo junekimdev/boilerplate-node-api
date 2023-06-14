@@ -4,6 +4,7 @@ import createRole from '../services/createRole';
 import createToken from '../services/createToken';
 import createUser from '../services/createUser';
 import deleteUser from '../services/deleteUser';
+import readRole from '../services/readRole';
 import readUser from '../services/readUser';
 import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
@@ -41,6 +42,7 @@ APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);
 
 APIv1.post('/admin/auth/role', userpoolAdmin, createRole);
+APIv1.get('/admin/auth/role', userpoolAdmin, validRole, readRole);
 APIv1.put('/admin/auth/user/role', userpoolAdmin, validRole, updateUserRole);
 
 APIv1.get('/push/key', pushUser, readVapidPubKey);

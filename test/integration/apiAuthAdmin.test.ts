@@ -2,9 +2,17 @@ import { Express } from 'express';
 import { Server } from 'http';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
+import { SQL_INSERT_PERMIT, SQL_INSERT_ROLE } from '../../src/services/createRole/provider';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
-import { apiPrefix, createRandomUser, getTester, getToken, testObj } from '../testUtil';
+import {
+  apiPrefix,
+  createRandomRole,
+  createRandomUser,
+  getTester,
+  getToken,
+  testObj,
+} from '../testUtil';
 
 const testName = 'test_auth_admin';
 const testPort = '3003';
@@ -29,6 +37,7 @@ describe('Test /admin/auth', () => {
   describe('common tests', () => {
     const endpoints = [
       { method: 'POST', url: `${apiPrefix}/admin/auth/role` },
+      { method: 'GET', url: `${apiPrefix}/admin/auth/role` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/user/role` },
     ];
 
@@ -47,8 +56,7 @@ describe('Test /admin/auth', () => {
     it.each(endpoints)(
       '$method $url should fail when a normal user tries to request',
       async ({ method, url }) => {
-        const testUser = await createRandomUser(db);
-        const accessToken = await getToken(app, testUser);
+        const accessToken = await getToken(app, testObj.user);
         const res = await getTester(app, method, url)
           .auth(accessToken, { type: 'bearer' })
           .set('Accept', 'application/json');
@@ -59,7 +67,7 @@ describe('Test /admin/auth', () => {
 
   describe('POST /admin/auth/role', () => {
     const endPoint = apiPrefix + '/admin/auth/role';
-    const sqlRole = `SELECT id FROM user_role WHERE name=$1::VARCHAR(20)`;
+    const sqlRole = `SELECT id FROM user_role WHERE name=$1::VARCHAR(50)`;
     const sqlAccess = `SELECT T2.name as res_name, readable, writable
     FROM access_control as T1 LEFT JOIN resource as T2 ON T1.resource_id=T2.id
     WHERE T1.role_id=$1::INT`;
@@ -71,8 +79,7 @@ describe('Test /admin/auth', () => {
     ];
 
     it('should fail to create a role for role_name is not a string', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
+      const accessToken = await getToken(app, testObj.admin);
       const data = { role_name: 1, permissions };
 
       const res = await supertest(app)
@@ -92,9 +99,8 @@ describe('Test /admin/auth', () => {
     it.each(invalidPermissions)(
       'Test #%# should fail to create a role for permissions are not in right format',
       async (permit) => {
-        const testUser = await createRandomUser(db, testObj.role.admin);
-        const accessToken = await getToken(app, testUser);
-        const role_name = hash.createUUID().substring(0, 10);
+        const accessToken = await getToken(app, testObj.admin);
+        const role_name = hash.createUUID();
         const data = { role_name, permissions: [permit] };
 
         const res = await supertest(app)
@@ -123,9 +129,8 @@ describe('Test /admin/auth', () => {
     });
 
     it('should create a role', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
-      const role_name = hash.createUUID().substring(0, 10);
+      const accessToken = await getToken(app, testObj.admin);
+      const role_name = hash.createUUID();
       const data = { role_name, permissions };
 
       const res = await supertest(app)
@@ -148,6 +153,47 @@ describe('Test /admin/auth', () => {
     });
   });
 
+  describe('GET /admin/auth/role', () => {
+    const endPoint = apiPrefix + '/admin/auth/role';
+    const sqlAccess = `SELECT T3.name as res_name, readable, writable
+    FROM access_control as T1
+    LEFT JOIN user_role as T2 ON T1.role_id=T2.id
+    LEFT JOIN resource as T3 ON T1.resource_id=T3.id
+    WHERE T2.name=$1::VARCHAR(50)`;
+
+    const permissions = [
+      { res_name: 'userpool', readable: true, writable: false },
+      { res_name: 'topic', readable: true, writable: false },
+      { res_name: 'subscription', readable: true, writable: false },
+    ];
+
+    it('should read a role', async () => {
+      const testRole = await createRandomRole(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testRole };
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('role_name');
+      expect(res.body).toHaveProperty('permissions');
+      expect(res.body).toHaveProperty('created_at');
+      expect(res.body.permissions).toHaveLength(testObj.permissions.length);
+      testObj.permissions.forEach((permit, i) => {
+        expect(res.body.permissions[i]).toEqual(permit);
+      });
+
+      const checkAccess = await db.query(sqlAccess, [testRole]);
+      expect(checkAccess.rowCount).toBe(testObj.permissions.length);
+      testObj.permissions.forEach((permit, i) => {
+        expect(checkAccess.rows[i]).toEqual(permit);
+      });
+    });
+  });
+
   describe('PUT /admin/auth/user/role', () => {
     const endPoint = apiPrefix + '/admin/auth/user/role';
     const sqlRoleByEmail = `SELECT t2.name
@@ -158,8 +204,7 @@ describe('Test /admin/auth', () => {
     WHERE t1.id=$1::INT`;
 
     it('should fail to change role of a user when role_name is not presented', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
+      const accessToken = await getToken(app, testObj.admin);
       const data = { user_id: 1 };
 
       const res = await supertest(app)
@@ -171,8 +216,7 @@ describe('Test /admin/auth', () => {
     });
 
     it('should fail to change role of a user when role_name is invalid', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
+      const accessToken = await getToken(app, testObj.admin);
       const data = { user_id: 1, role_name: 'invalid' };
 
       const res = await supertest(app)
@@ -184,8 +228,7 @@ describe('Test /admin/auth', () => {
     });
 
     it('should fail to change role of a user when user_id is invalid', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
+      const accessToken = await getToken(app, testObj.admin);
       const data = { user_id: '123', role_name: testObj.role.admin };
 
       const res = await supertest(app)
@@ -213,8 +256,7 @@ describe('Test /admin/auth', () => {
     });
 
     it('should change role of the said user in req', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
+      const accessToken = await getToken(app, testObj.admin);
       const targetUserId = 2;
       const data = { user_id: targetUserId, role_name: testObj.role.admin };
 

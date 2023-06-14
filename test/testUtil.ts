@@ -1,5 +1,7 @@
 import { Express } from 'express';
+import { PoolClient } from 'pg';
 import supertest from 'supertest';
+import { SQL_INSERT_PERMIT, SQL_INSERT_ROLE } from '../src/services/createRole/provider';
 import { SQL_INSERT_USER } from '../src/services/createUser/provider';
 import hash from '../src/utils/hash';
 
@@ -14,6 +16,28 @@ export const testObj = {
   surname: 'test-surname',
   givenName: 'test-given-name',
   pushTopic: 'test-topic',
+  resources: ['userpool', 'topic', 'subscription'],
+  permissions: [
+    { res_name: 'userpool', readable: true, writable: false },
+    { res_name: 'topic', readable: true, writable: false },
+    { res_name: 'subscription', readable: true, writable: false },
+  ],
+};
+
+export const createRandomRole = async (db: any) => {
+  const roleName = hash.createUUID();
+  await db.transaction(async (client: PoolClient) => {
+    const roleInsert = await client.query(SQL_INSERT_ROLE, [roleName]);
+    if (!roleInsert.rowCount) return 0;
+    const roleId = roleInsert.rows[0].id as number;
+
+    for (let i = 0; i < testObj.permissions.length; i++) {
+      const { res_name, readable, writable } = testObj.permissions[i];
+      const r = await client.query(SQL_INSERT_PERMIT, [roleId, res_name, readable, writable]);
+    }
+  });
+
+  return roleName;
 };
 
 export const createRandomUser = async (db: any, role: string = testObj.role.user) => {
