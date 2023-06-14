@@ -1,6 +1,6 @@
 import db from '../../utils/db';
 
-const SQL_READ_ROLE = 'SELECT created_at FROM user_role WHERE name=$1::VARCHAR(50)';
+const SQL_READ_ROLE = 'SELECT id, created_at FROM user_role WHERE name=$1::VARCHAR(50)';
 
 const SQL_READ_ACCESS = `SELECT T3.name as res_name, readable, writable
 FROM access_control as T1
@@ -11,6 +11,7 @@ WHERE T2.name=$1::VARCHAR(50)`;
 const provider = async (roleName: string) => {
   // Get created_at
   const roleQuery = await db.query(SQL_READ_ROLE, [roleName]);
+  const role_id = roleQuery.rows[0].id;
   const created_at = roleQuery.rows[0].created_at;
 
   // Get permissions
@@ -18,7 +19,7 @@ const provider = async (roleName: string) => {
   const permissions = accessQuery.rows;
 
   // Return
-  return { role_name: roleName, permissions, created_at };
+  return { role_id, role_name: roleName, permissions, created_at };
 };
 
 export default provider;

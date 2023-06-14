@@ -15,8 +15,10 @@ describe('Test /src/services/readRole/apiHandler', () => {
   let res: Response;
   let next: NextFunction;
 
+  const rold_id = 123;
   const roleName = 'roleName';
   const roleInfo = {
+    rold_id,
     role_name: roleName,
     permissions: [
       { res_name: 'res1', readable: true, writable: false },

@@ -178,6 +178,7 @@ describe('Test /admin/auth', () => {
         .set('Accept', 'application/json')
         .send(data);
       expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('role_id');
       expect(res.body).toHaveProperty('role_name');
       expect(res.body).toHaveProperty('permissions');
       expect(res.body).toHaveProperty('created_at');

@@ -168,6 +168,8 @@ paths:
           $ref: '#/components/responses/403'
         404:
           $ref: '#/components/responses/404'
+        409:
+          $ref: '#/components/responses/409'
         500:
           $ref: '#/components/responses/500'
     get:
@@ -390,10 +392,11 @@ components:
           uniqueItems: true
     RoleIdentityRes:
       type: object
-      required:
-        - role_name
-        - permissions
       properties:
+        role_id:
+          type: number
+          minimum: 1
+          example: 1
         role_name:
           type: string
           example: user1
