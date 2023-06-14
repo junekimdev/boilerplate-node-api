@@ -18,7 +18,7 @@ describe('Test /src/services/createRole/apiHandler', () => {
   let res: Response;
   let next: NextFunction;
 
-  const role_name = 'rest-role';
+  const role_name = 'test-role';
   const roleId = 123;
   const permissions: IPermission[] = [
     { res_name: 'res1', readable: true, writable: false },
@@ -64,7 +64,7 @@ describe('Test /src/services/createRole/apiHandler', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should call next with InvalidRolePermission error for permissions not a array of IPermission in req.body', async () => {
+  it('should call next with InvalidRolePermission error for permissions not an array of IPermission in req.body', async () => {
     const invalidPermissions = [{ name: 'res1', readable: true, writable: false }];
     const expectedError = new AppError(errDef[400].InvalidRolePermission);
 
