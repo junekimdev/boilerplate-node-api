@@ -139,11 +139,11 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
-  /admin/auth/user/role:
-    put:
+  /admin/auth/role:
+    post:
       tags:
         - AuthAPI
-      summary: Update role of a user
+      summary: Create a role
       security:
         - basicAuth: []
       requestBody:
@@ -151,10 +151,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRole'
+              $ref: '#/components/schemas/RoleIdentityReq'
       responses:
-        200:
-          $ref: '#/components/responses/200'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  role_id:
+                    type: integer
+                    example: 1
         401:
           $ref: '#/components/responses/401'
         403:
@@ -163,11 +170,11 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
-  /admin/auth/role:
-    post:
+  /admin/auth/user/role:
+    put:
       tags:
         - AuthAPI
-      summary: Create a role
+      summary: Update role of a user
       security:
         - basicAuth: []
       requestBody:
@@ -337,7 +344,7 @@ components:
         writable:
           type: boolean
           example: false
-    RoleIdentity:
+    RoleIdentityReq:
       type: object
       required:
         - role_name
@@ -351,6 +358,24 @@ components:
           items:
             $ref: '#/components/schemas/ResPermission'
           uniqueItems: true
+    RoleIdentityRes:
+      type: object
+      required:
+        - role_name
+        - permissions
+      properties:
+        role_name:
+          type: string
+          example: user1
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResPermission'
+          uniqueItems: true
+        created_at:
+          type: string
+          format: date
+          example: '2023-01-01T11:11:11.111Z'
     UserIdentity:
       type: object
       required:
