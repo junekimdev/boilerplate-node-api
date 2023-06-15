@@ -217,6 +217,64 @@ describe('Test /admin/auth', () => {
     });
   });
 
+  describe('DELETE /admin/auth/role', () => {
+    const endPoint = apiPrefix + '/admin/auth/role';
+    const sqlRoleByName = 'SELECT id FROM user_role WHERE name=$1::VARCHAR(50);';
+
+    it('should fail to delete a role and return 403 when the role has users', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testObj.role.user };
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(403);
+
+      const check = await db.query(sqlRoleByName, [testObj.role.user]);
+      expect(check.rowCount).toBe(1);
+    });
+
+    it('should return 400 when the role does not exist', async () => {
+      const testRole = await createRandomRole(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testRole };
+
+      const first = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(first.status).toBe(200);
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(400);
+    });
+
+    it('should delete a role and return 200', async () => {
+      const testRole = await createRandomRole(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testRole };
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('role_id');
+      const roleId = res.body.role_id;
+
+      const check = await db.query(sqlRoleByName, [testRole]);
+      expect(check.rowCount).toBe(0);
+    });
+  });
+
   describe('PUT /admin/auth/user/role', () => {
     const endPoint = apiPrefix + '/admin/auth/user/role';
     const sqlRoleByEmail = `SELECT t2.name

@@ -3,6 +3,7 @@ import router from 'express-promise-router';
 import createRole from '../services/createRole';
 import createToken from '../services/createToken';
 import createUser from '../services/createUser';
+import deleteRole from '../services/deleteRole';
 import deleteUser from '../services/deleteUser';
 import readRole from '../services/readRole';
 import readUser from '../services/readUser';
@@ -45,6 +46,7 @@ APIv1.post('/auth/refresh', refreshToken, createToken);
 APIv1.post('/admin/auth/role', userpoolAdmin, createRole);
 APIv1.get('/admin/auth/role', userpoolAdmin, validRole, readRole);
 APIv1.put('/admin/auth/role', userpoolAdmin, validRole, updateRole);
+APIv1.delete('/admin/auth/role', userpoolAdmin, validRole, deleteRole);
 APIv1.put('/admin/auth/user/role', userpoolAdmin, validRole, updateUserRole);
 
 APIv1.get('/push/key', pushUser, readVapidPubKey);

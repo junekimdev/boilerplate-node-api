@@ -121,34 +121,44 @@ export const errDef = {
       message: 'E403-AccessUndefined',
       error_in: 'Auth',
     },
+    RoleHasUsers: {
+      status: 403,
+      message: 'E403-RoleHasUsers',
+      error_in: 'Req',
+    },
   },
   '404': {
+    RoleNotFound: {
+      status: 404,
+      message: 'E404-RoleNotFound',
+      error_in: 'Req',
+    },
     UserNotFound: {
       status: 404,
       message: 'E404-UserNotFound',
-      error_in: 'Auth',
+      error_in: 'Req',
     },
     DataNotFound: {
       status: 404,
       message: 'E404-DataNotFound',
-      error_in: 'ReqBody',
+      error_in: 'Req',
     },
   },
   '409': {
     RoleAlreadyExists: {
       status: 409,
       message: 'E409-RoleAlreadyExists',
-      error_in: 'Auth',
+      error_in: 'Req',
     },
     UserAlreadyExists: {
       status: 409,
       message: 'E409-UserAlreadyExists',
-      error_in: 'Auth',
+      error_in: 'Req',
     },
     PushSubscriptionAlreadyExists: {
       status: 409,
       message: 'E409-UserAlreadyExists',
-      error_in: 'Push',
+      error_in: 'Req',
     },
   },
   '500': {
@@ -160,7 +170,7 @@ export const errDef = {
     FailedToInsert: {
       status: 500,
       message: 'E500-FailedToInsert',
-      error_in: 'database',
+      error_in: 'Database',
     },
   },
 };
