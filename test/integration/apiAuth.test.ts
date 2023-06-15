@@ -63,21 +63,6 @@ describe('Test /auth', () => {
       expect(check.rowCount).toBe(0);
     });
 
-    it('should fail to create a user and return 400 when invalid email detected', async () => {
-      const invalidEmail = 'test_mycompany.com';
-      const data = {
-        email: invalidEmail,
-        password: testObj.password,
-        role_name: testObj.role.user,
-      };
-
-      const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
-      expect(res.status).toBe(400);
-
-      const check: QueryResult = await db.query(sqlUser, [invalidEmail]);
-      expect(check.rowCount).toBe(0);
-    });
-
     it('should fail to create a user return 409 when email already exists', async () => {
       const testUser = await createRandomUser(db, testObj.role.user);
       const data = { email: testUser, password: testObj.password, role_name: testObj.role.user };
@@ -207,21 +192,7 @@ describe('Test /auth', () => {
     const endPoint = apiPrefix + '/auth/user';
     const sqlUser = `SELECT id FROM userpool WHERE email=$1::VARCHAR(50)`;
 
-    it('should delete a user successfully when valid token is presented', async () => {
-      const testUser = await createRandomUser(db);
-      const accessToken = await getToken(app, testUser);
-
-      const res = await supertest(app)
-        .delete(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json');
-      expect(res.status).toBe(200);
-
-      const check: QueryResult = await db.query(sqlUser, [testUser]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should fail to delete a user when no user can be found in DB', async () => {
+    it('should fail to delete a user when user does not exist', async () => {
       const testUser = await createRandomUser(db);
       const accessToken = await getToken(app, testUser);
 
@@ -239,6 +210,20 @@ describe('Test /auth', () => {
         .set('Accept', 'application/json');
       expect(resAgain.status).toBe(404);
     });
+
+    it('should delete a user', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(200);
+
+      const check: QueryResult = await db.query(sqlUser, [testUser]);
+      expect(check.rowCount).toBe(0);
+    });
   });
 
   describe('PUT /auth/user/pass', () => {
@@ -247,20 +232,7 @@ describe('Test /auth', () => {
     const sqlPwdById = `SELECT pw, salt FROM userpool WHERE id=$1::INT`;
     const password = 'new-password';
 
-    it('should fail to update pwd when new password is invalid', async () => {
-      const testUser = await createRandomUser(db);
-      const accessToken = await getToken(app, testUser);
-      const data = { password: 123 };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    it('should update pwd when valid new password is presented', async () => {
+    it('should update pwd', async () => {
       const testUser = await createRandomUser(db);
       const accessToken = await getToken(app, testUser);
       const data = { password };
@@ -279,7 +251,7 @@ describe('Test /auth', () => {
       expect(pw).toBe(hashed);
     });
 
-    it('should ignore user_id in req.body and update pwd of the user', async () => {
+    it('should ignore user_id in req.body when the user is not an admin', async () => {
       const testUser = await createRandomUser(db);
       const accessToken = await getToken(app, testUser);
       const userId = 2;

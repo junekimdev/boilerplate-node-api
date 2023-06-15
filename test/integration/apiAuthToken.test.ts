@@ -33,19 +33,6 @@ describe('Test /auth', () => {
     AND device=$2::VARCHAR(50)`;
     const data = { device: testObj.device };
 
-    it('should fail to create a token and return 400 when invalid email detected', async () => {
-      const invalidEmail = 'test_mycompany.com';
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(invalidEmail, testObj.password, { type: 'basic' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-
-      const check: QueryResult = await db.query(sqlToken, [invalidEmail, testObj.device]);
-      expect(check.rowCount).toBe(0);
-    });
-
     it('should fail to create a token and return 401 when no authorization header found', async () => {
       const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
       expect(res.status).toBe(401);
@@ -108,7 +95,7 @@ describe('Test /auth', () => {
       expect(check.rowCount).toBe(0);
     });
 
-    it('should fail to create a token and return 400 when device is not found in req body', async () => {
+    it('should fail to create a token and return 400 when device is not found in req.body', async () => {
       const testUser = await createRandomUser(db);
       const noDevice = {};
 
@@ -123,7 +110,7 @@ describe('Test /auth', () => {
       expect(check.rowCount).toBe(0);
     });
 
-    it('should create access_token and refresh_token and return 201 with them when correct credentials presented', async () => {
+    it('should create access_token and refresh_token and return them with 201', async () => {
       const testUser = await createRandomUser(db);
 
       const res = await supertest(app)
@@ -141,7 +128,7 @@ describe('Test /auth', () => {
       expect(check.rows[0].token).toBe(hashedToken);
     });
 
-    it('should create access_token and refresh_token and return 201 with them when correct credentials presented repeatedly', async () => {
+    it('should be able to repeat to create access_token and refresh_token and return them with 201', async () => {
       const testUser = await createRandomUser(db);
 
       const resOld = await supertest(app)

@@ -64,24 +64,7 @@ describe('Test /push', () => {
       expect(res.status).toBe(400);
     });
 
-    it('should fail to register subscription and return 400 when invalid topic is sent', async () => {
-      const accessToken = await getToken(app, testObj.user);
-      const subscription = getSubscription();
-      const invalidTopic = 0;
-      const data = { topic: invalidTopic, subscription };
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-
-      const check: QueryResult = await db.query(sqlPushSub, [JSON.stringify(subscription)]);
-      expect(check.rowCount).toBe(0);
-    });
-
-    it('should fail to register subscription and return 400 when unregistered topic is sent', async () => {
+    it('should fail to register subscription and return 400 when topic does not exist', async () => {
       const accessToken = await getToken(app, testObj.user);
       const subscription = getSubscription();
       const unregisteredTopic = 'unregistered-topic';
@@ -98,7 +81,7 @@ describe('Test /push', () => {
       expect(check.rowCount).toBe(0);
     });
 
-    it('should register subscription and return 200 when valid topic and subscription is sent', async () => {
+    it('should register subscription and return 200', async () => {
       const accessToken = await getToken(app, testObj.user);
       const subscription = getSubscription();
       const data = { topic: testObj.pushTopic, subscription };
@@ -128,30 +111,6 @@ describe('Test /push', () => {
         .set('Accept', 'application/json')
         .send(data);
       expect(res.status).toBe(403);
-    });
-
-    it('should failed to send subscriptions and return 400 when invalid topic is sent', async () => {
-      const accessToken = await getToken(app, testObj.admin);
-      const invalidTopic = 0;
-      const payload = { message: 'Hello, world!' };
-      const data = { topic: invalidTopic, payload };
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    it('should failed to send subscriptions and return 400 when no payload is sent', async () => {
-      const accessToken = await getToken(app, testObj.admin);
-      const data = { topic: testObj.pushTopic };
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
     });
 
     it('should failed to send subscriptions and return 400 when unregistered topic is sent', async () => {

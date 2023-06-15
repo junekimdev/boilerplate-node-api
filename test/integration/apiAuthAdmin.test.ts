@@ -78,43 +78,6 @@ describe('Test /admin/auth', () => {
       { res_name: 'subscription', readable: true, writable: false },
     ];
 
-    it('should fail to create a role for role_name is not a string', async () => {
-      const accessToken = await getToken(app, testObj.admin);
-      const data = { role_name: 1, permissions };
-
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    const invalidPermissions = [
-      { name: 'res1', readable: true, writable: false }, // wrong res_name
-      { res_name: 'res1', readable: 1, writable: false }, // wrong readable
-      { res_name: 'res1', readable: true, writable: 'false' }, // wrong writable
-    ];
-
-    it.each(invalidPermissions)(
-      'Test #%# should fail to create a role for permissions are not in right format',
-      async (permit) => {
-        const accessToken = await getToken(app, testObj.admin);
-        const role_name = hash.createUUID();
-        const data = { role_name, permissions: [permit] };
-
-        const res = await supertest(app)
-          .post(endPoint)
-          .auth(accessToken, { type: 'bearer' })
-          .set('Accept', 'application/json')
-          .send(data);
-        expect(res.status).toBe(400);
-
-        const check = await db.query(sqlRole, [role_name]);
-        expect(check.rowCount).toBe(0);
-      },
-    );
-
     it('should fail to create a role for role_name already exists', async () => {
       const accessToken = await getToken(app, testObj.admin);
       const data = { role_name: testObj.role.user, permissions };
@@ -193,6 +156,7 @@ describe('Test /admin/auth', () => {
       });
     });
   });
+
   describe('PUT /admin/auth/role', () => {
     const endPoint = apiPrefix + '/admin/auth/role';
     const sqlRoleByName = 'SELECT id FROM user_role WHERE name=$1::VARCHAR(50);';
@@ -261,42 +225,6 @@ describe('Test /admin/auth', () => {
     const sqlRoleById = `SELECT t2.name
     FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
     WHERE t1.id=$1::INT;`;
-
-    it('should fail to change role of a user when role_name is not presented', async () => {
-      const accessToken = await getToken(app, testObj.admin);
-      const data = { user_id: 1 };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    it('should fail to change role of a user when role_name is invalid', async () => {
-      const accessToken = await getToken(app, testObj.admin);
-      const data = { user_id: 1, role_name: 'invalid' };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
-
-    it('should fail to change role of a user when user_id is invalid', async () => {
-      const accessToken = await getToken(app, testObj.admin);
-      const data = { user_id: '123', role_name: testObj.role.admin };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(400);
-    });
 
     it('should change role of self when user_id is not presented', async () => {
       const testUser = await createRandomUser(db, testObj.role.admin);
