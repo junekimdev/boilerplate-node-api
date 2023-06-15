@@ -169,3 +169,7 @@ export const errDef = {
     },
   },
 };
+
+export const NULL_ERR_CODE = '23502';
+export const FK_ERR_CODE = '23503';
+export const UK_ERR_CODE = '23505';
