@@ -70,7 +70,7 @@ describe('Test /src/services/updateRole/provider', () => {
 
     await provider(oldName, newName, permissions);
 
-    expect(client.query).toBeCalledTimes(4 + permissions.length);
+    expect(client.query).toBeCalledTimes(3 + permissions.length);
     expect(client.query).nthCalledWith(3, expect.any(String), [roleId]);
     permissions.forEach((permit, i) => {
       const { res_name, readable, writable } = permit;
@@ -99,15 +99,5 @@ describe('Test /src/services/updateRole/provider', () => {
     } catch (error) {
       expect(error).toEqual(expectedError);
     }
-  });
-
-  it('should invalidate refresh tokens of all user in the role', async () => {
-    client.query
-      .mockResolvedValueOnce({ rows: [{ id: roleId }] })
-      .mockResolvedValue({ rowCount: 1 });
-
-    await provider(oldName, newName, permissions);
-
-    expect(client.query).nthCalledWith(7, expect.any(String), [roleId]);
   });
 });

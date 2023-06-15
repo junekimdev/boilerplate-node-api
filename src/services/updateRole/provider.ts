@@ -9,9 +9,6 @@ const SQL_UPDATE_ROLENAME = 'UPDATE user_role SET name=$2::VARCHAR(50) WHERE id=
 
 const SQL_DELETE_PERMIT = 'DELETE FROM access_control WHERE role_id=$1::INT;';
 
-const SQL_DELETE_REFRESH_TOKEN = `DELETE FROM refresh_token
-WHERE user_id IN (SELECT id FROM userpool WHERE role_id=$1::INT);`;
-
 const provider = async (oldName: string, newName: string, permissions: IPermission[]) =>
   db.transaction(async (client) => {
     const roleQuery = await client.query(SQL_GET_ROLE_ID, [oldName]);
@@ -29,9 +26,6 @@ const provider = async (oldName: string, newName: string, permissions: IPermissi
       const r = await client.query(SQL_INSERT_PERMIT, [roleId, res_name, readable, writable]);
       if (!r.rowCount) throw new AppError(errDef[500].FailedToInsert, { cause: `${res_name}` });
     }
-
-    // Invalidate refresh tokens of all users in the role
-    await client.query(SQL_DELETE_REFRESH_TOKEN, [roleId]);
 
     return roleId;
   });
