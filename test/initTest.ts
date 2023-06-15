@@ -1,8 +1,8 @@
+import crypto from 'crypto';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { Client } from 'pg';
 import { SQL_INSERT_USER } from '../src/services/createUser/provider';
-import hash from '../src/utils/hash';
 import { testObj } from './testUtil';
 
 const SQL_INSERT_TOPIC = `INSERT INTO topic(name) VALUES ($1::TEXT);`;
@@ -14,9 +14,11 @@ const createUser = async (
   surname: string,
   givenName: string,
 ) => {
-  const salt = hash.createSalt();
-  const hashedPW = await hash.passSalt(testObj.password, salt);
-  await client.query(SQL_INSERT_USER, [username, hashedPW, salt, rolename, surname, givenName]);
+  const salt = crypto.randomBytes(12).toString('base64');
+  const pw = testObj.password + salt;
+  const hashedPW = await crypto.createHash('sha256').update(pw).digest('base64');
+  const params = [username, hashedPW, salt, rolename, surname, givenName];
+  await client.query(SQL_INSERT_USER, params);
 };
 
 const init = async (testName: string, port: string) => {
