@@ -90,3 +90,9 @@ export const getTester = (app: Express, method: string, url: string) => {
 
   return tester;
 };
+
+export const getDbErrorMock = (code: string) => {
+  const err: any = new Error('DB Error');
+  err.code = code;
+  return err;
+};
