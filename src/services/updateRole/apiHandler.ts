@@ -1,11 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { isValidPermit } from '../../utils/access';
-import db from '../../utils/db';
 import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
 import { IReqBody, IResLocals } from './types';
-
-const SQL_GET_ROLE_NAME = 'SELECT id FROM user_role WHERE name=$1::VARCHAR(50);';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -18,9 +15,6 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     const { role_name, permissions } = update_data;
     if (typeof role_name !== 'string') throw new AppError(errDef[400].InvalidRoleName);
 
-    const nameCheck = await db.query(SQL_GET_ROLE_NAME, [role_name]);
-    if (nameCheck.rowCount) throw new AppError(errDef[409].RoleAlreadyExists);
-
     if (!Array.isArray(permissions)) throw new AppError(errDef[400].InvalidRolePermission);
     permissions.forEach((permit) => {
       if (!isValidPermit(permit)) throw new AppError(errDef[400].InvalidRolePermission);
@@ -28,6 +22,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
     const newName = role_name;
     const id = await provider(roleName, newName, permissions);
+    if (!id) throw new AppError(errDef[409].RoleAlreadyExists);
     res.status(200).json({ role_id: id });
   } catch (error) {
     next(error);

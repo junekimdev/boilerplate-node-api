@@ -23,6 +23,16 @@ describe('Test /src/services/readRole/provider', () => {
     jest.clearAllMocks();
   });
 
+  it('should return null if role does not exist', async () => {
+    mockedDbQuery.mockReturnValue({ rowCount: 0 });
+
+    const result = await provider(roleName);
+
+    expect(db.query).toBeCalledTimes(1);
+    expect(db.query).toBeCalledWith(expect.any(String), [roleName]);
+    expect(result).toEqual(null);
+  });
+
   it('should get info of roleName from DB anf return it', async () => {
     mockedDbQuery
       .mockReturnValueOnce({ rowCount: 1, rows: [{ id: role_id, created_at }] })

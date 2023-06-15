@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import db from '../../utils/db';
 import { isEmailValid } from '../../utils/email';
 import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
@@ -20,7 +19,6 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
     // Provide
     const id = await provider(validEmail, password, roleName, surname, given_name);
-    if (!id) throw new AppError(errDef[409].UserAlreadyExists);
     res.status(201).json({ user_id: id });
   } catch (error) {
     next(error);

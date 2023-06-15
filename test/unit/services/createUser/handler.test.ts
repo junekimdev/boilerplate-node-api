@@ -99,7 +99,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should call next with the error if an unknown error occurs', async () => {
+  it('should call next with the error if provider throws an error', async () => {
     const expectedError = new Error('unknown error');
 
     req.body = { email, password };
@@ -115,23 +115,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should call next with UserAlreadyExists error if email already exists', async () => {
-    const expectedError = new AppError(errDef[409].UserAlreadyExists);
-
-    req.body = { email, password };
-    res.locals = { roleName };
-    mockedEmailValidator.mockReturnValue(true);
-    mockedProvider.mockResolvedValue(0);
-
-    await handler(req, res, next);
-
-    expect(provider).toBeCalledWith(email, password, roleName, '', '');
-    expect(res.status).not.toBeCalled();
-    expect(res.json).not.toBeCalled();
-    expect(next).toBeCalledWith(expectedError);
-  });
-
-  it('should create a user and return user_id when valid data is in req', async () => {
+  it('should create a user and return user_id', async () => {
     req.body = { email, password };
     res.locals = { roleName };
     mockedEmailValidator.mockReturnValue(true);
@@ -145,7 +129,7 @@ describe('Test /src/services/createUser/apiHandler', () => {
     expect(next).not.toBeCalled();
   });
 
-  it('should create a user and return user_id when valid data with additional info is in req', async () => {
+  it('should create a user with additional info and return user_id', async () => {
     req.body = { email, password, surname, given_name };
     res.locals = { roleName };
     mockedEmailValidator.mockReturnValue(true);

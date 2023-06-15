@@ -1,5 +1,9 @@
 import { AppError, IError, errDef } from '../../../src/utils/errors';
 
+type errDefType = {
+  [status: string]: { [errorName: string]: IError };
+};
+
 describe('Test /src/utils/errors', () => {
   describe('Class "AppError" when constructed without an arg', () => {
     const err = new AppError();
@@ -36,9 +40,8 @@ describe('Test /src/utils/errors', () => {
   });
 
   describe('Object "errDef"', () => {
-    const numReg = /[0-9]{3}/;
     it.each(Object.keys(errDef))('%s should be 3 digit numeric string', (key) => {
-      expect(key).toMatch(numReg);
+      expect(key).toMatch(/[0-9]{3}/);
     });
 
     const expected = expect.objectContaining({
@@ -50,10 +53,11 @@ describe('Test /src/utils/errors', () => {
     describe.each(Object.keys(errDef))(
       '%s should be objects in the type of { [errorName: string]: IError }',
       (codeName: string) => {
-        it.each(Object.keys(errDef[codeName]))(
+        const errorGroups = (errDef as errDefType)[codeName];
+        it.each(Object.keys(errorGroups))(
           '%s should have an object in the type of IError',
           (errorName) => {
-            const obj: IError = errDef[codeName][errorName];
+            const obj: IError = errorGroups[errorName];
             expect(obj).toEqual(expected);
           },
         );

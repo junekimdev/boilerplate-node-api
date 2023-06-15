@@ -51,13 +51,13 @@ describe('Test /auth', () => {
     const endPoint = apiPrefix + '/auth/user';
     const sqlUser = `SELECT id FROM userpool WHERE email=$1::VARCHAR(50)`;
 
-    it('should fail to create a user and return 400 when invalid role detected', async () => {
+    it('should fail to create a user and return 404 when non-existing role is passed', async () => {
       const invalidRole = '123';
       const testUser = `${hash.createUUID()}@test.io`;
       const data = { email: testUser, password: testObj.password, role_name: invalidRole };
 
       const res = await supertest(app).post(endPoint).set('Accept', 'application/json').send(data);
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(404);
 
       const check: QueryResult = await db.query(sqlUser, [testUser]);
       expect(check.rowCount).toBe(0);

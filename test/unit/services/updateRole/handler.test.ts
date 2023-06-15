@@ -1,6 +1,5 @@
 // Mocks
 jest.mock('../../../../src/services/updateRole/provider', () => jest.fn());
-jest.mock('../../../../src/utils/db', () => ({ query: jest.fn() }));
 jest.mock('../../../../src/utils/access', () => ({ isValidPermit: jest.fn() }));
 
 // Imports
@@ -8,10 +7,8 @@ import { NextFunction, Request, Response } from 'express';
 import handler from '../../../../src/services/updateRole/apiHandler';
 import provider from '../../../../src/services/updateRole/provider';
 import { IPermission, isValidPermit } from '../../../../src/utils/access';
-import db from '../../../../src/utils/db';
 import { AppError, errDef } from '../../../../src/utils/errors';
 
-const mockedDbQuery = db.query as jest.Mock;
 const mockedPermitValidator = isValidPermit as jest.Mock;
 const mockedProvider = provider as jest.Mock;
 
@@ -69,27 +66,11 @@ describe('Test /src/services/updateRole/apiHandler', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should call next with RoleAlreadyExists error for new name in data already exists', async () => {
-    const update_data = { role_name, permissions };
-    const expectedError = new AppError(errDef[409].RoleAlreadyExists);
-
-    req.body = { update_data };
-    mockedDbQuery.mockResolvedValue({ rowCount: 1 });
-
-    await handler(req, res, next);
-
-    expect(provider).not.toBeCalled();
-    expect(res.status).not.toBeCalled();
-    expect(res.json).not.toBeCalled();
-    expect(next).toBeCalledWith(expectedError);
-  });
-
   it('should call next with InvalidRolePermission error for permissions is not an array', async () => {
     const update_data = { role_name };
     const expectedError = new AppError(errDef[400].InvalidRolePermission);
 
     req.body = { update_data };
-    mockedDbQuery.mockResolvedValue({ rowCount: 0 });
 
     await handler(req, res, next);
 
@@ -105,7 +86,6 @@ describe('Test /src/services/updateRole/apiHandler', () => {
     const expectedError = new AppError(errDef[400].InvalidRolePermission);
 
     req.body = { update_data };
-    mockedDbQuery.mockResolvedValue({ rowCount: 0 });
     mockedPermitValidator.mockReturnValue(false);
 
     await handler(req, res, next);
@@ -116,11 +96,26 @@ describe('Test /src/services/updateRole/apiHandler', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
+  it('should call next with RoleAlreadyExists error when provider returns 0', async () => {
+    const update_data = { role_name, permissions };
+    const expectedError = new AppError(errDef[409].RoleAlreadyExists);
+
+    req.body = { update_data };
+    mockedPermitValidator.mockReturnValue(true);
+    mockedProvider.mockResolvedValue(0);
+
+    await handler(req, res, next);
+
+    expect(provider).toBeCalledWith(roleName, role_name, permissions);
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
+  });
+
   it('should return 200 with role_id for provider updates the role successfully', async () => {
     const update_data = { role_name, permissions };
 
     req.body = { update_data };
-    mockedDbQuery.mockResolvedValue({ rowCount: 0 });
     mockedPermitValidator.mockReturnValue(true);
     mockedProvider.mockResolvedValue(roleId);
 

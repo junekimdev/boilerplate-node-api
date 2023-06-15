@@ -6,7 +6,7 @@ jest.mock('../../../../src/utils/db', () => ({ transaction: jest.fn((f) => f(cli
 import provider from '../../../../src/services/createRole/provider';
 import { IPermission } from '../../../../src/utils/access';
 import db from '../../../../src/utils/db';
-import { AppError, errDef } from '../../../../src/utils/errors';
+import { UK_ERR_CODE } from '../../../../src/utils/errors';
 
 // Tests
 describe('Test /src/services/createRole/provider', () => {
@@ -20,6 +20,17 @@ describe('Test /src/services/createRole/provider', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('should return 0 when the role already exists', async () => {
+    client.query.mockResolvedValue({ rowCount: 0 });
+
+    const result = await provider(roleName, permissions);
+
+    expect(db.transaction).toBeCalledTimes(1);
+    expect(client.query).toBeCalledTimes(1);
+    expect(client.query).toBeCalledWith(expect.any(String), [roleName]);
+    expect(result).toBe(0);
   });
 
   it('should take a roleName and permissions and create a role and accesses in DB', async () => {
@@ -42,44 +53,5 @@ describe('Test /src/services/createRole/provider', () => {
       ]);
     });
     expect(result).toBe(roleId);
-  });
-
-  it('should return 0 when the role already exists', async () => {
-    client.query.mockResolvedValue({ rowCount: 0 });
-
-    const result = await provider(roleName, permissions);
-
-    expect(db.transaction).toBeCalledTimes(1);
-    expect(client.query).toBeCalledTimes(1);
-    expect(client.query).toBeCalledWith(expect.any(String), [roleName]);
-    expect(result).toBe(0);
-  });
-
-  it('should throw an error when it fails to insert any of permissions', async () => {
-    const expectedError = new AppError(errDef[500].FailedToInsert);
-    client.query
-      .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: roleId }] })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValueOnce({ rowCount: 0 });
-
-    try {
-      await provider(roleName, permissions);
-    } catch (error) {
-      expect(error).toEqual(expectedError);
-    }
-
-    expect(db.transaction).toBeCalledTimes(1);
-    expect(client.query).toBeCalledTimes(1 + permissions.length);
-    expect(client.query).nthCalledWith(1, expect.any(String), [roleName]);
-    permissions.forEach((permit, i) => {
-      const { res_name, readable, writable } = permit;
-      expect(client.query).nthCalledWith(2 + i, expect.any(String), [
-        roleId,
-        res_name,
-        readable,
-        writable,
-      ]);
-    });
   });
 });

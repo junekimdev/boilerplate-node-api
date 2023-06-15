@@ -11,6 +11,7 @@ WHERE T2.name=$1::VARCHAR(50)`;
 const provider = async (roleName: string) => {
   // Get created_at
   const roleQuery = await db.query(SQL_READ_ROLE, [roleName]);
+  if (!roleQuery.rowCount) return null;
   const role_id = roleQuery.rows[0].id;
   const created_at = roleQuery.rows[0].created_at;
 

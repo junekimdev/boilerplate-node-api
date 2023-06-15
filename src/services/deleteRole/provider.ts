@@ -1,5 +1,5 @@
-import db, { FK_ERR_CODE } from '../../utils/db';
-import { AppError, errDef } from '../../utils/errors';
+import db from '../../utils/db';
+import { AppError, errDef, FK_ERR_CODE } from '../../utils/errors';
 
 const SQL_DELETE_ROLE = 'DELETE FROM user_role WHERE name=$1::VARCHAR(50) RETURNING id;';
 

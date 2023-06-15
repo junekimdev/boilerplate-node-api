@@ -1,4 +1,5 @@
 import db from '../../utils/db';
+import { AppError, NULL_ERR_CODE, UK_ERR_CODE, errDef } from '../../utils/errors';
 import hash from '../../utils/hash';
 
 export const SQL_INSERT_USER = `INSERT INTO userpool(email, pw, salt, role_id, surname, given_name)
@@ -6,7 +7,6 @@ SELECT
 $1::VARCHAR(50), $2::CHAR(44), $3::CHAR(16),
 (SELECT id FROM user_role WHERE name=$4::VARCHAR(50)),
 $5::TEXT, $6::TEXT
-ON CONFLICT (email) DO NOTHING
 RETURNING id;`;
 
 const provider = async (
@@ -18,16 +18,16 @@ const provider = async (
 ) => {
   const salt = hash.createSalt();
   const hashed = await hash.passSalt(password, salt);
+  const params = [email, hashed, salt, roleName, surname, givenName];
 
-  const result = await db.query(SQL_INSERT_USER, [
-    email,
-    hashed,
-    salt,
-    roleName,
-    surname,
-    givenName,
-  ]);
-  return result.rowCount ? (result.rows[0].id as number) : 0;
+  try {
+    const result = await db.query(SQL_INSERT_USER, params);
+    return result.rows[0].id as number;
+  } catch (error: any) {
+    if (error.code === NULL_ERR_CODE) throw new AppError(errDef[404].RoleNotFound);
+    if (error.code === UK_ERR_CODE) throw new AppError(errDef[409].UserAlreadyExists);
+    throw error;
+  }
 };
 
 export default provider;

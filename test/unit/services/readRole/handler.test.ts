@@ -40,15 +40,16 @@ describe('Test /src/services/readRole/apiHandler', () => {
     jest.clearAllMocks();
   });
 
-  it('should return 200 with info for provider returns it', async () => {
-    mockedProvider.mockResolvedValue(roleInfo);
+  it('should call next with RoleNotFound error for provider returns null', async () => {
+    const expectedError = new AppError(errDef[404].RoleNotFound);
+    mockedProvider.mockResolvedValue(null);
 
     await handler(req, res, next);
 
     expect(provider).toBeCalledWith(roleName);
-    expect(res.status).toBeCalledWith(200);
-    expect(res.json).toBeCalledWith(roleInfo);
-    expect(next).not.toBeCalled();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
+    expect(next).toBeCalledWith(expectedError);
   });
 
   it('should call next with the error for provider throws an error', async () => {
@@ -61,5 +62,16 @@ describe('Test /src/services/readRole/apiHandler', () => {
     expect(res.status).not.toBeCalled();
     expect(res.json).not.toBeCalled();
     expect(next).toBeCalledWith(expectedError);
+  });
+
+  it('should return 200 with info for provider returns it', async () => {
+    mockedProvider.mockResolvedValue(roleInfo);
+
+    await handler(req, res, next);
+
+    expect(provider).toBeCalledWith(roleName);
+    expect(res.status).toBeCalledWith(200);
+    expect(res.json).toBeCalledWith(roleInfo);
+    expect(next).not.toBeCalled();
   });
 });

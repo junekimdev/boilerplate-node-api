@@ -43,7 +43,7 @@ APIv1.put('/auth/user/pass', userpoolUser, updateUserPwd);
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);
 
-APIv1.post('/admin/auth/role', userpoolAdmin, createRole);
+APIv1.post('/admin/auth/role', userpoolAdmin, validRole, createRole);
 APIv1.get('/admin/auth/role', userpoolAdmin, validRole, readRole);
 APIv1.put('/admin/auth/role', userpoolAdmin, validRole, updateRole);
 APIv1.delete('/admin/auth/role', userpoolAdmin, validRole, deleteRole);

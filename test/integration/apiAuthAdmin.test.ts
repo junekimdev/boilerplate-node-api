@@ -236,7 +236,7 @@ describe('Test /admin/auth', () => {
       expect(check.rowCount).toBe(1);
     });
 
-    it('should return 400 when the role does not exist', async () => {
+    it('should return 404 when the role does not exist', async () => {
       const testRole = await createRandomRole(db);
       const accessToken = await getToken(app, testObj.admin);
       const data = { role_name: testRole };
@@ -253,7 +253,7 @@ describe('Test /admin/auth', () => {
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
         .send(data);
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(404);
     });
 
     it('should delete a role and return 200', async () => {

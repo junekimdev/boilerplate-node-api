@@ -30,27 +30,29 @@ describe('Test /src/services/updateUserRole/apiHandler', () => {
     jest.clearAllMocks();
   });
 
-  it('should call next with UserNotFound error when provider returns 0', async () => {
-    const expectedError = new AppError(errDef[404].UserNotFound);
+  it('should call next with the error when provider throws an error', async () => {
+    const expectedError = new Error('err');
 
     res.locals = { userId, roleName };
-    mockedProvider.mockResolvedValue(0);
+    mockedProvider.mockRejectedValue(expectedError);
 
     await handler(req, res, next);
 
     expect(provider).toBeCalledWith(userId, roleName);
-    expect(res.sendStatus).not.toBeCalledWith();
+    expect(res.status).not.toBeCalled();
+    expect(res.json).not.toBeCalled();
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should return 200 when provider returns 1', async () => {
+  it('should return user_id with 200 when provider returns user_id', async () => {
     res.locals = { userId, roleName };
-    mockedProvider.mockResolvedValue(1);
+    mockedProvider.mockResolvedValue(userId);
 
     await handler(req, res, next);
 
     expect(provider).toBeCalledWith(userId, roleName);
-    expect(res.sendStatus).toBeCalledWith(200);
+    expect(res.status).toBeCalledWith(200);
+    expect(res.json).toBeCalledWith({ user_id: userId });
     expect(next).not.toBeCalled();
   });
 });

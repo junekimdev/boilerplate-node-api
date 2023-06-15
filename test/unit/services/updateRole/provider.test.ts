@@ -6,7 +6,8 @@ jest.mock('../../../../src/utils/db', () => ({ transaction: jest.fn((f) => f(cli
 import provider from '../../../../src/services/updateRole/provider';
 import { IPermission } from '../../../../src/utils/access';
 import db from '../../../../src/utils/db';
-import { AppError, errDef } from '../../../../src/utils/errors';
+import { UK_ERR_CODE } from '../../../../src/utils/errors';
+import { getDbErrorMock } from '../../../testUtil';
 
 // Tests
 describe('Test /src/services/updateRole/provider', () => {
@@ -21,16 +22,6 @@ describe('Test /src/services/updateRole/provider', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('should take a oldName, newName, and permissions and return id when successful', async () => {
-    client.query
-      .mockResolvedValueOnce({ rows: [{ id: roleId }] })
-      .mockResolvedValue({ rowCount: 1 });
-
-    const result = await provider(oldName, newName, permissions);
-
-    expect(result).toEqual(roleId);
   });
 
   it('should get role id first', async () => {
@@ -63,6 +54,29 @@ describe('Test /src/services/updateRole/provider', () => {
     expect(client.query).not.nthCalledWith(2, expect.any(String), [roleId, oldName]);
   });
 
+  it('should return 0 when new name already exists', async () => {
+    const dbError = getDbErrorMock(UK_ERR_CODE);
+
+    client.query.mockResolvedValueOnce({ rows: [{ id: roleId }] }).mockRejectedValue(dbError);
+
+    const result = await provider(oldName, newName, permissions);
+
+    expect(client.query).nthCalledWith(2, expect.any(String), [roleId, newName]);
+    expect(result).toBe(0);
+  });
+
+  it('should throw the error if db throws an error', async () => {
+    const expectedError = new Error();
+
+    client.query.mockResolvedValueOnce({ rows: [{ id: roleId }] }).mockRejectedValue(expectedError);
+
+    try {
+      await provider(oldName, newName, permissions);
+    } catch (error) {
+      expect(error).toEqual(expectedError);
+    }
+  });
+
   it('should delete old permissions and replace with new one', async () => {
     client.query
       .mockResolvedValueOnce({ rows: [{ id: roleId }] })
@@ -83,21 +97,13 @@ describe('Test /src/services/updateRole/provider', () => {
     });
   });
 
-  it('should throw FailedToInsert error while an error occurs', async () => {
-    const expectedError = new AppError(errDef[500].FailedToInsert);
-
+  it('should take a oldName, newName, and permissions and return id when successful', async () => {
     client.query
       .mockResolvedValueOnce({ rows: [{ id: roleId }] })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValueOnce({ rowCount: 0 });
+      .mockResolvedValue({ rowCount: 1 });
 
-    try {
-      await provider(oldName, newName, permissions);
-    } catch (error) {
-      expect(error).toEqual(expectedError);
-    }
+    const result = await provider(oldName, newName, permissions);
+
+    expect(result).toEqual(roleId);
   });
 });
