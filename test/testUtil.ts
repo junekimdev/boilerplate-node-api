@@ -1,18 +1,18 @@
+import crypto from 'crypto';
 import { Express } from 'express';
 import { PoolClient } from 'pg';
 import supertest from 'supertest';
 import { SQL_INSERT_PERMIT, SQL_INSERT_ROLE } from '../src/services/createRole/provider';
 import { SQL_INSERT_USER } from '../src/services/createUser/provider';
-import hash from '../src/utils/hash';
 
 export const apiPrefix = '/api/v1';
 
 export const testObj = {
-  admin: `${hash.createUUID()}@test.io`,
-  user: `${hash.createUUID()}@test.io`,
+  admin: `${crypto.randomUUID()}@test.io`,
+  user: `${crypto.randomUUID()}@test.io`,
   role: { admin: 'admin1', user: 'user1' },
-  password: hash.createUUID(),
-  device: hash.createUUID(),
+  password: crypto.randomUUID(),
+  device: crypto.randomUUID(),
   surname: 'test-surname',
   givenName: 'test-given-name',
   pushTopic: 'test-topic',
@@ -25,7 +25,7 @@ export const testObj = {
 };
 
 export const createRandomRole = async (db: any) => {
-  const roleName = hash.createUUID();
+  const roleName = crypto.randomUUID();
   await db.transaction(async (client: PoolClient) => {
     const roleInsert = await client.query(SQL_INSERT_ROLE, [roleName]);
     if (!roleInsert.rowCount) return 0;
@@ -41,17 +41,12 @@ export const createRandomRole = async (db: any) => {
 };
 
 export const createRandomUser = async (db: any, role: string = testObj.role.user) => {
-  const username = `${hash.createUUID()}@test.io`;
-  const salt = hash.createSalt();
-  const hashedPW = await hash.passSalt(testObj.password, salt);
-  await db.query(SQL_INSERT_USER, [
-    username,
-    hashedPW,
-    salt,
-    role,
-    testObj.surname,
-    testObj.givenName,
-  ]);
+  const username = `${crypto.randomUUID()}@test.io`;
+  const salt = crypto.randomBytes(12).toString('base64');
+  const pw = testObj.password + salt;
+  const hashedPW = await crypto.createHash('sha256').update(pw).digest('base64');
+  const params = [username, hashedPW, salt, role, testObj.surname, testObj.givenName];
+  await db.query(SQL_INSERT_USER, params);
   return username;
 };
 
