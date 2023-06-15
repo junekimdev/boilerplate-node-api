@@ -131,6 +131,8 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -162,6 +164,8 @@ paths:
                   role_id:
                     type: integer
                     example: 1
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -194,6 +198,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RoleIdentityRes'
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -229,12 +235,16 @@ paths:
                   role_id:
                     type: integer
                     example: 1
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         404:
           $ref: '#/components/responses/404'
+        409:
+          $ref: '#/components/responses/409'
         500:
           $ref: '#/components/responses/500'
     delete:
@@ -262,6 +272,46 @@ paths:
                   role_id:
                     type: integer
                     example: 1
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /admin/auth/role/user:
+    get:
+      tags:
+        - AuthAPI
+      summary: Get all ids of user in a role
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                role_name:
+                  type: string
+                  example: user1
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  user_ids:
+                    type: array
+                    items:
+                      type: number
+                    example: [1, 2, 3]
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -286,6 +336,8 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
         401:
           $ref: '#/components/responses/401'
         403:

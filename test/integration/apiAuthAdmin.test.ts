@@ -38,6 +38,9 @@ describe('Test /admin/auth', () => {
     const endpoints = [
       { method: 'POST', url: `${apiPrefix}/admin/auth/role` },
       { method: 'GET', url: `${apiPrefix}/admin/auth/role` },
+      { method: 'PUT', url: `${apiPrefix}/admin/auth/role` },
+      { method: 'DELETE', url: `${apiPrefix}/admin/auth/role` },
+      { method: 'GET', url: `${apiPrefix}/admin/auth/role/user` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/user/role` },
     ];
 
@@ -272,6 +275,62 @@ describe('Test /admin/auth', () => {
 
       const check = await db.query(sqlRoleByName, [testRole]);
       expect(check.rowCount).toBe(0);
+    });
+  });
+
+  describe('GET /admin/auth/role/user', () => {
+    const endPoint = apiPrefix + '/admin/auth/role/user';
+    const sqlUserByRoleName = `SELECT T1.id
+    FROM userpool as T1 LEFT JOIN user_role as T2 ON T1.role_id=T2.id
+    WHERE T2.name=$1::VARCHAR(50);`;
+
+    it('should return 404 when the role does not exist', async () => {
+      const invalidRole = 'invalidRole';
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: invalidRole };
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 200 with an empty array when no user is in the role', async () => {
+      const testRole = await createRandomRole(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testRole };
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('user_ids');
+      expect(Array.isArray(res.body.user_ids)).toBeTruthy();
+      expect(res.body.user_ids).toHaveLength(0);
+    });
+
+    it('should get all ids of user in a role', async () => {
+      const testRole = await createRandomRole(db);
+      for (let i = 0; i < 10; i++) await createRandomUser(db, testRole);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testRole };
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('user_ids');
+      expect(Array.isArray(res.body.user_ids)).toBeTruthy();
+      expect(res.body.user_ids).toHaveLength(10);
+
+      const check = await db.query(sqlUserByRoleName, [testRole]);
+      expect(check.rowCount).toBe(10);
     });
   });
 
