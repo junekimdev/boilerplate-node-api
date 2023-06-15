@@ -354,7 +354,7 @@ paths:
           $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
-  /push/send:
+  /admin/push/send:
     post:
       tags:
         - PushAPI

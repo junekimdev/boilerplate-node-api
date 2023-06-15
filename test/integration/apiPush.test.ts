@@ -98,8 +98,8 @@ describe('Test /push', () => {
     });
   });
 
-  describe('POST /push/send', () => {
-    const endPoint = apiPrefix + '/push/send';
+  describe('POST /admin/push/send', () => {
+    const endPoint = apiPrefix + '/admin/push/send';
 
     it('should failed to send subscriptions and return 403 when non-admin user tries to send', async () => {
       const accessToken = await getToken(app, testObj.user);

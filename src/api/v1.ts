@@ -49,6 +49,6 @@ APIv1.put('/admin/auth/user/role', userpoolAdmin, validRole, updateUserRole);
 
 APIv1.get('/push/key', pushUser, readVapidPubKey);
 APIv1.post('/push/register', pushUser, saveSubscription);
-APIv1.post('/push/send', pushAdmin, sendNoti);
+APIv1.post('/admin/push/send', pushAdmin, sendNoti);
 
 export default APIv1;
