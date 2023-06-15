@@ -157,7 +157,7 @@ export const errDef = {
     },
     PushSubscriptionAlreadyExists: {
       status: 409,
-      message: 'E409-UserAlreadyExists',
+      message: 'E409-PushSubscriptionAlreadyExists',
       error_in: 'Req',
     },
   },
@@ -166,11 +166,6 @@ export const errDef = {
       status: 500,
       message: 'E500-InternalError',
       error_in: 'Unknown',
-    },
-    FailedToInsert: {
-      status: 500,
-      message: 'E500-FailedToInsert',
-      error_in: 'Database',
     },
   },
 };
