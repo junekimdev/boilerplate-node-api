@@ -73,7 +73,7 @@ describe('Test /src/services/${name}/apiHandler', () => {
 
   // it('should', async () => {});
 
-  it('should call next with UserNotFound error for provider returns 0', async () => {
+  it('should call next with UserNotFound error when provider returns 0', async () => {
     const expectedError = new AppError(errDef[404].UserNotFound);
 
     mockedProvider.mockResolvedValue(0);
@@ -81,13 +81,13 @@ describe('Test /src/services/${name}/apiHandler', () => {
     // await handler(req, res, next);
 
     // expect(provider).toBeCalledWith();
-    // expect(res.status).toBeCalledWith(200);
-    // expect(res.json).toBeCalledWith(expected);
-    // expect(next).not.toBeCalled();
+    // expect(res.status).not.toBeCalled();
+    // expect(res.json).not.toBeCalled();
+    // expect(next).toBeCalledWith(expectedError);
   });
 
 
-  it('should return 200 for provider returns 1', async () => {
+  it('should return 200 when provider returns 1', async () => {
     mockedProvider.mockResolvedValue(1);
 
     // await handler(req, res, next);
