@@ -3,6 +3,7 @@ import { logger } from './logger';
 
 const { DB_POOL_MAX = '10', DB_IDLE_TIMEOUT = '1000', DB_CONN_TIMEOUT = '1000' } = process.env;
 
+export const NULL_ERR_CODE = '23502';
 export const FK_ERR_CODE = '23503';
 export const UK_ERR_CODE = '23505';
 
