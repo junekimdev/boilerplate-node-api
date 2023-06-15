@@ -4,10 +4,6 @@ export interface IError {
   error_in: string;
 }
 
-export type errDefType = {
-  [status: string]: { [errorName: string]: IError };
-};
-
 export class AppError extends Error implements IError {
   status: number;
   error_in: string;
@@ -19,7 +15,7 @@ export class AppError extends Error implements IError {
   }
 }
 
-export const errDef: errDefType = {
+export const errDef = {
   '400': {
     InvalidRoleName: {
       status: 400,
