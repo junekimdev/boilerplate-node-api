@@ -17,19 +17,14 @@ describe('Test /src/services/updateUserRole/provider', () => {
     jest.clearAllMocks();
   });
 
-  it('should throw an error when the user does not exist', async () => {
-    const expectedError = new Error('err');
+  it('should return 0 when the user does not exist', async () => {
+    mockedDbQuery.mockResolvedValue({ rowCount: 0 });
 
-    mockedDbQuery.mockRejectedValue(expectedError);
-
-    try {
-      await provider(userId, newRole);
-    } catch (error) {
-      expect(error).toEqual(expectedError);
-    }
+    const result = await provider(userId, newRole);
 
     expect(db.query).toBeCalledTimes(1);
     expect(db.query).toBeCalledWith(expect.any(String), [userId, newRole]);
+    expect(result).toEqual(0);
   });
 
   it('should take user id and new role and return 1 when updated successfully', async () => {
