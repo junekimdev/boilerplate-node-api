@@ -1,16 +1,16 @@
 // Mocks
-jest.mock('../../../../src/services/updateRoleUser/provider', () => jest.fn());
+jest.mock('../../../../src/services/updateGroupRole/provider', () => jest.fn());
 
 // Imports
 import { NextFunction, Request, Response } from 'express';
-import handler from '../../../../src/services/updateRoleUser/apiHandler';
-import provider from '../../../../src/services/updateRoleUser/provider';
+import handler from '../../../../src/services/updateGroupRole/apiHandler';
+import provider from '../../../../src/services/updateGroupRole/provider';
 import { AppError, errDef } from '../../../../src/utils/errors';
 
 const mockedProvider = provider as jest.Mock;
 
 // Tests
-describe('Test /src/services/updateRoleUser/apiHandler', () => {
+describe('Test /src/services/updateGroupRole/apiHandler', () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;

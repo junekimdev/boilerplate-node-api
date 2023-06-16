@@ -2,13 +2,13 @@
 jest.mock('../../../../src/utils/db', () => ({ query: jest.fn() }));
 
 // Imports
-import provider from '../../../../src/services/readRoleUser/provider';
+import provider from '../../../../src/services/readGroupRole/provider';
 import db from '../../../../src/utils/db';
 
 const mockedDbQuery = db.query as jest.Mock;
 
 // Tests
-describe('Test /src/services/readRoleUser/provider', () => {
+describe('Test /src/services/readGroupRole/provider', () => {
   const roleName = 'roleName';
   const roleId = 123;
   const rows = [{ id: 1 }, { id: 2 }, { id: 3 }];

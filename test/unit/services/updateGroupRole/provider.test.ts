@@ -3,12 +3,12 @@ const client = { query: jest.fn() };
 jest.mock('../../../../src/utils/db', () => ({ transaction: jest.fn((f) => f(client)) }));
 
 // Imports
-import provider from '../../../../src/services/updateRoleUser/provider';
+import provider from '../../../../src/services/updateGroupRole/provider';
 import db from '../../../../src/utils/db';
 import { AppError, errDef } from '../../../../src/utils/errors';
 
 // Tests
-describe('Test /src/services/updateRoleUser/provider', () => {
+describe('Test /src/services/updateGroupRole/provider', () => {
   const roleName = 'test-role';
   const roleId = 123;
   const userIds = [1, 2, 3];
