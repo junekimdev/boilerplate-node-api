@@ -1,10 +1,10 @@
 export interface IReqBody {
-  surname?: string;
-  given_name?: string;
+  update_data: any;
 }
 export interface IResLocals {
   userId: number;
 }
-export interface IUserInfo extends IReqBody {
-  id: number;
+export interface IUserInfo extends IResLocals {
+  surname?: string;
+  given_name?: string;
 }
