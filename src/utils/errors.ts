@@ -67,6 +67,11 @@ export const errDef = {
       message: 'E400-InvalidPushTopic',
       error_in: 'ReqBody',
     },
+    InvalidData: {
+      status: 400,
+      message: 'E400-InvalidData',
+      error_in: 'ReqBody',
+    },
   },
   '401': {
     AuthorizationNotFound: {
