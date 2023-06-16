@@ -40,9 +40,9 @@ describe('Test /admin/auth', () => {
       { method: 'GET', url: `${apiPrefix}/admin/auth/role` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/role` },
       { method: 'DELETE', url: `${apiPrefix}/admin/auth/role` },
-      { method: 'GET', url: `${apiPrefix}/admin/auth/role/user` },
-      { method: 'PUT', url: `${apiPrefix}/admin/auth/role/user` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/user/role` },
+      { method: 'GET', url: `${apiPrefix}/admin/auth/group/role` },
+      { method: 'PUT', url: `${apiPrefix}/admin/auth/group/role` },
     ];
 
     it.each(endpoints)(
@@ -279,8 +279,50 @@ describe('Test /admin/auth', () => {
     });
   });
 
-  describe('GET /admin/auth/role/user', () => {
-    const endPoint = apiPrefix + '/admin/auth/role/user';
+  describe('PUT /admin/auth/user/role', () => {
+    const endPoint = apiPrefix + '/admin/auth/user/role';
+    const sqlRoleByEmail = `SELECT t2.name
+    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
+    WHERE email=$1::VARCHAR(50);`;
+    const sqlRoleById = `SELECT t2.name
+    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
+    WHERE t1.id=$1::INT;`;
+
+    it('should change role of self when user_id is not presented', async () => {
+      const testUser = await createRandomUser(db, testObj.role.admin);
+      const accessToken = await getToken(app, testUser);
+      const data = { role_name: testObj.role.user };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check: QueryResult = await db.query(sqlRoleByEmail, [testUser]);
+      expect(check.rows[0].name).toBe(testObj.role.user);
+    });
+
+    it('should change role of the said user in req', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+      const targetUserId = 2;
+      const data = { user_id: targetUserId, role_name: testObj.role.admin };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check: QueryResult = await db.query(sqlRoleById, [targetUserId]);
+      expect(check.rows[0].name).toBe(testObj.role.admin);
+    });
+  });
+
+  describe('GET /admin/auth/group/role', () => {
+    const endPoint = apiPrefix + '/admin/auth/group/role';
     const sqlUserByRoleName = `SELECT T1.id
     FROM userpool as T1 LEFT JOIN user_role as T2 ON T1.role_id=T2.id
     WHERE T2.name=$1::VARCHAR(50);`;
@@ -335,8 +377,8 @@ describe('Test /admin/auth', () => {
     });
   });
 
-  describe('PUT /admin/auth/role/user', () => {
-    const endPoint = apiPrefix + '/admin/auth/role/user';
+  describe('PUT /admin/auth/group/role', () => {
+    const endPoint = apiPrefix + '/admin/auth/group/role';
     const sqlUserByRoleName = `SELECT T1.id
     FROM userpool as T1 LEFT JOIN user_role as T2 ON T1.role_id=T2.id
     WHERE T2.name=$1::VARCHAR(50);`;
@@ -393,48 +435,6 @@ describe('Test /admin/auth', () => {
 
       const check = await db.query(sqlUserByRoleName, [testRole]);
       expect(check.rowCount).toBe(0);
-    });
-  });
-
-  describe('PUT /admin/auth/user/role', () => {
-    const endPoint = apiPrefix + '/admin/auth/user/role';
-    const sqlRoleByEmail = `SELECT t2.name
-    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
-    WHERE email=$1::VARCHAR(50);`;
-    const sqlRoleById = `SELECT t2.name
-    FROM userpool as t1 LEFT JOIN user_role as t2 ON t1.role_id=t2.id
-    WHERE t1.id=$1::INT;`;
-
-    it('should change role of self when user_id is not presented', async () => {
-      const testUser = await createRandomUser(db, testObj.role.admin);
-      const accessToken = await getToken(app, testUser);
-      const data = { role_name: testObj.role.user };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(200);
-
-      const check: QueryResult = await db.query(sqlRoleByEmail, [testUser]);
-      expect(check.rows[0].name).toBe(testObj.role.user);
-    });
-
-    it('should change role of the said user in req', async () => {
-      const accessToken = await getToken(app, testObj.admin);
-      const targetUserId = 2;
-      const data = { user_id: targetUserId, role_name: testObj.role.admin };
-
-      const res = await supertest(app)
-        .put(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(200);
-
-      const check: QueryResult = await db.query(sqlRoleById, [targetUserId]);
-      expect(check.rows[0].name).toBe(testObj.role.admin);
     });
   });
 });

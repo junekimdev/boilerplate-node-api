@@ -49,9 +49,9 @@ APIv1.post('/admin/auth/role', userpoolAdmin, validRole, createRole);
 APIv1.get('/admin/auth/role', userpoolAdmin, validRole, readRole);
 APIv1.put('/admin/auth/role', userpoolAdmin, validRole, updateRole);
 APIv1.delete('/admin/auth/role', userpoolAdmin, validRole, deleteRole);
-APIv1.get('/admin/auth/role/user', userpoolAdmin, validRole, readRoleUser);
-APIv1.put('/admin/auth/role/user', userpoolAdmin, validRole, updateRoleUser);
 APIv1.put('/admin/auth/user/role', userpoolAdmin, validRole, updateUserRole);
+APIv1.get('/admin/auth/group/role', userpoolAdmin, validRole, readRoleUser);
+APIv1.put('/admin/auth/group/role', userpoolAdmin, validRole, updateRoleUser);
 
 APIv1.get('/push/key', pushUser, readVapidPubKey);
 APIv1.post('/push/register', pushUser, saveSubscription);

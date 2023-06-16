@@ -282,7 +282,33 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
-  /admin/auth/role/user:
+  /admin/auth/user/role:
+    put:
+      tags:
+        - AuthAPI
+      summary: Update role of a user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRole'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /admin/auth/group/role:
     get:
       tags:
         - AuthAPI
@@ -350,32 +376,6 @@ paths:
                   updated:
                     type: number
                     example: 3
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        404:
-          $ref: '#/components/responses/404'
-        500:
-          $ref: '#/components/responses/500'
-  /admin/auth/user/role:
-    put:
-      tags:
-        - AuthAPI
-      summary: Update role of a user
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRole'
-      responses:
-        200:
-          $ref: '#/components/responses/200'
         400:
           $ref: '#/components/responses/400'
         401:
