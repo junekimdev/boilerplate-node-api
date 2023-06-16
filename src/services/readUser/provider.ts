@@ -1,14 +1,27 @@
 import db from '../../utils/db';
 
-const SQL_GET_USER = `SELECT
-T1.id as user_id, T1.email, T1.surname, T1.given_name, T2.name as role_name, T1.last_login, T1.created_at
-FROM userpool as T1 LEFT JOIN user_role as T2 ON T1.role_id=T2.id
-WHERE T1.id=$1::INT;`;
+const SQL_GET_USER = 'SELECT * FROM userpool WHERE id=$1::INT;';
+
+const SQL_GET_ROLE = 'SELECT name FROM user_role WHERE id=$1::INT;';
 
 const provider = async (userId: number) => {
-  const result = await db.query(SQL_GET_USER, [userId]);
-  if (!result.rowCount) return null;
-  return result.rows[0];
+  // Get user info
+  const user = await db.query(SQL_GET_USER, [userId]);
+  if (!user.rowCount) return null;
+
+  // Get role_name
+  const role = await db.query(SQL_GET_ROLE, [user.rows[0].role_id]);
+
+  // Format the result
+  const result = { ...user.rows[0] };
+  delete result.id; // to replace property name
+  delete result.role_id; // to replace property name
+  delete result.pw; // for secret
+  delete result.salt; // for secret
+  result['user_id'] = user.rows[0].id;
+  result['role_name'] = role.rows[0].name;
+
+  return result;
 };
 
 export default provider;

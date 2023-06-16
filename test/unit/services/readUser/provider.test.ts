@@ -16,9 +16,8 @@ describe('Test /src/services/readUser/provider', () => {
   describe('provider', () => {
     it('should return null when the user does not exist', async () => {
       const userId = 123;
-      const queryResult = { rowCount: 0 };
 
-      mockedDbQuery.mockResolvedValue(queryResult);
+      mockedDbQuery.mockResolvedValue({ rowCount: 0 });
 
       const result = await provider(userId);
 
@@ -28,17 +27,20 @@ describe('Test /src/services/readUser/provider', () => {
     });
 
     it('should take userId and return user info without credentials', async () => {
-      const userId = 123;
-      const userInfo = { id: userId };
-      const queryResult = { rowCount: 1, rows: [userInfo] };
+      const user_id = 123;
+      const role_id = 321;
+      const role_name = 'role_name';
 
-      mockedDbQuery.mockResolvedValue(queryResult);
+      mockedDbQuery
+        .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: user_id, role_id }] })
+        .mockResolvedValueOnce({ rowCount: 1, rows: [{ name: role_name }] });
 
-      const result = await provider(userId);
+      const result = await provider(user_id);
 
-      expect(db.query).toBeCalledTimes(1);
-      expect(db.query).toBeCalledWith(expect.any(String), [userId]);
-      expect(result).toEqual(userInfo);
+      expect(db.query).toBeCalledTimes(2);
+      expect(db.query).nthCalledWith(1, expect.any(String), [user_id]);
+      expect(db.query).nthCalledWith(2, expect.any(String), [role_id]);
+      expect(result).toEqual({ user_id, role_name });
     });
   });
 });
