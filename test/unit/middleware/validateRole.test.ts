@@ -28,7 +28,7 @@ describe('Test /src/middleware/validateRole', () => {
     expect(next).toBeCalledWith(expectedError);
   });
 
-  it('should put roleName in res.locals and call next when role_name in req.body found in DB', async () => {
+  it('should put roleName in res.locals and call next', async () => {
     await validateRole(req, res, next);
 
     expect(res.locals).toHaveProperty('roleName');
