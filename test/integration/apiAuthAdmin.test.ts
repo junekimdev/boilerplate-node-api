@@ -41,6 +41,7 @@ describe('Test /admin/auth', () => {
       { method: 'PUT', url: `${apiPrefix}/admin/auth/role` },
       { method: 'DELETE', url: `${apiPrefix}/admin/auth/role` },
       { method: 'GET', url: `${apiPrefix}/admin/auth/role/user` },
+      { method: 'PUT', url: `${apiPrefix}/admin/auth/role/user` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/user/role` },
     ];
 
@@ -331,6 +332,67 @@ describe('Test /admin/auth', () => {
 
       const check = await db.query(sqlUserByRoleName, [testRole]);
       expect(check.rowCount).toBe(10);
+    });
+  });
+
+  describe('PUT /admin/auth/role/user', () => {
+    const endPoint = apiPrefix + '/admin/auth/role/user';
+    const sqlUserByRoleName = `SELECT T1.id
+    FROM userpool as T1 LEFT JOIN user_role as T2 ON T1.role_id=T2.id
+    WHERE T2.name=$1::VARCHAR(50);`;
+
+    it('should return 404 when the role does not exist', async () => {
+      const invalidRole = 'invalidRole';
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: invalidRole, user_ids: [1, 2, 3] };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(404);
+    });
+
+    it('should fail to update and return 404 when any one of users does not exist', async () => {
+      const ids = await db.query(sqlUserByRoleName, [testObj.role.user]);
+      const user_ids: number[] = [];
+      ids.rows.map((row: any) => user_ids.push(row.id));
+      user_ids.push(9999);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testObj.role.admin, user_ids };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(404);
+
+      const check = await db.query(sqlUserByRoleName, [testObj.role.user]);
+      expect(check.rowCount).toBe(ids.rowCount);
+    });
+
+    it('should update the role of a group of users', async () => {
+      const testRole = await createRandomRole(db);
+      for (let i = 0; i < 10; i++) await createRandomUser(db, testRole);
+      const ids = await db.query(sqlUserByRoleName, [testRole]);
+      const user_ids: number[] = [];
+      ids.rows.map((row: any) => user_ids.push(row.id));
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { role_name: testObj.role.user, user_ids };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('updated');
+      expect(res.body.updated).toBe(10);
+
+      const check = await db.query(sqlUserByRoleName, [testRole]);
+      expect(check.rowCount).toBe(0);
     });
   });
 

@@ -118,7 +118,7 @@ paths:
         - AuthAPI
       summary: Update password of a user
       security:
-        - basicAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -147,7 +147,7 @@ paths:
         - AuthAPI
       summary: Create a role
       security:
-        - basicAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -181,7 +181,7 @@ paths:
         - AuthAPI
       summary: Read a role
       security:
-        - basicAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -213,7 +213,7 @@ paths:
         - AuthAPI
       summary: Update a role
       security:
-        - basicAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -252,7 +252,7 @@ paths:
         - AuthAPI
       summary: Delete a role
       security:
-        - basicAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -286,9 +286,9 @@ paths:
     get:
       tags:
         - AuthAPI
-      summary: Get all ids of user in a role
+      summary: Get ids of all users in a role
       security:
-        - basicAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -320,13 +320,53 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
+    put:
+      tags:
+        - AuthAPI
+      summary: Update the role of a group of users
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                role_name:
+                  type: string
+                  example: user1
+                user_ids:
+                  type: array
+                  items:
+                    type: number
+                  example: [1, 2, 3]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  updated:
+                    type: number
+                    example: 3
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
   /admin/auth/user/role:
     put:
       tags:
         - AuthAPI
       summary: Update role of a user
       security:
-        - basicAuth: []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
