@@ -18,6 +18,59 @@ tags:
   - name: PushAPI
     description: Push Notification API
 paths:
+  /auth/token:
+    post:
+      tags:
+        - AuthAPI
+      summary: Get an access token
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceIdentity'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
+  /auth/refresh:
+    post:
+      tags:
+        - AuthAPI
+      summary: Get an access token with refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+                  example: abcdefghijkl.abcdefghijkl.abcdefghijkl
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        500:
+          $ref: '#/components/responses/500'
   /auth/user:
     post:
       tags:
@@ -386,57 +439,24 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
-  /auth/token:
-    post:
+  /admin/auth/resource:
+    get:
       tags:
         - AuthAPI
-      summary: Get an access token
+      summary: Get info of all resources
       security:
-        - basicAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeviceIdentity'
+        - bearerAuth: []
       responses:
-        201:
-          description: Created
+        200:
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Tokens'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
-        500:
-          $ref: '#/components/responses/500'
-  /auth/refresh:
-    post:
-      tags:
-        - AuthAPI
-      summary: Get an access token with refresh token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                refresh_token:
-                  type: string
-                  example: abcdefghijkl.abcdefghijkl.abcdefghijkl
-      responses:
-        201:
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Tokens'
-        400:
-          $ref: '#/components/responses/400'
-        401:
-          $ref: '#/components/responses/401'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResourceIdentity'
+        403:
+          $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
   /push/key:
@@ -565,6 +585,20 @@ components:
           items:
             $ref: '#/components/schemas/ResPermission'
           uniqueItems: true
+        created_at:
+          type: string
+          format: date
+          example: '2023-01-01T11:11:11.111Z'
+    ResourceIdentity:
+      type: object
+      properties:
+        id:
+          type: number
+          minimum: 1
+          example: 1
+        name:
+          type: string
+          example: res1
         created_at:
           type: string
           format: date

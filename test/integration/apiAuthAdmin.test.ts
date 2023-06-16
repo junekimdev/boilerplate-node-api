@@ -43,6 +43,7 @@ describe('Test /admin/auth', () => {
       { method: 'PUT', url: `${apiPrefix}/admin/auth/user/role` },
       { method: 'GET', url: `${apiPrefix}/admin/auth/group/role` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/group/role` },
+      { method: 'GET', url: `${apiPrefix}/admin/auth/resource` },
     ];
 
     it.each(endpoints)(
@@ -435,6 +436,28 @@ describe('Test /admin/auth', () => {
 
       const check = await db.query(sqlUserByRoleName, [testRole]);
       expect(check.rowCount).toBe(0);
+    });
+  });
+
+  describe('GET /admin/auth/resource', () => {
+    const endPoint = apiPrefix + '/admin/auth/resource';
+    const sqlRes = 'SELECT * FROM resource';
+
+    it('should get info of all resources', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBeTruthy();
+      expect(res.body[0]).toHaveProperty('id');
+      expect(res.body[0]).toHaveProperty('name');
+      expect(res.body[0]).toHaveProperty('created_at');
+
+      const check = await db.query(sqlRes);
+      expect(check.rowCount).toBe(res.body.length);
     });
   });
 });

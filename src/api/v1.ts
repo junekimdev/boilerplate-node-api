@@ -6,6 +6,7 @@ import createUser from '../services/createUser';
 import deleteRole from '../services/deleteRole';
 import deleteUser from '../services/deleteUser';
 import readGroupRole from '../services/readGroupRole';
+import readResource from '../services/readResource';
 import readRole from '../services/readRole';
 import readUser from '../services/readUser';
 import readVapidPubKey from '../services/readVapidPubKey';
@@ -52,6 +53,7 @@ APIv1.delete('/admin/auth/role', userpoolAdmin, validRole, deleteRole);
 APIv1.put('/admin/auth/user/role', userpoolAdmin, validRole, updateUserRole);
 APIv1.get('/admin/auth/group/role', userpoolAdmin, validRole, readGroupRole);
 APIv1.put('/admin/auth/group/role', userpoolAdmin, validRole, updateGroupRole);
+APIv1.get('/admin/auth/resource', userpoolAdmin, readResource);
 
 APIv1.get('/push/key', pushUser, readVapidPubKey);
 APIv1.post('/push/register', pushUser, saveSubscription);
