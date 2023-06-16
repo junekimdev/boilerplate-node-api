@@ -1,6 +1,6 @@
 import db from '../../utils/db';
 
-const SQL_INSERT_TOPIC = `INSERT INTO topic(name)
+export const SQL_INSERT_TOPIC = `INSERT INTO topic(name)
 VALUES ($1::VARCHAR(50))
 ON CONFLICT DO NOTHING
 RETURNING id;`;
