@@ -153,15 +153,17 @@ describe('Test /auth', () => {
     const endPoint = apiPrefix + '/auth/user';
     const sqlUser = `SELECT * FROM userpool WHERE email=$1::VARCHAR(50)`;
 
-    it('should return 200 even if no new info is given', async () => {
+    it('should return 200 even if update_data is an empty object', async () => {
       const testUser = await createRandomUser(db);
       const accessToken = await getToken(app, testUser);
+      const data = { update_data: {} };
 
       const res = await supertest(app)
         .put(endPoint)
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
-        .send({});
+        .send(data);
+      console.log(res.body);
       expect(res.status).toBe(200);
 
       const check: QueryResult = await db.query(sqlUser, [testUser]);
@@ -174,12 +176,13 @@ describe('Test /auth', () => {
       const testUser = await createRandomUser(db);
       const accessToken = await getToken(app, testUser);
       const newInfo = { surname: 'new_surname', given_name: 'new_given_name' };
+      const data = { update_data: newInfo };
 
       const res = await supertest(app)
         .put(endPoint)
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
-        .send(newInfo);
+        .send(data);
       expect(res.status).toBe(200);
 
       const check: QueryResult = await db.query(sqlUser, [testUser]);
