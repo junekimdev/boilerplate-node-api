@@ -4,6 +4,7 @@ import createPushTopic from '../services/createPushTopic';
 import createRole from '../services/createRole';
 import createToken from '../services/createToken';
 import createUser from '../services/createUser';
+import deletePushTopic from '../services/deletePushTopic';
 import deleteRole from '../services/deleteRole';
 import deleteUser from '../services/deleteUser';
 import readGroupRole from '../services/readGroupRole';
@@ -69,5 +70,6 @@ APIv1.post('/admin/push/send', pushAdmin, sendNoti);
 APIv1.post('/admin/push/topic', pushAdmin, validTopic, createPushTopic);
 APIv1.get('/admin/push/topic', pushAdmin, validTopic, readPushTopic);
 APIv1.put('/admin/push/topic', pushAdmin, validTopic, updatePushTopic);
+APIv1.delete('/admin/push/topic', pushAdmin, validTopic, deletePushTopic);
 
 export default APIv1;

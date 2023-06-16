@@ -44,6 +44,7 @@ describe('Test /push', () => {
       { method: 'POST', url: `${apiPrefix}/admin/push/topic` },
       { method: 'GET', url: `${apiPrefix}/admin/push/topic` },
       { method: 'PUT', url: `${apiPrefix}/admin/push/topic` },
+      { method: 'DELETE', url: `${apiPrefix}/admin/push/topic` },
     ];
 
     it.each(endpoints)(
@@ -54,6 +55,20 @@ describe('Test /push', () => {
           .auth(accessToken, { type: 'bearer' })
           .set('Accept', 'application/json');
         expect(res.status).toBe(403);
+      },
+    );
+
+    it.each(endpoints)(
+      '$method $url should fail when invalid topic_name is not a string',
+      async ({ method, url }) => {
+        const accessToken = await getToken(app, testObj.admin);
+        const topic_name = 123;
+        const data = { topic_name };
+        const res = await getTester(app, method, url)
+          .auth(accessToken, { type: 'bearer' })
+          .set('Accept', 'application/json')
+          .send(data);
+        expect(res.status).toBe(400);
       },
     );
   });
@@ -286,6 +301,42 @@ describe('Test /push', () => {
 
       const check = await db.query(sqlTopicById, [res.body.topic_id]);
       expect(check.rows[0].name).toEqual(topic_name);
+    });
+  });
+
+  describe('DELETE /admin/push/topic', () => {
+    const endPoint = apiPrefix + '/admin/push/topic';
+    const sqlTopic = 'SELECT id FROM topic WHERE name=$1::VARCHAR(50);';
+
+    it('should return 404 when the topic to update does not exist', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+      const topic_name = 'not-registered-topic';
+      const data = { topic_name };
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      console.log(res.body);
+      expect(res.status).toBe(404);
+    });
+
+    it('should update topic name and return 200 with topic id', async () => {
+      const testTopic = await createRandomTopic(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { topic_name: testTopic };
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('topic_id');
+
+      const check = await db.query(sqlTopic, [testTopic]);
+      expect(check.rowCount).toBe(0);
     });
   });
 });
