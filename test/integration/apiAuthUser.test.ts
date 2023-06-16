@@ -132,6 +132,7 @@ describe('Test /auth', () => {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('user_id');
       expect(res.body).toHaveProperty('email');
+      expect(res.body).toHaveProperty('role_name');
       expect(res.body).toHaveProperty('surname');
       expect(res.body).toHaveProperty('given_name');
       expect(res.body).toHaveProperty('last_login');
