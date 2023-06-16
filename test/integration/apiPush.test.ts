@@ -43,6 +43,7 @@ describe('Test /push', () => {
       { method: 'POST', url: `${apiPrefix}/admin/push/send` },
       { method: 'POST', url: `${apiPrefix}/admin/push/topic` },
       { method: 'GET', url: `${apiPrefix}/admin/push/topic` },
+      { method: 'PUT', url: `${apiPrefix}/admin/push/topic` },
     ];
 
     it.each(endpoints)(
@@ -181,7 +182,7 @@ describe('Test /push', () => {
       expect(res.status).toBe(409);
     });
 
-    it('should return 201 when the topic is created successfully', async () => {
+    it('should create a topic and return 201', async () => {
       const accessToken = await getToken(app, testObj.admin);
       const topic_name = 'test-topic-name';
       const data = { topic_name };
@@ -202,7 +203,7 @@ describe('Test /push', () => {
     const endPoint = apiPrefix + '/admin/push/topic';
     const sqlTopic = 'SELECT * FROM topic WHERE name=$1::VARCHAR(50);';
 
-    it('should return 404 when the topic does not exists', async () => {
+    it('should return 404 when the topic does not exist', async () => {
       const accessToken = await getToken(app, testObj.admin);
       const topic_name = 'invalid-topic';
       const data = { topic_name };
@@ -215,7 +216,7 @@ describe('Test /push', () => {
       expect(res.status).toBe(404);
     });
 
-    it('should return 200 with topic info', async () => {
+    it('should get topic info and return 200', async () => {
       const testTopic = await createRandomTopic(db);
       const accessToken = await getToken(app, testObj.admin);
       const data = { topic_name: testTopic };
@@ -235,6 +236,56 @@ describe('Test /push', () => {
       expect(id).toEqual(res.body.topic_id);
       expect(name).toEqual(res.body.topic_name);
       expect(created_at.toISOString()).toEqual(res.body.created_at);
+    });
+  });
+
+  describe('PUT /admin/push/topic', () => {
+    const endPoint = apiPrefix + '/admin/push/topic';
+    const sqlTopicById = 'SELECT name FROM topic WHERE id=$1::INT;';
+
+    it('should return 404 when the topic to update does not exist', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+      const topic_name = 'not-registered-topic';
+      const data = { topic_name, update_data: { topic_name: 'valid' } };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      console.log(res.body);
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 409 when the new topic already exists in DB', async () => {
+      const testTopic = await createRandomTopic(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { topic_name: testTopic, update_data: { topic_name: testObj.pushTopic } };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(409);
+    });
+
+    it('should update topic name and return 200 with topic id', async () => {
+      const testTopic = await createRandomTopic(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const topic_name = 'new-test-topic';
+      const data = { topic_name: testTopic, update_data: { topic_name } };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('topic_id');
+
+      const check = await db.query(sqlTopicById, [res.body.topic_id]);
+      expect(check.rows[0].name).toEqual(topic_name);
     });
   });
 });

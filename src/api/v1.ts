@@ -15,6 +15,7 @@ import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
 import updateGroupRole from '../services/updateGroupRole';
+import updatePushTopic from '../services/updatePushTopic';
 import updateRole from '../services/updateRole';
 import updateUser from '../services/updateUser';
 import updateUserPwd from '../services/updateUserPwd';
@@ -67,5 +68,6 @@ APIv1.post('/push/register', pushUser, saveSubscription);
 APIv1.post('/admin/push/send', pushAdmin, sendNoti);
 APIv1.post('/admin/push/topic', pushAdmin, validTopic, createPushTopic);
 APIv1.get('/admin/push/topic', pushAdmin, validTopic, readPushTopic);
+APIv1.put('/admin/push/topic', pushAdmin, validTopic, updatePushTopic);
 
 export default APIv1;
