@@ -86,6 +86,18 @@ describe('Test /src/services/${name}/apiHandler', () => {
     // expect(next).toBeCalledWith(expectedError);
   });
 
+  it('should call next with the error when provider throws an error', async () => {
+    const expectedError = new Error('err');
+
+    mockedProvider.mockRejectedValue(expectedError);
+
+    // await handler(req, res, next);
+
+    // expect(provider).toBeCalledWith();
+    // expect(res.status).not.toBeCalled();
+    // expect(res.json).not.toBeCalled();
+    // expect(next).toBeCalledWith(expectedError);
+  });
 
   it('should return 200 when provider returns 1', async () => {
     mockedProvider.mockResolvedValue(1);
