@@ -54,6 +54,8 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - refresh_token
               properties:
                 refresh_token:
                   type: string
@@ -129,6 +131,8 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - update_data
               type: object
               properties:
                 update_data:
@@ -181,6 +185,8 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - password
               properties:
                 password:
                   type: string
@@ -244,6 +250,8 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - role_name
               properties:
                 role_name:
                   type: string
@@ -276,6 +284,9 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - role_name
+                - update_data
               properties:
                 role_name:
                   type: string
@@ -315,6 +326,8 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - role_name
               properties:
                 role_name:
                   type: string
@@ -381,6 +394,8 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - update_data
               type: object
               properties:
                 user_id:
@@ -473,6 +488,8 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - role_name
               properties:
                 role_name:
                   type: string
@@ -510,6 +527,9 @@ paths:
         content:
           application/json:
             schema:
+              required:
+                - role_name
+                - user_ids
               properties:
                 role_name:
                   type: string
@@ -604,6 +624,8 @@ paths:
           $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
+        409:
+          $ref: '#/components/responses/409'
         500:
           $ref: '#/components/responses/500'
   /admin/push/send:
@@ -628,6 +650,37 @@ paths:
           $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
+        500:
+          $ref: '#/components/responses/500'
+  /admin/push/topic:
+    post:
+      tags:
+        - PushAPI
+      summary: Create a topic for push notification
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - topic_name
+              properties:
+                topic_name:
+                  type: string
+                  example: topic1
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        409:
+          $ref: '#/components/responses/409'
         500:
           $ref: '#/components/responses/500'
 components:

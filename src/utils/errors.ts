@@ -160,6 +160,11 @@ export const errDef = {
       message: 'E409-UserAlreadyExists',
       error_in: 'Req',
     },
+    PushTopicAlreadyExists: {
+      status: 409,
+      message: 'E409-PushTopicAlreadyExists',
+      error_in: 'Req',
+    },
     PushSubscriptionAlreadyExists: {
       status: 409,
       message: 'E409-PushSubscriptionAlreadyExists',

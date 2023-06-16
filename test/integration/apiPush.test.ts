@@ -4,7 +4,7 @@ import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
-import { apiPrefix, getToken, testObj } from '../testUtil';
+import { apiPrefix, getTester, getToken, testObj } from '../testUtil';
 
 const testName = 'test_push';
 const testPort = '3002';
@@ -29,6 +29,24 @@ describe('Test /push', () => {
   afterAll(async () => {
     await db.pool.end();
     server.close();
+  });
+
+  describe('common tests', () => {
+    const endpoints = [
+      { method: 'POST', url: `${apiPrefix}/admin/push/send` },
+      { method: 'POST', url: `${apiPrefix}/admin/push/topic` },
+    ];
+
+    it.each(endpoints)(
+      '$method $url should fail when a normal user tries to request',
+      async ({ method, url }) => {
+        const accessToken = await getToken(app, testObj.user);
+        const res = await getTester(app, method, url)
+          .auth(accessToken, { type: 'bearer' })
+          .set('Accept', 'application/json');
+        expect(res.status).toBe(403);
+      },
+    );
   });
 
   describe('GET /push/key', () => {
@@ -101,18 +119,6 @@ describe('Test /push', () => {
   describe('POST /admin/push/send', () => {
     const endPoint = apiPrefix + '/admin/push/send';
 
-    it('should failed to send subscriptions and return 403 when non-admin user tries to send', async () => {
-      const accessToken = await getToken(app, testObj.user);
-      const payload = { message: 'Hello, world!' };
-      const data = { topic: testObj.pushTopic, payload };
-      const res = await supertest(app)
-        .post(endPoint)
-        .auth(accessToken, { type: 'bearer' })
-        .set('Accept', 'application/json')
-        .send(data);
-      expect(res.status).toBe(403);
-    });
-
     it('should failed to send subscriptions and return 400 when unregistered topic is sent', async () => {
       const accessToken = await getToken(app, testObj.admin);
       const unregisteredTopic = 'unregistered-topic';
@@ -148,6 +154,39 @@ describe('Test /push', () => {
         .set('Accept', 'application/json')
         .send(data);
       expect(res.status).toBe(500); // subscriptions are not real sub; so, returns 500
+    });
+  });
+
+  describe('POST /admin/push/topic', () => {
+    const endPoint = apiPrefix + '/admin/push/topic';
+    const sqlTopic = 'SELECT * FROM topic WHERE name=$1::VARCHAR(50);';
+
+    it('should return 409 when the topic already exists', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { topic_name: testObj.pushTopic };
+
+      const res = await supertest(app)
+        .post(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(409);
+    });
+
+    it('should return 201 when the topic is created successfully', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+      const topic_name = 'test-topic-name';
+      const data = { topic_name };
+
+      const res = await supertest(app)
+        .post(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(201);
+
+      const check = await db.query(sqlTopic, [topic_name]);
+      expect(check.rowCount).toBe(1);
     });
   });
 });

@@ -1,5 +1,6 @@
 import router from 'express-promise-router';
 
+import createPushTopic from '../services/createPushTopic';
 import createRole from '../services/createRole';
 import createToken from '../services/createToken';
 import createUser from '../services/createUser';
@@ -22,6 +23,7 @@ import basicAuth from '../middleware/basicAuth';
 import bearerAuth from '../middleware/bearerAuth';
 import refreshToken from '../middleware/refreshToken';
 import validRole from '../middleware/validateRole';
+import validTopic from '../middleware/validateTopic';
 import validateUserIdAdmin from '../middleware/validateUserIdAdmin';
 import validateUserIdUser from '../middleware/validateUserIdUser';
 
@@ -62,5 +64,6 @@ APIv1.get('/admin/auth/resource', userpoolAdmin, readResource);
 APIv1.get('/push/key', pushUser, readVapidPubKey);
 APIv1.post('/push/register', pushUser, saveSubscription);
 APIv1.post('/admin/push/send', pushAdmin, sendNoti);
+APIv1.post('/admin/push/topic', pushAdmin, validTopic, createPushTopic);
 
 export default APIv1;
