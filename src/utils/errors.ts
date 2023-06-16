@@ -143,6 +143,11 @@ export const errDef = {
       message: 'E404-UserNotFound',
       error_in: 'Req',
     },
+    TopicNotFound: {
+      status: 404,
+      message: 'E404-TopicNotFound',
+      error_in: 'Req',
+    },
     DataNotFound: {
       status: 404,
       message: 'E404-DataNotFound',

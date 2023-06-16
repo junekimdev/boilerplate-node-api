@@ -2,12 +2,19 @@ import { Express } from 'express';
 import { Server } from 'http';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
+import { SQL_INSERT_TOPIC } from '../../src/services/createPushTopic/provider';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
 import { apiPrefix, getTester, getToken, testObj } from '../testUtil';
 
 const testName = 'test_push';
 const testPort = '3002';
+
+const createRandomTopic = async (db: any) => {
+  const name = hash.createUUID();
+  const result = await db.query(SQL_INSERT_TOPIC, [name]);
+  return name;
+};
 
 const getSubscription = () => ({
   endpoint: 'endpoint',
@@ -35,6 +42,7 @@ describe('Test /push', () => {
     const endpoints = [
       { method: 'POST', url: `${apiPrefix}/admin/push/send` },
       { method: 'POST', url: `${apiPrefix}/admin/push/topic` },
+      { method: 'GET', url: `${apiPrefix}/admin/push/topic` },
     ];
 
     it.each(endpoints)(
@@ -187,6 +195,46 @@ describe('Test /push', () => {
 
       const check = await db.query(sqlTopic, [topic_name]);
       expect(check.rowCount).toBe(1);
+    });
+  });
+
+  describe('GET /admin/push/topic', () => {
+    const endPoint = apiPrefix + '/admin/push/topic';
+    const sqlTopic = 'SELECT * FROM topic WHERE name=$1::VARCHAR(50);';
+
+    it('should return 404 when the topic does not exists', async () => {
+      const accessToken = await getToken(app, testObj.admin);
+      const topic_name = 'invalid-topic';
+      const data = { topic_name };
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 200 with topic info', async () => {
+      const testTopic = await createRandomTopic(db);
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { topic_name: testTopic };
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('topic_id');
+      expect(res.body).toHaveProperty('topic_name');
+      expect(res.body).toHaveProperty('created_at');
+
+      const check = await db.query(sqlTopic, [testTopic]);
+      const { id, name, created_at } = check.rows[0];
+      expect(id).toEqual(res.body.topic_id);
+      expect(name).toEqual(res.body.topic_name);
+      expect(created_at.toISOString()).toEqual(res.body.created_at);
     });
   });
 });

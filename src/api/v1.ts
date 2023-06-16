@@ -7,6 +7,7 @@ import createUser from '../services/createUser';
 import deleteRole from '../services/deleteRole';
 import deleteUser from '../services/deleteUser';
 import readGroupRole from '../services/readGroupRole';
+import readPushTopic from '../services/readPushTopic';
 import readResource from '../services/readResource';
 import readRole from '../services/readRole';
 import readUser from '../services/readUser';
@@ -65,5 +66,6 @@ APIv1.get('/push/key', pushUser, readVapidPubKey);
 APIv1.post('/push/register', pushUser, saveSubscription);
 APIv1.post('/admin/push/send', pushAdmin, sendNoti);
 APIv1.post('/admin/push/topic', pushAdmin, validTopic, createPushTopic);
+APIv1.get('/admin/push/topic', pushAdmin, validTopic, readPushTopic);
 
 export default APIv1;

@@ -671,8 +671,15 @@ paths:
                   type: string
                   example: topic1
       responses:
-        200:
-          $ref: '#/components/responses/200'
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  topic_id:
+                    type: integer
+                    example: 1
         400:
           $ref: '#/components/responses/400'
         401:
@@ -681,6 +688,38 @@ paths:
           $ref: '#/components/responses/403'
         409:
           $ref: '#/components/responses/409'
+        500:
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - PushAPI
+      summary: Read a topic for push notification
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - topic_name
+              properties:
+                topic_name:
+                  type: string
+                  example: topic1
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushTopic'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
         500:
           $ref: '#/components/responses/500'
 components:
@@ -849,6 +888,20 @@ components:
         refresh_token:
           type: string
           example: abcdefghijkl.abcdefghijkl.abcdefghijkl
+    PushTopic:
+      type: object
+      properties:
+        topic_id:
+          type: number
+          minimum: 1
+          example: 1
+        topic_name:
+          type: string
+          example: topic1
+        created_at:
+          type: string
+          format: date
+          example: '2023-01-01T11:11:11.111Z'
     PushSubscription:
       type: object
       required:
