@@ -110,7 +110,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInfoRes'
+                $ref: '#/components/schemas/UserInfo'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -129,7 +129,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserInfoReq'
+              type: object
+              properties:
+                update_data:
+                  $ref: '#/components/schemas/UserInfoUpdate'
       responses:
         200:
           $ref: '#/components/responses/200'
@@ -156,6 +159,7 @@ paths:
                 properties:
                   user_id:
                     type: integer
+                    minimum: 1
                     example: 1
         401:
           $ref: '#/components/responses/401'
@@ -327,6 +331,102 @@ paths:
                     example: 1
         400:
           $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+  /admin/auth/user:
+    get:
+      tags:
+        - AuthAPI
+      summary: Read info of a user by admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                user_id:
+                  type: number
+                  minimum: 1
+                  example: 1
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - AuthAPI
+      summary: Update info of a user by admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: number
+                  minimum: 1
+                  example: 1
+                update_data:
+                  $ref: '#/components/schemas/UserInfoUpdate'
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - AuthAPI
+      summary: Delete a user by admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                user_id:
+                  type: number
+                  minimum: 1
+                  example: 1
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  user_id:
+                    type: integer
+                    minimum: 1
+                    example: 1
         401:
           $ref: '#/components/responses/401'
         403:
@@ -636,7 +736,7 @@ components:
         device:
           type: string
           example: device_uuid
-    UserInfoRes:
+    UserInfo:
       type: object
       properties:
         id:
@@ -646,15 +746,15 @@ components:
         email:
           type: string
           example: 'my-email@mycompany.com'
+        role_name:
+          type: string
+          example: 'user1'
         surname:
           type: string
           example: 'Smith'
         given_name:
           type: string
           example: 'James'
-        role_name:
-          type: string
-          example: 'user1'
         last_login:
           type: string
           format: date
@@ -663,7 +763,7 @@ components:
           type: string
           format: date
           example: '2023-01-01T11:11:11.111Z'
-    UserInfoReq:
+    UserInfoUpdate:
       type: object
       properties:
         surname:

@@ -40,6 +40,10 @@ describe('Test /admin/auth', () => {
       { method: 'GET', url: `${apiPrefix}/admin/auth/role` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/role` },
       { method: 'DELETE', url: `${apiPrefix}/admin/auth/role` },
+      { method: 'GET', url: `${apiPrefix}/admin/auth/user` },
+      { method: 'PUT', url: `${apiPrefix}/admin/auth/user` },
+      { method: 'DELETE', url: `${apiPrefix}/admin/auth/user` },
+      { method: 'PUT', url: `${apiPrefix}/admin/auth/user/pass` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/user/role` },
       { method: 'GET', url: `${apiPrefix}/admin/auth/group/role` },
       { method: 'PUT', url: `${apiPrefix}/admin/auth/group/role` },
@@ -277,6 +281,113 @@ describe('Test /admin/auth', () => {
 
       const check = await db.query(sqlRoleByName, [testRole]);
       expect(check.rowCount).toBe(0);
+    });
+  });
+
+  describe('GET /admin/auth/user', () => {
+    const endPoint = apiPrefix + '/admin/auth/user';
+    const sqlUser = 'SELECT * FROM userpool WHERE email=$1::VARCHAR(50);';
+
+    it('should get info of a user', async () => {
+      const testUser = await createRandomUser(db);
+      const userQuery = await db.query(sqlUser, [testUser]);
+      const user_id = userQuery.rows[0].id as number;
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { user_id };
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('email');
+      expect(res.body.email).toEqual(testUser);
+
+      const check: QueryResult = await db.query(sqlUser, [testUser]);
+      const userInfo = check.rows[0];
+      expect(userInfo.id).toEqual(user_id);
+      expect(userInfo.email).toEqual(testUser);
+      expect(userInfo.surname).toEqual(testObj.surname);
+      expect(userInfo.given_name).toEqual(testObj.givenName);
+      expect(userInfo.last_login).toEqual(null);
+      expect(userInfo.created_at).toEqual(expect.any(Date));
+    });
+  });
+
+  describe('PUT /admin/auth/user', () => {
+    const endPoint = apiPrefix + '/admin/auth/user';
+    const sqlUser = `SELECT * FROM userpool WHERE email=$1::VARCHAR(50)`;
+
+    it('should update user info', async () => {
+      const testUser = await createRandomUser(db);
+      const userQuery = await db.query(sqlUser, [testUser]);
+      const user_id = userQuery.rows[0].id as number;
+      const accessToken = await getToken(app, testObj.admin);
+      const newInfo = { surname: 'new_surname', given_name: 'new_given_name' };
+      const data = { user_id, update_data: newInfo };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check: QueryResult = await db.query(sqlUser, [testUser]);
+      const userInfo = check.rows[0];
+      expect(userInfo.surname).toEqual(newInfo.surname);
+      expect(userInfo.given_name).toEqual(newInfo.given_name);
+    });
+  });
+
+  describe('DELETE /admin/auth/user', () => {
+    const endPoint = apiPrefix + '/admin/auth/user';
+    const sqlUser = `SELECT * FROM userpool WHERE email=$1::VARCHAR(50)`;
+
+    it('should delete a user', async () => {
+      const testUser = await createRandomUser(db);
+      const userQuery = await db.query(sqlUser, [testUser]);
+      const user_id = userQuery.rows[0].id as number;
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { user_id };
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check: QueryResult = await db.query(sqlUser, [testUser]);
+      expect(check.rowCount).toBe(0);
+    });
+  });
+
+  describe('PUT /admin/auth/user/pass', () => {
+    const endPoint = apiPrefix + '/admin/auth/user/pass';
+    const sqlUser = `SELECT * FROM userpool WHERE email=$1::VARCHAR(50)`;
+    const password = 'new-password';
+
+    it('should update pwd', async () => {
+      const testUser = await createRandomUser(db);
+      const userQuery = await db.query(sqlUser, [testUser]);
+      const user_id = userQuery.rows[0].id as number;
+      const accessToken = await getToken(app, testObj.admin);
+      const data = { user_id, password };
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .send(data);
+      expect(res.status).toBe(200);
+
+      const check = await db.query(sqlUser, [testUser]);
+      expect(check.rowCount).toBe(1);
+      const { pw, salt } = check.rows[0];
+      const hashed = await hash.passSalt(password, salt);
+      expect(pw).toBe(hashed);
     });
   });
 
