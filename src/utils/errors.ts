@@ -67,6 +67,16 @@ export const errDef = {
       message: 'E400-InvalidPushTopic',
       error_in: 'ReqBody',
     },
+    InvalidImageType: {
+      status: 400,
+      message: 'E400-InvalidImageType',
+      error_in: 'ReqBody',
+    },
+    InvalidImageSize: {
+      status: 400,
+      message: 'E400-InvalidImageSize',
+      error_in: 'ReqBody',
+    },
     InvalidData: {
       status: 400,
       message: 'E400-InvalidData',
