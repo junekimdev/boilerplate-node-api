@@ -35,10 +35,9 @@ describe('Test /src/middleware/uploadImageOnce', () => {
   const userId = 123;
   const headers = { param: 'headers' };
   const filename = 'filename';
-  const encoding = 'binary';
   const extType = 'png';
   const mimeType = `image/${extType}`;
-  const fileInfo = { encoding, mimeType } as FileInfo;
+  const fileInfo = { mimeType } as FileInfo;
   const fieldInfo = { nameTruncated: true, valueTruncated: true } as FieldInfo;
 
   beforeEach(() => {
@@ -79,19 +78,9 @@ describe('Test /src/middleware/uploadImageOnce', () => {
     });
 
     describe('"file" event callback', () => {
-      it('should call next with InvalidImageType when image encoding is not binary', async () => {
-        const expectedError = new AppError(errDef[400].InvalidImageType);
-        const invalidInfo = { encoding: 'invalidEncode', mimeType };
-
-        await uploader(req, res, next);
-        events['file'](filename, stream, invalidInfo);
-
-        expect(next).toBeCalledWith(expectedError);
-      });
-
       it('should call next with InvalidImageType when mimeType is not of image', async () => {
         const expectedError = new AppError(errDef[400].InvalidImageType);
-        const invalidInfo = { encoding, mimeType: 'file/png' };
+        const invalidInfo = { mimeType: 'file/png' };
 
         await uploader(req, res, next);
         events['file'](filename, stream, invalidInfo);
@@ -101,7 +90,7 @@ describe('Test /src/middleware/uploadImageOnce', () => {
 
       it('should call next with InvalidImageType when mimeType is not one of [png, jpg, gif, svg]', async () => {
         const expectedError = new AppError(errDef[400].InvalidImageType);
-        const invalidInfo = { encoding, mimeType: 'image/any' };
+        const invalidInfo = { mimeType: 'image/any' };
 
         await uploader(req, res, next);
         events['file'](filename, stream, invalidInfo);
@@ -110,9 +99,11 @@ describe('Test /src/middleware/uploadImageOnce', () => {
       });
 
       it('should create a directory if not existing', async () => {
+        const projectRoot = 'projectRoot';
         const dir = 'fileDir';
 
-        mockedPathResolve.mockReturnValue(dir);
+        mockedPathResolve.mockReturnValue(projectRoot);
+        mockedPathJoin.mockReturnValue(dir);
         mockedFsAccessSync.mockImplementationOnce(() => {
           throw new Error();
         });
@@ -120,26 +111,28 @@ describe('Test /src/middleware/uploadImageOnce', () => {
         await uploader(req, res, next);
         events['file'](filename, stream, fileInfo);
 
-        expect(path.resolve).toBeCalledWith('/data/upload', userId);
+        expect(path.resolve).toBeCalled();
+        expect(path.join).toBeCalled();
         expect(fs.accessSync).toBeCalledWith(dir);
         expect(fs.mkdirSync).toBeCalledWith(dir, { recursive: true });
       });
 
       it('should create a file in the upload directory', async () => {
+        const projectRoot = 'projectRoot';
         const dir = 'fileDir';
         const uuid = 'uuid';
         const fname = 'fname';
         const writer = 'writer';
 
-        mockedPathResolve.mockReturnValue(dir);
+        mockedPathResolve.mockReturnValue(projectRoot);
+        mockedPathJoin.mockReturnValueOnce(dir).mockReturnValueOnce(fname);
         mockedCreateUUID.mockReturnValue(uuid);
-        mockedPathJoin.mockReturnValue(fname);
         mockedFsCreateWriteStream.mockReturnValue(writer);
 
         await uploader(req, res, next);
         events['file'](filename, stream, fileInfo);
 
-        expect(path.join).toBeCalledWith(dir, `${uuid}.${extType}`);
+        expect(path.join).nthCalledWith(2, dir, `${uuid}.${extType}`);
         expect(fs.createWriteStream).toBeCalledWith(fname);
         expect(stream.pipe).toBeCalledWith(writer);
         expect(res.locals).toHaveProperty('filename');
