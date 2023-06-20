@@ -39,6 +39,7 @@ CREATE TABLE userpool (
   id SERIAL PRIMARY KEY,
   email VARCHAR(50) NOT NULL UNIQUE,
   role_id INT NOT NULL REFERENCES user_role ON DELETE RESTRICT,
+  profile_url TEXT,
   surname TEXT,
   given_name TEXT,
   last_login TIMESTAMPTZ,
