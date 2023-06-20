@@ -169,7 +169,7 @@ const main = async () => {
     const dirPath = path.join(__dirname, 'src', 'services', name);
     const dirPathTest = path.join(__dirname, 'test', 'unit', 'services', name);
     try {
-      fs.accessSync(dirPath);
+      await fs.promises.access(dirPath);
 
       // If exists, ask to overwrite or not
       console.log('A component with the given name already exists');
@@ -178,9 +178,9 @@ const main = async () => {
     } catch (error) {
       // Not existing, create it
       console.log(`Creating ${dirPath}`);
-      fs.mkdirSync(dirPath);
+      await fs.promises.mkdir(dirPath);
       console.log(`Creating ${dirPathTest}`);
-      fs.mkdirSync(dirPathTest);
+      await fs.promises.mkdir(dirPathTest);
     }
 
     writeService(INDEX_TXT, name, 'index');

@@ -40,8 +40,8 @@ const main = async () => {
     const pubFilePath = path.join(__dirname, 'keys', pubfile);
 
     try {
-      fs.accessSync(prvFilePath);
-      fs.accessSync(pubFilePath);
+      await fs.promises.access(prvFilePath);
+      await fs.promises.access(pubFilePath);
       console.log('Key pair files with the given name already exists');
       const ans = await askQuestion('Do you want to overwrite it? [y/n] ');
       if (ans !== 'y' && ans !== 'Y') process.exit(1);
