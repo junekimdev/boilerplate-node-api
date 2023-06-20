@@ -43,7 +43,7 @@ const uploader = (req: Request, res: Response, next: NextFunction) => {
       const filename = path.join(fileDir, `${hash.createUUID()}.${getExt(mimeSub2)}`);
       stream.pipe(fs.createWriteStream(filename));
 
-      res.locals.filename = filename;
+      res.locals.uploadedImagePath = filename;
     });
 
     bb.on('field', (name: string, value: string, info: FieldInfo) => {

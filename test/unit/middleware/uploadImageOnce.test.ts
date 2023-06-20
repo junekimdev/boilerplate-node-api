@@ -135,8 +135,8 @@ describe('Test /src/middleware/uploadImageOnce', () => {
         expect(path.join).nthCalledWith(2, dir, `${uuid}.${extType}`);
         expect(fs.createWriteStream).toBeCalledWith(fname);
         expect(stream.pipe).toBeCalledWith(writer);
-        expect(res.locals).toHaveProperty('filename');
-        expect(res.locals.filename).toBe(fname);
+        expect(res.locals).toHaveProperty('uploadedImagePath');
+        expect(res.locals.uploadedImagePath).toBe(fname);
       });
     });
 
