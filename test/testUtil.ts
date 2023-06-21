@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { Express } from 'express';
+import path from 'path';
 import { PoolClient } from 'pg';
 import supertest from 'supertest';
 import { SQL_INSERT_PERMIT, SQL_INSERT_ROLE } from '../src/services/createRole/provider';
@@ -22,7 +23,18 @@ export const testObj = {
     { res_name: 'topic', readable: true, writable: false },
     { res_name: 'subscription', readable: true, writable: false },
   ],
+  uploadFilename: 'lenna_100x100.png',
 };
+
+export const getProjectRoot = () => path.resolve(__dirname, '../');
+
+export const getUploadDir = () => {
+  const { UPLOAD_ROOT } = process.env;
+  if (!UPLOAD_ROOT) throw new Error('UPLOAD_ROOT is undefined');
+  return path.join(getProjectRoot(), UPLOAD_ROOT);
+};
+
+export const getUploadFilePath = () => path.resolve(__dirname, testObj.uploadFilename);
 
 export const createRandomRole = async (db: any) => {
   const roleName = crypto.randomUUID();

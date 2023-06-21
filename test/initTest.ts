@@ -5,8 +5,6 @@ import { Client } from 'pg';
 import { SQL_INSERT_USER } from '../src/services/createUser/provider';
 import { testObj } from './testUtil';
 
-const SQL_INSERT_TOPIC = `INSERT INTO topic(name) VALUES ($1::TEXT);`;
-
 const createUser = async (
   client: Client,
   username: string,
@@ -30,6 +28,7 @@ const init = async (testName: string, port: string) => {
     password: 'postgres',
     database: 'postgres',
   });
+  // In node-postgres, prepared statements cannot be used for CREATE or DROP statements
   await root.connect();
   await root.query(`DROP DATABASE IF EXISTS ${testName};`);
   await root.query(`DROP ROLE IF EXISTS ${testName};`);
@@ -48,7 +47,7 @@ const init = async (testName: string, port: string) => {
   await client.query(sqlInit);
   await createUser(client, testObj.admin, testObj.role.admin, testObj.surname, testObj.givenName);
   await createUser(client, testObj.user, testObj.role.user, testObj.surname, testObj.givenName);
-  await client.query(SQL_INSERT_TOPIC, [testObj.pushTopic]);
+  await client.query('INSERT INTO topic(name) VALUES ($1::TEXT);', [testObj.pushTopic]);
   await client.end();
 
   process.env.TEST_NAME = testName;
