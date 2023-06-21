@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { readFileSync } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { Client } from 'pg';
 import { SQL_INSERT_USER } from '../src/services/createUser/provider';
@@ -16,13 +16,14 @@ const createUser = async (
 ) => {
   const salt = crypto.randomBytes(12).toString('base64');
   const pw = testObj.password + salt;
-  const hashedPW = await crypto.createHash('sha256').update(pw).digest('base64');
+  const hashedPW = crypto.createHash('sha256').update(pw).digest('base64');
   const params = [username, hashedPW, salt, rolename, surname, givenName];
   await client.query(SQL_INSERT_USER, params);
 };
 
 const init = async (testName: string, port: string) => {
-  const sqlInit = readFileSync(path.resolve(__dirname, '../init.sql')).toString();
+  const buf = await fs.promises.readFile(path.resolve(__dirname, '../init.sql'));
+  const sqlInit = buf.toString();
 
   const root = new Client({
     user: 'postgres',
