@@ -127,7 +127,7 @@ describe('Test /src/middleware/basicAuth', () => {
       rowCount: 1,
       rows: [{ id: 1, pw: 'hashed-password', salt: 'salt' }],
     } as QueryResult);
-    mockedHashPass.mockResolvedValue('wrong-password-hash');
+    mockedHashPass.mockReturnValue('wrong-password-hash');
 
     await auth(req, res, next);
 
@@ -152,7 +152,7 @@ describe('Test /src/middleware/basicAuth', () => {
       rowCount: 1,
       rows: [{ id: userId, pw: 'hashed-password', salt: 'salt' }],
     } as QueryResult);
-    mockedHashPass.mockResolvedValue('hashed-password');
+    mockedHashPass.mockReturnValue('hashed-password');
 
     await auth(req, res, next);
 

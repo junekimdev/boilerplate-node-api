@@ -17,7 +17,7 @@ const provider = async (
   givenName: string,
 ) => {
   const salt = hash.createSalt();
-  const hashed = await hash.passSalt(password, salt);
+  const hashed = hash.passSalt(password, salt);
   const params = [email, hashed, salt, roleName, surname, givenName];
 
   try {

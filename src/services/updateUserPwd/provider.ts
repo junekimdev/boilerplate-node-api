@@ -6,7 +6,7 @@ WHERE id=$1::INT RETURNING id;`;
 
 const provider = async (userId: number, password: string) => {
   const salt = hash.createSalt();
-  const hashed = await hash.passSalt(password, salt);
+  const hashed = hash.passSalt(password, salt);
 
   const result = await db.query(SQL_UPDATE_PWD, [userId, hashed, salt]);
   return result.rowCount;

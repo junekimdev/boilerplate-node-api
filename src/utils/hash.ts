@@ -1,10 +1,10 @@
 import crypto from 'crypto';
 
-export const sha256 = async (payload: string) => {
+export const sha256 = (payload: string) => {
   return crypto.createHash('sha256').update(payload).digest('base64');
 };
 
-export const passSalt = async (password: string, salt: string) => {
+export const passSalt = (password: string, salt: string) => {
   return crypto
     .createHash('sha256')
     .update(password + salt)

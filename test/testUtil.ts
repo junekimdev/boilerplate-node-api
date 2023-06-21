@@ -44,7 +44,7 @@ export const createRandomUser = async (db: any, role: string = testObj.role.user
   const username = `${crypto.randomUUID()}@test.io`;
   const salt = crypto.randomBytes(12).toString('base64');
   const pw = testObj.password + salt;
-  const hashedPW = await crypto.createHash('sha256').update(pw).digest('base64');
+  const hashedPW = crypto.createHash('sha256').update(pw).digest('base64');
   const params = [username, hashedPW, salt, role, testObj.surname, testObj.givenName];
   await db.query(SQL_INSERT_USER, params);
   return username;

@@ -4,7 +4,7 @@ describe('Test /src/util/hash', () => {
   describe('sha256()', () => {
     it('should create a string with 44 characters', async () => {
       const payload = 'a';
-      await expect(sha256(payload)).resolves.toHaveLength(44);
+      await expect(sha256(payload)).toHaveLength(44);
     });
   });
 
@@ -12,7 +12,7 @@ describe('Test /src/util/hash', () => {
     it('should create a string with 44 characters', async () => {
       const password = 'password';
       const salt = 'salt';
-      await expect(passSalt(password, salt)).resolves.toHaveLength(44);
+      await expect(passSalt(password, salt)).toHaveLength(44);
     });
   });
 

@@ -119,7 +119,7 @@ describe('Test /src/middleware/bearerAuth', () => {
 
   it('should hash refreshToken', async () => {
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub });
-    mockedHashSha256.mockResolvedValue(tokenRow.token);
+    mockedHashSha256.mockReturnValue(tokenRow.token);
     mockedDbQuery.mockResolvedValue({ rowCount: 1, rows: [tokenRow] });
 
     await auth(req, res, next);
@@ -129,7 +129,7 @@ describe('Test /src/middleware/bearerAuth', () => {
 
   it('should get refreshToken from DB', async () => {
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub });
-    mockedHashSha256.mockResolvedValue(tokenRow.token);
+    mockedHashSha256.mockReturnValue(tokenRow.token);
     mockedDbQuery.mockResolvedValue({ rowCount: 1, rows: [tokenRow] });
 
     await auth(req, res, next);
@@ -141,7 +141,7 @@ describe('Test /src/middleware/bearerAuth', () => {
     const expectedError = new AppError(errDef[401].InvalidToken);
 
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub });
-    mockedHashSha256.mockResolvedValue(tokenRow.token);
+    mockedHashSha256.mockReturnValue(tokenRow.token);
     mockedDbQuery.mockResolvedValue({ rowCount: 0 });
 
     await auth(req, res, next);
@@ -156,7 +156,7 @@ describe('Test /src/middleware/bearerAuth', () => {
     const expectedError = new AppError(errDef[401].InvalidToken);
 
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub });
-    mockedHashSha256.mockResolvedValue(hashed);
+    mockedHashSha256.mockReturnValue(hashed);
     mockedDbQuery.mockResolvedValue({ rowCount: 1, rows: [tokenRow] });
 
     await auth(req, res, next);
@@ -169,7 +169,7 @@ describe('Test /src/middleware/bearerAuth', () => {
 
   it('should set device in req.body and user_id and email in res.locals when two refreshTokens are the same', async () => {
     mockedJwtVerify.mockResolvedValue({ user_id, device, sub });
-    mockedHashSha256.mockResolvedValue(tokenRow.token);
+    mockedHashSha256.mockReturnValue(tokenRow.token);
     mockedDbQuery.mockResolvedValue({ rowCount: 1, rows: [tokenRow] });
 
     await auth(req, res, next);

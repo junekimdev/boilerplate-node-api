@@ -54,7 +54,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (!result.rowCount) throw new AppError(errDef[401].InvalidCredential); // No email found
 
     const { id, pw, salt } = result.rows[0] as IUserpoolRow;
-    const hashed = await hash.passSalt(password, salt);
+    const hashed = hash.passSalt(password, salt);
     if (hashed !== pw) throw new AppError(errDef[401].InvalidCredential); // Wrong password
 
     (res.locals as IBasicAuthResLocals).userId = id;

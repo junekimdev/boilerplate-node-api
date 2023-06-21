@@ -30,7 +30,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
       const userId = user_id; // change snake_case to camelCase
       const email = sub; // sub is email of the token holder
 
-      const hashed = await hash.sha256(refresh_token);
+      const hashed = hash.sha256(refresh_token);
       const resultDB = await db.query(SQL_GET_TOKEN, [userId, device]);
       if (!resultDB.rowCount)
         throw new AppError(errDef[401].InvalidToken, { cause: 'no refresh token is found in DB' });

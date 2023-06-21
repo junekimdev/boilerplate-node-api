@@ -23,7 +23,7 @@ describe('Test /src/services/updateUserPwd/provider', () => {
   });
 
   it('should hash the password and create new salt', async () => {
-    mockedHashPass.mockResolvedValue(hashed);
+    mockedHashPass.mockReturnValue(hashed);
     mockedSalt.mockReturnValue(salt);
     mockedDbQuery.mockResolvedValue({ rowCount: 1, rows: [{ id: userId }] });
 
@@ -34,7 +34,7 @@ describe('Test /src/services/updateUserPwd/provider', () => {
   });
 
   it('should return 0 if user does not exist in DB', async () => {
-    mockedHashPass.mockResolvedValue(hashed);
+    mockedHashPass.mockReturnValue(hashed);
     mockedSalt.mockReturnValue(salt);
     mockedDbQuery.mockResolvedValue({ rowCount: 0 });
 
@@ -45,7 +45,7 @@ describe('Test /src/services/updateUserPwd/provider', () => {
   });
 
   it('should return 1 when update is done successfully', async () => {
-    mockedHashPass.mockResolvedValue(hashed);
+    mockedHashPass.mockReturnValue(hashed);
     mockedSalt.mockReturnValue(salt);
     mockedDbQuery.mockResolvedValue({ rowCount: 1, rows: [{ id: userId }] });
 

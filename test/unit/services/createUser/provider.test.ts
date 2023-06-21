@@ -63,7 +63,7 @@ describe('Test /src/service/createUser/provider', () => {
     const params = [email, hashed, salt, roleName, '', ''];
 
     mockedCreateSalt.mockReturnValue(salt);
-    mockedHashPass.mockResolvedValue(hashed);
+    mockedHashPass.mockReturnValue(hashed);
     mockedQuery.mockResolvedValue({ rowCount: 1, rows: [{ id: userId }] });
 
     const result = await provider(email, password, roleName, '', '');
@@ -78,7 +78,7 @@ describe('Test /src/service/createUser/provider', () => {
     const params = [email, hashed, salt, roleName, surname, givenName];
 
     mockedCreateSalt.mockReturnValue(salt);
-    mockedHashPass.mockResolvedValue(hashed);
+    mockedHashPass.mockReturnValue(hashed);
     mockedQuery.mockResolvedValue({ rowCount: 1, rows: [{ id: userId }] });
 
     const result = await provider(email, password, roleName, surname, givenName);
