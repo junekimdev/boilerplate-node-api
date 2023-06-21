@@ -268,7 +268,6 @@ describe('Test /push', () => {
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
         .send(data);
-      console.log(res.body);
       expect(res.status).toBe(404);
     });
 
@@ -318,7 +317,6 @@ describe('Test /push', () => {
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
         .send(data);
-      console.log(res.body);
       expect(res.status).toBe(404);
     });
 
