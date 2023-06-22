@@ -72,9 +72,9 @@ export const errDef = {
       message: 'E400-InvalidImageType',
       error_in: 'ReqBody',
     },
-    InvalidImageSize: {
+    tooManyFilesFound: {
       status: 400,
-      message: 'E400-InvalidImageSize',
+      message: 'E400-tooManyFilesFound',
       error_in: 'ReqBody',
     },
     InvalidData: {
