@@ -19,12 +19,14 @@ import updateGroupRole from '../services/updateGroupRole';
 import updatePushTopic from '../services/updatePushTopic';
 import updateRole from '../services/updateRole';
 import updateUser from '../services/updateUser';
+import updateUserPic from '../services/updateUserPic';
 import updateUserPwd from '../services/updateUserPwd';
 import updateUserRole from '../services/updateUserRole';
 
 import basicAuth from '../middleware/basicAuth';
 import bearerAuth from '../middleware/bearerAuth';
 import refreshToken from '../middleware/refreshToken';
+import uploadImagesMax from '../middleware/uploadImagesMax';
 import validRole from '../middleware/validateRole';
 import validTopic from '../middleware/validateTopic';
 import validateUserIdAdmin from '../middleware/validateUserIdAdmin';
@@ -47,6 +49,7 @@ APIv1.get('/auth/user', userpoolUser, readUser);
 APIv1.put('/auth/user', userpoolUser, updateUser);
 APIv1.delete('/auth/user', userpoolUser, deleteUser);
 APIv1.put('/auth/user/pass', userpoolUser, updateUserPwd);
+APIv1.put('/auth/user/pic', userpoolUser, uploadImagesMax(1), updateUserPic);
 
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);

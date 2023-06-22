@@ -1,13 +1,20 @@
 import { Express } from 'express';
+import fs from 'fs';
 import { Server } from 'http';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
-import { apiPrefix, createRandomUser, getTester, getToken, testObj } from '../testUtil';
-
-const testName = 'test_auth';
-const testPort = '3001';
+import {
+  apiPrefix,
+  createRandomUser,
+  getRandomPort,
+  getTester,
+  getToken,
+  getUploadDir,
+  getUploadFilePath,
+  testObj,
+} from '../testUtil';
 
 describe('Test /auth', () => {
   let app: Express;
@@ -15,15 +22,17 @@ describe('Test /auth', () => {
   let db: any;
 
   beforeAll(async () => {
-    await initTest(testName, testPort);
+    await initTest('test_auth', getRandomPort());
     const mod: any = require('../../src/server');
     app = mod.default;
     server = mod.server;
     db = require('../../src/utils/db');
   }, 60000);
+
   afterAll(async () => {
     await db.pool.end();
     server.close();
+    await fs.promises.rm(getUploadDir(), { recursive: true, force: true });
   });
 
   describe('common tests', () => {
@@ -32,6 +41,7 @@ describe('Test /auth', () => {
       { method: 'PUT', url: `${apiPrefix}/auth/user` },
       { method: 'DELETE', url: `${apiPrefix}/auth/user` },
       { method: 'PUT', url: `${apiPrefix}/auth/user/pass` },
+      { method: 'PUT', url: `${apiPrefix}/auth/user/pic` },
     ];
 
     it.each(endpoints)(
@@ -163,7 +173,6 @@ describe('Test /auth', () => {
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
         .send(data);
-      console.log(res.body);
       expect(res.status).toBe(200);
 
       const check: QueryResult = await db.query(sqlUser, [testUser]);
@@ -278,6 +287,58 @@ describe('Test /auth', () => {
       expect(checkOthers.rowCount).toBe(1);
       const pwOthers = checkOthers.rows[0].pw;
       expect(pwOthers).not.toBe(hashed);
+    });
+  });
+
+  describe('PUT /auth/user/pic', () => {
+    const endPoint = apiPrefix + '/auth/user/pic';
+    const sqlUser = 'SELECT * FROM userpool WHERE email=$1::VARCHAR(50);';
+
+    it('should fail to upload profile picture and return 400 when more than one file is sent', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const fstream = fs.createReadStream(getUploadFilePath.img());
+
+      await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .attach('file', fstream)
+        .attach('file', fstream)
+        .expect(400);
+      fstream.close();
+    });
+
+    it('should fail to upload profile picture and return 400 when file is not an image', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const fstream = fs.createReadStream(getUploadFilePath.txt());
+
+      await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .attach('file', fstream)
+        .expect(400);
+      fstream.close();
+    });
+
+    it('should upload profile picture and return 200 with user id', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const fstream = fs.createReadStream(getUploadFilePath.img());
+
+      const res = await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .attach('file', fstream)
+        .expect(200);
+      fstream.close();
+
+      const check = await db.query(sqlUser, [testUser]);
+      const url = check.rows[0].profile_url;
+      await expect(fs.promises.access(url)).resolves.not.toThrow();
     });
   });
 });

@@ -204,6 +204,41 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
+  /auth/user/pic:
+    put:
+      tags:
+        - AuthAPI
+      summary: Update profile picture of a user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                contentType: image/png, image/jpeg, image/gif, image/svg+xml
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
   /admin/auth/role:
     post:
       tags:
