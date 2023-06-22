@@ -101,7 +101,6 @@ DB_CONN_TIMEOUT=2000
 
 # Upload
 UPLOAD_ROOT=/test/upload # from the project root
-UPLOAD_SIZE_LIMIT=10485760 #10*1024*1024=10MiB
 
 # JWT
 JWT_PRI_FILENAME=es256_prv.pem
