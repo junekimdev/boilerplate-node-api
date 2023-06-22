@@ -96,6 +96,22 @@ describe('Test /src/middleware/uploadImageOnce', () => {
       expect(fs.promises.mkdir).toBeCalledWith(dir, { recursive: true });
     });
 
+    it('should not create a directory if existing', async () => {
+      const projectRoot = 'projectRoot';
+      const dir = 'fileDir';
+
+      mockedPathResolve.mockReturnValue(projectRoot);
+      mockedPathJoin.mockReturnValue(dir);
+      mockedFsAccess.mockResolvedValue(true);
+
+      await uploader()(req, res, next);
+
+      expect(path.resolve).toBeCalled();
+      expect(path.join).toBeCalled();
+      expect(fs.promises.access).toBeCalledWith(dir);
+      expect(fs.promises.mkdir).not.toBeCalled();
+    });
+
     it('should init busboy', async () => {
       await uploader(maxFile)(req, res, next);
 
