@@ -23,7 +23,7 @@ export const testObj = {
     { res_name: 'topic', readable: true, writable: false },
     { res_name: 'subscription', readable: true, writable: false },
   ],
-  uploadFilename: 'lenna_100x100.png',
+  uploadFilename: { img: 'lenna_100x100.png', txt: 'lorem.txt' },
 };
 
 export const getProjectRoot = () => path.resolve(__dirname, '../');
@@ -34,7 +34,10 @@ export const getUploadDir = () => {
   return path.join(getProjectRoot(), UPLOAD_ROOT);
 };
 
-export const getUploadFilePath = () => path.resolve(__dirname, testObj.uploadFilename);
+export const getUploadFilePath = {
+  img: () => path.resolve(__dirname, testObj.uploadFilename.img),
+  txt: () => path.resolve(__dirname, testObj.uploadFilename.txt),
+};
 
 export const createRandomRole = async (db: any) => {
   const roleName = crypto.randomUUID();
@@ -102,4 +105,10 @@ export const getDbErrorMock = (code: string) => {
   const err: any = new Error('DB Error');
   err.code = code;
   return err;
+};
+
+export const getRandomPort = () => {
+  const min = 3001;
+  const max = 4000;
+  return `${Math.floor(Math.random() * (max - min) + min)}`;
 };
