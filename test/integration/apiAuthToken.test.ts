@@ -4,10 +4,7 @@ import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
-import { apiPrefix, createRandomUser, testObj } from '../testUtil';
-
-const testName = 'test_token';
-const testPort = '3004';
+import { apiPrefix, createRandomUser, getRandomPort, testObj } from '../testUtil';
 
 describe('Test /auth', () => {
   let app: Express;
@@ -15,7 +12,7 @@ describe('Test /auth', () => {
   let db: any;
 
   beforeAll(async () => {
-    await initTest(testName, testPort);
+    await initTest('test_token', getRandomPort());
     const mod: any = require('../../src/server');
     app = mod.default;
     server = mod.server;

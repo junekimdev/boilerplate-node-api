@@ -9,13 +9,11 @@ import {
   apiPrefix,
   createRandomRole,
   createRandomUser,
+  getRandomPort,
   getTester,
   getToken,
   testObj,
 } from '../testUtil';
-
-const testName = 'test_auth_admin';
-const testPort = '3003';
 
 describe('Test /admin/auth', () => {
   let app: Express;
@@ -23,7 +21,7 @@ describe('Test /admin/auth', () => {
   let db: any;
 
   beforeAll(async () => {
-    await initTest(testName, testPort);
+    await initTest('test_auth_admin', getRandomPort());
     const mod: any = require('../../src/server');
     app = mod.default;
     server = mod.server;

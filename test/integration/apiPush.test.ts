@@ -5,10 +5,7 @@ import supertest from 'supertest';
 import { SQL_INSERT_TOPIC } from '../../src/services/createPushTopic/provider';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
-import { apiPrefix, getTester, getToken, testObj } from '../testUtil';
-
-const testName = 'test_push';
-const testPort = '3002';
+import { apiPrefix, getRandomPort, getTester, getToken, testObj } from '../testUtil';
 
 const createRandomTopic = async (db: any) => {
   const name = hash.createUUID();
@@ -27,7 +24,7 @@ describe('Test /push', () => {
   let db: any;
 
   beforeAll(async () => {
-    await initTest(testName, testPort);
+    await initTest('test_push', getRandomPort());
     const mod: any = require('../../src/server');
     app = mod.default;
     server = mod.server;
