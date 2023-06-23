@@ -99,8 +99,9 @@ DB_POOL_MAX=20
 DB_IDLE_TIMEOUT=30000
 DB_CONN_TIMEOUT=2000
 
-# Upload
-UPLOAD_ROOT=/test/upload # from the project root
+# Upload directory from the project root
+UPLOAD_ROOT=/data/upload
+PUBLIC_PROFILE_DIR=/images/profiles # within public directory
 
 # JWT
 JWT_PRI_FILENAME=es256_prv.pem

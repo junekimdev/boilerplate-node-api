@@ -1,6 +1,7 @@
 import { Express } from 'express';
 import fs from 'fs';
 import { Server } from 'http';
+import path from 'path';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
 import hash from '../../src/utils/hash';
@@ -8,10 +9,11 @@ import initTest from '../initTest';
 import {
   apiPrefix,
   createRandomUser,
+  getProfilePath,
+  getProjectRoot,
   getRandomPort,
   getTester,
   getToken,
-  getUploadDir,
   getUploadFilePath,
   testObj,
 } from '../testUtil';
@@ -32,7 +34,8 @@ describe('Test /auth', () => {
   afterAll(async () => {
     await db.pool.end();
     server.close();
-    await fs.promises.rm(getUploadDir(), { recursive: true, force: true });
+    const publicTestDir = path.join(getProjectRoot(), 'public/test');
+    await fs.promises.rm(publicTestDir, { recursive: true, force: true });
   });
 
   describe('common tests', () => {
@@ -338,7 +341,8 @@ describe('Test /auth', () => {
 
       const check = await db.query(sqlUser, [testUser]);
       const url = check.rows[0].profile_url;
-      await expect(fs.promises.access(url)).resolves.not.toThrow();
+      const filename = getProfilePath(url);
+      await expect(fs.promises.access(filename)).resolves.not.toThrow();
     });
   });
 });

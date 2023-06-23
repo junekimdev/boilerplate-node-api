@@ -39,6 +39,14 @@ export const getUploadFilePath = {
   txt: () => path.resolve(__dirname, testObj.uploadFilename.txt),
 };
 
+export const getProfileDir = () => {
+  const { PUBLIC_PROFILE_DIR } = process.env;
+  if (!PUBLIC_PROFILE_DIR) throw new Error('PUBLIC_PROFILE_DIR is undefined');
+  return path.join(getProjectRoot(), 'public', PUBLIC_PROFILE_DIR);
+};
+
+export const getProfilePath = (filename: string) => path.join(getProfileDir(), filename);
+
 export const createRandomRole = async (db: any) => {
   const roleName = crypto.randomUUID();
   await db.transaction(async (client: PoolClient) => {
