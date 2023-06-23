@@ -5,14 +5,14 @@ const { getArgs, askQuestion } = require('./codegen-util');
 const INDEX_TXT = `export { default } from './apiHandler';
 `;
 
-const TYPES_TXT = `//export interface IReqBody {}
-export interface IResBody {}
+const TYPES_TXT = `// export interface IReqBody {}
+// export interface IResBody {}
 export interface IResLocals {
   userId: number;
 }
 `;
 
-const PROVIDER_TXT = `//import db from '../../utils/db';
+const PROVIDER_TXT = `import db from '../../utils/db';
 //import {} from './types';
 
 const provider = async () => {
@@ -25,15 +25,14 @@ export default provider;
 const API_HANDLER_TXT = `import { NextFunction, Request, Response } from 'express';
 import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
-import { IResBody, IResLocals } from './types';
+import { IResLocals } from './types';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const {} = res.locals as IResLocals;
-    const result = await provider();
+    const { userId } = res.locals as IResLocals;
 
-    const resBody: IResBody = {};
-    res.status(200).json(resBody);
+    const result = await provider();
+    res.status(200).send({ user_id: result });
   } catch (error) {
     next(error);
   }
@@ -66,6 +65,7 @@ describe('Test /src/services/${name}/apiHandler', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       sendStatus: jest.fn(),
+      sendFile: jest.fn(),
     } as unknown as Response;
     next = jest.fn();
     jest.clearAllMocks();
