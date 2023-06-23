@@ -46,6 +46,7 @@ describe('Test /auth', () => {
       { method: 'PUT', url: `${apiPrefix}/auth/user/pass` },
       { method: 'PUT', url: `${apiPrefix}/auth/user/pic` },
       { method: 'GET', url: `${apiPrefix}/auth/user/pic` },
+      { method: 'DELETE', url: `${apiPrefix}/auth/user/pic` },
     ];
 
     it.each(endpoints)(
@@ -385,6 +386,48 @@ describe('Test /auth', () => {
       const check = await db.query(sqlUser, [testUser]);
       const url = check.rows[0].profile_url;
       expect(res.body.profile_url).toBe(path.join(PUBLIC_PROFILE_DIR, url));
+    });
+  });
+
+  describe('DELETE /auth/user/pic', () => {
+    const endPoint = apiPrefix + '/auth/user/pic';
+    const sqlUser = 'SELECT * FROM userpool WHERE email=$1::VARCHAR(50);';
+
+    it('should return user id with 200 even if user has never uploaded profile picture', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .expect(200);
+      expect(res.body).toHaveProperty('user_id');
+    });
+
+    it('should delete profile picture of a user and return user id with 200', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const fstream = fs.createReadStream(getUploadFilePath.img());
+
+      await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .attach('file', fstream)
+        .expect(200);
+      fstream.close();
+
+      const res = await supertest(app)
+        .delete(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .expect(200);
+      expect(res.body).toHaveProperty('user_id');
+
+      const check = await db.query(sqlUser, [testUser]);
+      const url = check.rows[0].profile_url;
+      expect(url).toBe(null);
     });
   });
 });

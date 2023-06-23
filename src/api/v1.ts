@@ -7,6 +7,7 @@ import createUser from '../services/createUser';
 import deletePushTopic from '../services/deletePushTopic';
 import deleteRole from '../services/deleteRole';
 import deleteUser from '../services/deleteUser';
+import deleteUserPic from '../services/deleteUserPic';
 import readGroupRole from '../services/readGroupRole';
 import readPushTopic from '../services/readPushTopic';
 import readResource from '../services/readResource';
@@ -53,6 +54,7 @@ APIv1.delete('/auth/user', userpoolUser, deleteUser);
 APIv1.put('/auth/user/pass', userpoolUser, updateUserPwd);
 APIv1.put('/auth/user/pic', userpoolUser, uploadImageProfile, updateUserPic);
 APIv1.get('/auth/user/pic', userpoolUser, readUserPic);
+APIv1.delete('/auth/user/pic', userpoolUser, deleteUserPic);
 
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);

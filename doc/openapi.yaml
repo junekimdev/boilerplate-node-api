@@ -247,11 +247,41 @@ paths:
         - bearerAuth: []
       responses:
         200:
-          $ref: '#/components/responses/200'
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  profile_url:
+                    type: string
+                    example: /images/profiles/uuid-1234-1234-1234-1234.png
         204:
           $ref: '#/components/responses/204'
-        400:
-          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - AuthAPI
+      summary: Delete a profile picture of a user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  user_id:
+                    type: integer
+                    minimum: 1
+                    example: 1
         401:
           $ref: '#/components/responses/401'
         403:
