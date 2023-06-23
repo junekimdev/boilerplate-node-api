@@ -46,7 +46,7 @@ describe('Test /src/services/updateUserPic/provider', () => {
     expect(client.query).toBeCalledTimes(2);
     expect(client.query).nthCalledWith(1, expect.any(String), [userId]);
     expect(client.query).nthCalledWith(2, expect.any(String), [userId, newPicURL]);
-    expect(fs.promises.rm).toBeCalledWith(profile_url);
+    expect(fs.promises.rm).toBeCalledWith(profile_url, { force: true });
     expect(result).toEqual(userId);
   });
 });

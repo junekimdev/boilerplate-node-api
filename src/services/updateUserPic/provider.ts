@@ -15,8 +15,8 @@ const provider = async (userId: number, newPicURL: string) =>
     if (!pic.rowCount) return 0;
     const oldPicURL = (await pic).rows[0].profile_url as string;
 
-    // Delete old picture from storage
-    if (oldPicURL) await fs.promises.rm(oldPicURL);
+    // Delete old picture from storage if URL is not null
+    if (oldPicURL) await fs.promises.rm(oldPicURL, { force: true }); // no error for broken URL
 
     // update profile_url in DB
     const result = await client.query(SQL_UPDATE_PIC, [userId, newPicURL]);
