@@ -34,7 +34,11 @@ const init = async (testName: string, port: string) => {
   await root.query(`DROP ROLE IF EXISTS ${testName};`);
   await root.query(`CREATE ROLE ${testName} WITH SUPERUSER PASSWORD '${testName}' LOGIN;`);
   await root.query(
-    `CREATE DATABASE ${testName} WITH OWNER ${testName} ENCODING 'UTF8' LOCALE 'C';`,
+    `CREATE DATABASE ${testName} WITH OWNER ${testName}
+    TEMPLATE 'template0'
+    ENCODING 'UTF8'
+    LOCALE 'C'
+    LC_CTYPE 'en_US.UTF-8';`,
   );
   await root.end();
 
