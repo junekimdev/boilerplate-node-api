@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/**.ts'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      # DB for integreation tests
+      postgres:
+        image: postgres:alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
+      - run: yarn test-cover
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: github action upload
+          directory: ./test/coverage/
+          fail_ci_if_error: true
+          verbose: true
