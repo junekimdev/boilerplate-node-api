@@ -4,7 +4,7 @@ import db from '../../utils/db';
 const SQL_GET_PIC = 'SELECT profile_url FROM userpool WHERE id=$1::INT;';
 
 const SQL_UPDATE_PIC = `UPDATE userpool SET
-profile_url=$2::TEXT
+profile_url=NULLIF($2::TEXT, '')
 WHERE id=$1::INT
 RETURNING id;`;
 

@@ -4,8 +4,8 @@ import { IUserInfo } from './types';
 const SQL_READ_USER = 'SELECT * FROM userpool WHERE id=$1::INT;';
 
 const SQL_UPDATE_USER = `UPDATE userpool SET
-surname=$2::TEXT,
-given_name=$3::TEXT
+surname=NULLIF($2::TEXT, ''),
+given_name=NULLIF($3::TEXT, '')
 WHERE id=$1::INT RETURNING id;`;
 
 const provider = async (newInfo: IUserInfo) => {
