@@ -12,6 +12,7 @@ import readPushTopic from '../services/readPushTopic';
 import readResource from '../services/readResource';
 import readRole from '../services/readRole';
 import readUser from '../services/readUser';
+import readUserPic from '../services/readUserPic';
 import readVapidPubKey from '../services/readVapidPubKey';
 import saveSubscription from '../services/saveSubscription';
 import sendNoti from '../services/sendNoti';
@@ -51,6 +52,7 @@ APIv1.put('/auth/user', userpoolUser, updateUser);
 APIv1.delete('/auth/user', userpoolUser, deleteUser);
 APIv1.put('/auth/user/pass', userpoolUser, updateUserPwd);
 APIv1.put('/auth/user/pic', userpoolUser, uploadImageProfile, updateUserPic);
+APIv1.get('/auth/user/pic', userpoolUser, readUserPic);
 
 APIv1.post('/auth/token', basicAuth, createToken);
 APIv1.post('/auth/refresh', refreshToken, createToken);

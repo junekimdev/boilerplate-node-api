@@ -45,6 +45,7 @@ describe('Test /auth', () => {
       { method: 'DELETE', url: `${apiPrefix}/auth/user` },
       { method: 'PUT', url: `${apiPrefix}/auth/user/pass` },
       { method: 'PUT', url: `${apiPrefix}/auth/user/pic` },
+      { method: 'GET', url: `${apiPrefix}/auth/user/pic` },
     ];
 
     it.each(endpoints)(
@@ -343,6 +344,47 @@ describe('Test /auth', () => {
       const url = check.rows[0].profile_url;
       const filename = getProfilePath(url);
       await expect(fs.promises.access(filename)).resolves.not.toThrow();
+    });
+  });
+
+  describe('GET /auth/user/pic', () => {
+    const endPoint = apiPrefix + '/auth/user/pic';
+    const sqlUser = 'SELECT * FROM userpool WHERE email=$1::VARCHAR(50);';
+
+    it('should return 204 when a user have never uploaded a profile picture', async () => {
+      const accessToken = await getToken(app, testObj.user);
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .expect(204);
+    });
+
+    it('should read profile URL of a user and return 200 with it', async () => {
+      const testUser = await createRandomUser(db);
+      const accessToken = await getToken(app, testUser);
+      const fstream = fs.createReadStream(getUploadFilePath.img());
+
+      await supertest(app)
+        .put(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .attach('file', fstream)
+        .expect(200);
+      fstream.close();
+
+      const res = await supertest(app)
+        .get(endPoint)
+        .auth(accessToken, { type: 'bearer' })
+        .set('Accept', 'application/json')
+        .expect(200);
+      expect(res.body).toHaveProperty('profile_url');
+
+      const { PUBLIC_PROFILE_DIR = '' } = process.env;
+      const check = await db.query(sqlUser, [testUser]);
+      const url = check.rows[0].profile_url;
+      expect(res.body.profile_url).toBe(path.join(PUBLIC_PROFILE_DIR, url));
     });
   });
 });

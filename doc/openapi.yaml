@@ -239,6 +239,27 @@ paths:
           $ref: '#/components/responses/404'
         500:
           $ref: '#/components/responses/500'
+    get:
+      tags:
+        - AuthAPI
+      summary: Request URL to get a profile picture of a user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          $ref: '#/components/responses/200'
+        204:
+          $ref: '#/components/responses/204'
+        400:
+          $ref: '#/components/responses/400'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          $ref: '#/components/responses/404'
+        500:
+          $ref: '#/components/responses/500'
   /admin/auth/role:
     post:
       tags:
