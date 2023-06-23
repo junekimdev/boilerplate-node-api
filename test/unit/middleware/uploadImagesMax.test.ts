@@ -65,18 +65,16 @@ describe('Test /src/middleware/uploadImageOnce', () => {
   });
 
   describe('getExt()', () => {
-    it('should return "jpg" when "jpeg" is the arg', () => {
-      expect(getExt('jpeg')).toBe('jpg');
-    });
-    it('should return "svg" when "svg+xml" is the arg', () => {
-      expect(getExt('svg+xml')).toBe('svg');
-    });
-    it('should return "jpg" when "jpeg" is the arg', () => {
-      expect(getExt('png')).toBe('png');
-    });
-    it('should return "gif" when "gif" is the arg', () => {
-      expect(getExt('gif')).toBe('gif');
-    });
+    const cases = [
+      { target: 'jpeg', expected: 'jpg' },
+      { target: 'png', expected: 'png' },
+      { target: 'gif', expected: 'gif' },
+      { target: 'svg+xml', expected: 'svg' },
+    ];
+
+    it.each(cases)('$target should return $expected', ({ target, expected }) =>
+      expect(getExt(target)).toBe(expected),
+    );
   });
 
   describe('uploader', () => {
