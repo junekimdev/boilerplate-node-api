@@ -7,6 +7,7 @@ on:
       - master
     paths:
       - 'src/**.ts'
+      - package.json
 
 jobs:
   test:
