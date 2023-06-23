@@ -2,6 +2,11 @@
 
 Boilerplate codes to build Restful API in NodeJS
 
+[![CI](https://github.com/junekimdev/boilerplate-node-api/actions/workflows/CI.yml/badge.svg)](https://github.com/junekimdev/boilerplate-node-api/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/junekimdev/boilerplate-node-api/branch/master/graph/badge.svg?token=7HUOYC9KF4)](https://codecov.io/gh/junekimdev/boilerplate-node-api)
+![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/junekimdev/boilerplate-node-api)
+![GitHub](https://img.shields.io/github/license/junekimdev/boilerplate-node-api)
+
 ---
 
 ## Table of Contents
