@@ -32,7 +32,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = res.locals as IResLocals;
 
     const result = await provider();
-    res.status(200).send({ user_id: result });
+    res.status(200).json({ user_id: result });
   } catch (error) {
     next(error);
   }
@@ -58,10 +58,12 @@ describe('Test /src/services/${name}/apiHandler', () => {
   let res: Response;
   let next: NextFunction;
 
+  const userId = 123;
+
   beforeEach(() => {
     req = { body: {} } as unknown as Request;
     res = {
-      locals: {},
+      locals: { userId },
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       sendStatus: jest.fn(),
