@@ -14,7 +14,8 @@
     "test-cover": "jest --coverage",
     "test-watch": "jest --verbose --coverage --watch",
     "test-unit": "jest --verbose --coverage --testPathPattern=/test/unit",
-    "test-integ": "jest --no-cache --testPathPattern=/test/integration"
+    "test-integ": "jest --no-cache --testPathPattern=/test/integration",
+    "test-ci": "jest --coverage --verbose"
   },
   "dependencies": {
     "busboy": "^1.6.0",
