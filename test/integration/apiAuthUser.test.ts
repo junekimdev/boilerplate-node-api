@@ -311,7 +311,7 @@ describe('Test /auth', () => {
         .attach('file', fstream)
         .attach('file', fstream)
         .expect(400);
-      fstream.close();
+      fstream.destroy();
     });
 
     it('should fail to upload profile picture and return 400 when file is not an image', async () => {
@@ -325,7 +325,7 @@ describe('Test /auth', () => {
         .set('Accept', 'application/json')
         .attach('file', fstream)
         .expect(400);
-      fstream.close();
+      fstream.destroy();
     });
 
     it('should upload profile picture and return 200 with user id', async () => {
@@ -339,7 +339,7 @@ describe('Test /auth', () => {
         .set('Accept', 'application/json')
         .attach('file', fstream)
         .expect(200);
-      fstream.close();
+      fstream.destroy();
 
       const check = await db.query(sqlUser, [testUser]);
       const url = check.rows[0].profile_url;
@@ -373,7 +373,7 @@ describe('Test /auth', () => {
         .set('Accept', 'application/json')
         .attach('file', fstream)
         .expect(200);
-      fstream.close();
+      fstream.destroy();
 
       const res = await supertest(app)
         .get(endPoint)
@@ -416,7 +416,7 @@ describe('Test /auth', () => {
         .set('Accept', 'application/json')
         .attach('file', fstream)
         .expect(200);
-      fstream.close();
+      fstream.destroy();
 
       const res = await supertest(app)
         .delete(endPoint)
