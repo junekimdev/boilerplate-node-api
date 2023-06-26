@@ -256,7 +256,7 @@ root/
 ### Database
 
 - [Database ER Diagram](./doc/database_ER_diagrams.md)
-- [Beginning SQLs](./example.sql)
+- [Beginning SQLs](./init.sql)
 
 ### User Types
 
