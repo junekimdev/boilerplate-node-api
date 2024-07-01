@@ -40,7 +40,7 @@ describe('Test /src/util/logger', () => {
 
   describe('pinoExpOpt.customSuccessMessage()', () => {
     it('should return a string', () => {
-      const str = pinoExpOpt.customSuccessMessage?.(res);
+      const str = pinoExpOpt.customSuccessMessage?.(req, res, 10);
 
       expect(str).toEqual(expect.any(String));
     });
