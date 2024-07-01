@@ -1,5 +1,5 @@
-import { Options } from 'express-pino-logger';
 import pino from 'pino';
+import { Options } from 'pino-http';
 
 export const logger = pino({
   transport: {
