@@ -163,9 +163,9 @@ const main = async () => {
     let { name } = getArgs();
 
     // Check that the required flags are in
-    if (!name) {
+    while (!name) {
       console.log('Service name is NOT found!');
-      name = await askQuestion('Service name, plz? ');
+      name = await askQuestion('Service name, plz?');
     }
 
     const dirPath = path.join(__dirname, 'src', 'services', name);
@@ -175,7 +175,7 @@ const main = async () => {
 
       // If exists, ask to overwrite or not
       console.log('A component with the given name already exists');
-      const ans = await askQuestion('Do you want to overwrite it? [y/n] ');
+      const ans = await askQuestion('Do you want to overwrite it? [y/N]');
       if (ans !== 'y' && ans !== 'Y') process.exit(1);
     } catch (error) {
       // Not existing, create it
