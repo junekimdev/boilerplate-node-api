@@ -2,7 +2,7 @@ import config from './utils/config';
 config();
 
 import cors from 'cors';
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import helmet from 'helmet';
 import pinoHttp from 'pino-http';
 import apiRouter from './api';
@@ -10,7 +10,8 @@ import errorHandler from './errorHandler';
 import { corsOption } from './utils/cors';
 import { logger, pinoExpOpt } from './utils/logger';
 
-const { TRUST_PROXY = '', PORT = '3000' } = process.env;
+// const { TRUST_PROXY = '' } = process.env;
+const { PORT = '3000' } = process.env;
 const app = express();
 
 // Tell Express if this app is behind a proxy

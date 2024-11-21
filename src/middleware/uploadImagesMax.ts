@@ -28,7 +28,7 @@ const uploader =
     // create a dir
     try {
       await fs.promises.access(fileDir);
-    } catch (error) {
+    } catch (_error: any) {
       await fs.promises.mkdir(fileDir, { recursive: true });
     }
 
@@ -66,7 +66,7 @@ const uploader =
       }
     });
 
-    bb.on('field', (fieldname: string, value: string, info: FieldInfo) => {
+    bb.on('field', (fieldname: string, value: string, _info: FieldInfo) => {
       req.body[fieldname] = value;
     });
 
@@ -89,6 +89,7 @@ const uploader =
     });
 
     bb.on('close', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       resultError ? next(resultError) : next();
     });
 

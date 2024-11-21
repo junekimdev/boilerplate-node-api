@@ -11,7 +11,6 @@ import db from '../../../../src/utils/db';
 import { AppError, errDef } from '../../../../src/utils/errors';
 import { isValidTopic } from '../../../../src/utils/webpush';
 
-const mockedProvider = provider as jest.Mock;
 const mockedTopicValidator = isValidTopic as jest.Mock;
 const mockedQuery = db.query as jest.Mock;
 

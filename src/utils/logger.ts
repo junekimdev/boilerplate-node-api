@@ -15,7 +15,7 @@ export const logger = pino({
 
 export const pinoExpOpt: Options = {
   logger,
-  customReceivedMessage: (req, res) => `${req.method} ${req.url}`,
+  customReceivedMessage: (req, _res) => `${req.method} ${req.url}`,
   customSuccessMessage: (req, res, resTime) =>
     `Responded with status [${res.statusCode}] in ${resTime}s`,
 };

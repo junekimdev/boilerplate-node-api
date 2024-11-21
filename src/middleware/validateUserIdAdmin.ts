@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { JwtPayload } from 'jsonwebtoken';
+// import { JwtPayload } from 'jsonwebtoken';
 import { AppError, errDef } from '../utils/errors';
 import { IBearerAuthResLocals } from './bearerAuth';
 

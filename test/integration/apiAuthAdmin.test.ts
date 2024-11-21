@@ -2,7 +2,6 @@ import { Express } from 'express';
 import { Server } from 'http';
 import { QueryResult } from 'pg';
 import supertest from 'supertest';
-import { SQL_INSERT_PERMIT, SQL_INSERT_ROLE } from '../../src/services/createRole/provider';
 import hash from '../../src/utils/hash';
 import initTest from '../initTest';
 import {
@@ -129,12 +128,6 @@ describe('Test /admin/auth', () => {
     LEFT JOIN user_role as T2 ON T1.role_id=T2.id
     LEFT JOIN resource as T3 ON T1.resource_id=T3.id
     WHERE T2.name=$1::VARCHAR(50);`;
-
-    const permissions = [
-      { res_name: 'userpool', readable: true, writable: false },
-      { res_name: 'topic', readable: true, writable: false },
-      { res_name: 'subscription', readable: true, writable: false },
-    ];
 
     it('should read a role', async () => {
       const testRole = await createRandomRole(db);
@@ -275,7 +268,6 @@ describe('Test /admin/auth', () => {
         .send(data);
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('role_id');
-      const roleId = res.body.role_id;
 
       const check = await db.query(sqlRoleByName, [testRole]);
       expect(check.rowCount).toBe(0);

@@ -15,7 +15,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (!authorization) throw new AppError(errDef[401].AuthorizationNotFound);
 
     const [scheme, accessToken] = authorization.split(' ');
-    if (scheme != 'Bearer') throw new AppError(errDef[401].InvalidAuthScheme);
+    if (scheme !== 'Bearer') throw new AppError(errDef[401].InvalidAuthScheme);
     if (!accessToken) throw new AppError(errDef[401].AccessTokenNotFound);
 
     // Get regex from access control

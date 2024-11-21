@@ -9,9 +9,8 @@ jest.mock('../../../../src/utils/jwt', () => ({ sign: jest.fn() }));
 jest.mock('../../../../src/utils/access', () => ({ convertToString: jest.fn() }));
 
 // Imports
-import { QueryResult } from 'pg';
 import provider from '../../../../src/services/createToken/provider';
-import { AccessControlRow, convertToString } from '../../../../src/utils/access';
+import { convertToString } from '../../../../src/utils/access';
 import db from '../../../../src/utils/db';
 import hash from '../../../../src/utils/hash';
 import jwt from '../../../../src/utils/jwt';
@@ -46,7 +45,6 @@ describe('Test /src/services/createToken/provider', () => {
       [{ user_id: userId, device }, email, 'refresh', '30d'],
     ];
     const expectedResult = { access_token: token, refresh_token: token };
-    const expectedClientQuery = jest.fn();
 
     mockedDbQuery.mockResolvedValue(queryResult);
     mockedConvertToString.mockImplementation((row) => `${row.name}:read`);

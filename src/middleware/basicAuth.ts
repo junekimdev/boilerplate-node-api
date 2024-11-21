@@ -37,7 +37,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (!authorization) throw new AppError(errDef[401].AuthorizationNotFound);
 
     const [scheme, cred] = authorization.split(' ');
-    if (scheme != 'Basic') throw new AppError(errDef[401].InvalidAuthScheme);
+    if (scheme !== 'Basic') throw new AppError(errDef[401].InvalidAuthScheme);
     if (!cred) throw new AppError(errDef[401].UserCredentialNotFound);
 
     const { username, password } = decodeCredential(cred);

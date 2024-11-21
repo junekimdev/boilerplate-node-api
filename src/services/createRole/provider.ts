@@ -1,7 +1,5 @@
-import { QueryResult } from 'pg';
 import { IPermission } from '../../utils/access';
 import db from '../../utils/db';
-import { UK_ERR_CODE } from '../../utils/errors';
 
 export const SQL_INSERT_ROLE = `INSERT INTO user_role(name)
 VALUES ($1::VARCHAR(50))

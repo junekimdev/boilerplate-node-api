@@ -1,4 +1,4 @@
-import webpush, { PushSubscription, RequestOptions, WebPushError } from 'web-push';
+import webpush, { PushSubscription, RequestOptions } from 'web-push';
 import db from './db';
 import { logger } from './logger';
 
@@ -19,7 +19,7 @@ const SQL_DELETE = `DELETE FROM subscription WHERE id IN ($1::INT[])`;
 export async function* getSubsByTopicFromDB(topic: string) {
   const result =
     topic === ALL ? await db.query(SQL_GET_ALL) : await db.query(SQL_GET_BY_TOPIC, [topic]);
-  for (let row of result.rows) yield row as SubscriptionRow;
+  for (const row of result.rows) yield row as SubscriptionRow;
 }
 
 export const sendNotiByTopic = async (
@@ -32,7 +32,7 @@ export const sendNotiByTopic = async (
   const errors = []; // This collects errors during sending process and rethrows at the end
 
   // Send noti
-  for await (let row of getSubsByTopicFromDB(topic)) {
+  for await (const row of getSubsByTopicFromDB(topic)) {
     const { id, sub } = row;
     try {
       const subObj: PushSubscription = JSON.parse(sub);
@@ -74,7 +74,7 @@ export const isValidSub = (subscription: any) => {
       subscription.keys.auth.length &&
       subscription.keys.p256dh.length;
     return n !== 0;
-  } catch (error) {
+  } catch (_error: any) {
     return false;
   }
 };

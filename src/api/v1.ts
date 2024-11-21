@@ -29,7 +29,7 @@ import basicAuth from '../middleware/basicAuth';
 import bearerAuth from '../middleware/bearerAuth';
 import refreshToken from '../middleware/refreshToken';
 import uploadImageProfile from '../middleware/uploadImageProfile';
-import uploadImagesMax from '../middleware/uploadImagesMax';
+// import uploadImagesMax from '../middleware/uploadImagesMax';
 import validRole from '../middleware/validateRole';
 import validTopic from '../middleware/validateTopic';
 import validateUserIdAdmin from '../middleware/validateUserIdAdmin';

@@ -25,7 +25,7 @@ const uploader = async (req: Request, res: Response, next: NextFunction) => {
   // create a dir
   try {
     await fs.promises.access(fileDir);
-  } catch (error) {
+  } catch (_error: any) {
     await fs.promises.mkdir(fileDir, { recursive: true });
   }
 
@@ -63,7 +63,7 @@ const uploader = async (req: Request, res: Response, next: NextFunction) => {
     }
   });
 
-  bb.on('field', (fieldname: string, value: string, info: FieldInfo) => {
+  bb.on('field', (fieldname: string, value: string, _info: FieldInfo) => {
     req.body[fieldname] = value;
   });
 
@@ -87,6 +87,7 @@ const uploader = async (req: Request, res: Response, next: NextFunction) => {
   });
 
   bb.on('close', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     resultError ? next(resultError) : next();
   });
 

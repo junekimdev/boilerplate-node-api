@@ -56,7 +56,7 @@ export const createRandomRole = async (db: any) => {
 
     for (let i = 0; i < testObj.permissions.length; i++) {
       const { res_name, readable, writable } = testObj.permissions[i];
-      const r = await client.query(SQL_INSERT_PERMIT, [roleId, res_name, readable, writable]);
+      await client.query(SQL_INSERT_PERMIT, [roleId, res_name, readable, writable]);
     }
   });
 
@@ -103,7 +103,6 @@ export const getTester = (app: Express, method: string, url: string) => {
       break;
     default:
       throw new Error('invalid method');
-      break;
   }
 
   return tester;

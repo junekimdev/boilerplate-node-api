@@ -10,7 +10,7 @@ jest.mock('../../../src/utils/hash', () => ({
 
 import { NextFunction, Request, Response } from 'express';
 import { QueryResult } from 'pg';
-import auth, { decodeCredential } from '../../../src/middleware/basicAuth';
+import auth from '../../../src/middleware/basicAuth';
 import db from '../../../src/utils/db';
 import { isEmailValid } from '../../../src/utils/email';
 import { AppError, errDef } from '../../../src/utils/errors';

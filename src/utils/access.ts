@@ -21,7 +21,7 @@ export const isValidPermit = (permit: any) => {
 export const convertToString = (row: AccessControlRow) => {
   if (!row.readable && !row.writable) return;
 
-  let access: string[] = [];
+  const access: string[] = [];
   if (row.readable) access.push(`${row.name}:read`);
   if (row.writable) access.push(`${row.name}:write`);
   return access.join(' ');
@@ -39,7 +39,7 @@ export const requestAccess = (rows: AccessControlRow[] = []) => {
     throw new Error('duplicated resource name detected in access request'); // names should be unique
   });
 
-  let access: string[] = [];
+  const access: string[] = [];
   rows.forEach((req) => {
     if (req.readable) access.push(`${req.name}:read`);
     if (req.writable) access.push(`${req.name}:write`);

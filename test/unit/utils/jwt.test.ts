@@ -7,7 +7,7 @@ jest.mock('jsonwebtoken', () => ({ sign: jest.fn(), verify: jest.fn() }));
 
 // Imports
 import jsonwebtoken from 'jsonwebtoken';
-import jwt, { createSignOpt, createVerifyOpt } from '../../../src/utils/jwt';
+import jwt from '../../../src/utils/jwt';
 
 const mockedSign = jsonwebtoken.sign as jest.Mock;
 const mockedVerify = jsonwebtoken.verify as jest.Mock;

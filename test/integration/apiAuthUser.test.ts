@@ -333,7 +333,7 @@ describe('Test /auth', () => {
       const accessToken = await getToken(app, testUser);
       const fstream = fs.createReadStream(getUploadFilePath.img());
 
-      const res = await supertest(app)
+      await supertest(app)
         .put(endPoint)
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')
@@ -355,7 +355,7 @@ describe('Test /auth', () => {
     it('should return 204 when a user have never uploaded a profile picture', async () => {
       const accessToken = await getToken(app, testObj.user);
 
-      const res = await supertest(app)
+      await supertest(app)
         .get(endPoint)
         .auth(accessToken, { type: 'bearer' })
         .set('Accept', 'application/json')

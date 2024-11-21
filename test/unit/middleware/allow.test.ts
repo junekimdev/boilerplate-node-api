@@ -44,7 +44,7 @@ describe('Test /src/middleware/allow', () => {
 
     it.each(controllers)(
       '$name should set the accessRegex in res.locals and call next',
-      async ({ name, controller }) => {
+      async ({ controller }) => {
         await controller(req, res, next);
 
         expect(getRow).toBeCalled();

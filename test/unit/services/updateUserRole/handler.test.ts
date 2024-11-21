@@ -5,7 +5,6 @@ jest.mock('../../../../src/services/updateUserRole/provider', () => jest.fn());
 import { NextFunction, Request, Response } from 'express';
 import handler from '../../../../src/services/updateUserRole/apiHandler';
 import provider from '../../../../src/services/updateUserRole/provider';
-import { AppError, errDef } from '../../../../src/utils/errors';
 
 const mockedProvider = provider as jest.Mock;
 

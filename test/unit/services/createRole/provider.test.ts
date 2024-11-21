@@ -6,7 +6,6 @@ jest.mock('../../../../src/utils/db', () => ({ transaction: jest.fn((f) => f(cli
 import provider from '../../../../src/services/createRole/provider';
 import { IPermission } from '../../../../src/utils/access';
 import db from '../../../../src/utils/db';
-import { UK_ERR_CODE } from '../../../../src/utils/errors';
 
 // Tests
 describe('Test /src/services/createRole/provider', () => {

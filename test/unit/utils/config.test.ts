@@ -4,7 +4,6 @@ jest.mock('path', () => ({ resolve: jest.fn(), join: jest.fn() }));
 import dotenv from 'dotenv';
 import path from 'path';
 
-const mockedDotenvConf = dotenv.config as jest.Mock;
 const mockedPathResolve = path.resolve as jest.Mock;
 const mockedPathJoin = path.join as jest.Mock;
 

@@ -9,11 +9,11 @@ export const pool = new Pool({
   connectionTimeoutMillis: parseInt(DB_CONN_TIMEOUT),
 });
 
-pool.on('connect', (client) => {
+pool.on('connect', (_client) => {
   logger.info(`[DB Info] total connection count: ${pool.totalCount}`);
 });
 
-pool.on('error', (err, client) => {
+pool.on('error', (err, _client) => {
   logger.error(`[DB Error] ${err.message}`);
 });
 

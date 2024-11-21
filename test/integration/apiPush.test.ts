@@ -9,7 +9,7 @@ import { apiPrefix, getRandomPort, getTester, getToken, testObj } from '../testU
 
 const createRandomTopic = async (db: any) => {
   const name = hash.createUUID();
-  const result = await db.query(SQL_INSERT_TOPIC, [name]);
+  await db.query(SQL_INSERT_TOPIC, [name]);
   return name;
 };
 

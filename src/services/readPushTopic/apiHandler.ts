@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError, errDef } from '../../utils/errors';
 import provider from './provider';
-import { IResBody, IResLocals } from './types';
+import { IResLocals } from './types';
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   try {
