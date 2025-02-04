@@ -1,5 +1,6 @@
 import fs from 'fs';
 import jsonwebtoken, { SignOptions, VerifyOptions } from 'jsonwebtoken';
+import { StringValue } from 'ms';
 import path from 'path';
 
 const { JWT_PRI_FILENAME = '', JWT_PUB_FILENAME = '', JWT_ISS = '' } = process.env;
@@ -14,7 +15,7 @@ const tolerance = 10; // 10s tolerance for difference between servers
 export type JwtPayload = jsonwebtoken.JwtPayload;
 export type VerifyErrors = jsonwebtoken.VerifyErrors;
 
-export const createSignOpt = (sub: string, aud: string, exp: string = '1d'): SignOptions => {
+export const createSignOpt = (sub: string, aud: string, exp: StringValue = '1d'): SignOptions => {
   return {
     algorithm: alg,
     expiresIn: exp,
@@ -34,7 +35,7 @@ export const createVerifyOpt = (aud: string | RegExp): VerifyOptions => {
   };
 };
 
-export const sign = (payload: object, sub: string, aud: string, exp: string = '1d') =>
+export const sign = (payload: object, sub: string, aud: string, exp: StringValue = '1d') =>
   jsonwebtoken.sign(payload, priFile, createSignOpt(sub, aud, exp));
 
 export const verify = (token: string, aud: string | RegExp) =>
