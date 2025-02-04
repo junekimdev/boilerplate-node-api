@@ -1,7 +1,7 @@
 /********************
  * User Input Inquirer
  ********************/
-const readline = require('readline');
+const readline = require('node:readline');
 /**
  * @param {string} query
  * @returns {Promise<string>}

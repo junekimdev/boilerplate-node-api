@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { getArgs, askQuestion } = require('./codegen-util');
 
 const INDEX_TXT = `export { default } from './apiHandler';
