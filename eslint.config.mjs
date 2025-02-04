@@ -1,10 +1,57 @@
-import eslint from '@eslint/js';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import js from '@eslint/js';
+import stylisticPlugin from '@stylistic/eslint-plugin';
+import ts from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 
 export default [
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  {
+    name: 'formatLint',
+    plugins: {
+      '@stylistic': stylisticPlugin,
+    },
+    rules: {
+      '@stylistic/semi': 'warn',
+      '@stylistic/no-extra-semi': 'error',
+      '@stylistic/no-mixed-spaces-and-tabs': 'warn',
+    },
+  },
+  {
+    name: 'jsLint',
+    files: ['**/*.js', '**/*.mjs'],
+    rules: {
+      ...js.configs.recommended.rules,
+      eqeqeq: 'warn',
+    },
+  },
+  {
+    name: 'tsLint',
+    files: ['**/*.ts'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaFeatures: { modules: true },
+        ecmaVersion: 'latest',
+        project: './tsconfig.json',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': ts,
+    },
+    rules: {
+      ...ts.configs['eslint-recommended'].rules,
+      ...ts.configs.recommended.rules,
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
   {
     files: [
       'src/**/*.js',
@@ -14,11 +61,6 @@ export default [
       'src/**/*.ts',
       'test/**/*.ts',
     ],
-  },
-  {
-    languageOptions: {
-      globals: { ...globals.node },
-    },
   },
   {
     ignores: [
@@ -32,6 +74,8 @@ export default [
 
       // dev-tools
       '*.js',
+      '*.mjs',
+      '*.ts',
 
       // testing
       'coverage/',
@@ -63,25 +107,5 @@ export default [
       '.vscode/',
       'placeholder_*',
     ],
-  },
-  {
-    rules: {
-      eqeqeq: 'warn',
-      semi: 'warn',
-      'no-mixed-spaces-and-tabs': 'warn',
-      'no-extra-semi': 'error',
-      'no-unreachable': 'warn',
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-    },
   },
 ];
